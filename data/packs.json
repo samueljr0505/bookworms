@@ -1,0 +1,6 @@
+{
+  "defaultPack": "starter",
+  "packs": [
+    { "id": "starter", "file": "packs/starter.json" }
+  ]
+}

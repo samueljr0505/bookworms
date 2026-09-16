@@ -1,0 +1,125 @@
+:root {
+  --paper: #fdf6e8;
+  --ink: #2c2a26;
+  --muted: #7b7263;
+  --line: #e3d7be;
+  --green: #4f8a5b;
+  --good: #3f8f5f;
+  --bad: #c0563f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 18px 20px 40px;
+  background: #f4ecdb;
+  color: var(--ink);
+  font-family: "Nunito", ui-rounded, "Trebuchet MS", system-ui, sans-serif;
+}
+
+.topbar { text-align: center; margin-bottom: 14px; }
+.topbar h1 {
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: -0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.worm-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #7fc98a, #3f7a4c);
+  box-shadow: 14px 0 0 -3px #57975f, 26px 0 0 -6px #6aa76d;
+}
+.tagline { margin: 6px 0 0; color: var(--muted); font-weight: 700; }
+
+.card {
+  max-width: 620px; margin: 30px auto; padding: 20px 24px;
+  background: #fff; border: 2px solid var(--line); border-radius: 16px;
+}
+.notice { text-align: center; color: var(--muted); font-weight: 700; }
+.error { text-align: left; color: var(--ink); }
+.error h2 { margin-top: 0; color: var(--bad); }
+.error pre {
+  background: #2c2a26; color: #f6e7c6; padding: 10px 14px;
+  border-radius: 10px; font-size: 15px;
+}
+.small { font-size: 12px; color: var(--muted); }
+
+main {
+  display: flex; gap: 20px; justify-content: center;
+  align-items: flex-start; flex-wrap: wrap;
+}
+
+.stage { display: flex; flex-direction: column; gap: 10px; }
+
+.sentence-strip {
+  background: #fff; border: 2px solid var(--line); border-radius: 14px;
+  padding: 10px 14px;
+}
+.strip-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); font-weight: 800; margin-bottom: 6px;
+}
+.building { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; align-items: center; }
+.chip {
+  padding: 4px 11px; border-radius: 999px; font-weight: 800; font-size: 14px;
+  border: 2px solid var(--line); background: #fff; color: var(--ink);
+}
+.chip.todo, .chip.next { color: var(--muted); background: #faf5ea; font-size: 12px; }
+.chip.next { box-shadow: 0 0 0 3px rgba(79, 138, 91, 0.18); color: var(--ink); }
+.next-up { margin-top: 8px; font-size: 14px; color: var(--muted); font-weight: 700; }
+.next-up b { color: var(--green); }
+
+canvas {
+  display: block; border: 3px solid #d8c9a9; border-radius: 14px;
+  background: var(--paper); box-shadow: 0 6px 0 #e0d2b4;
+}
+
+.message {
+  min-height: 26px; font-weight: 800; font-size: 15px;
+  opacity: 0; transition: opacity 0.18s; text-align: center;
+}
+.message.show { opacity: 1; }
+.message.good { color: var(--good); }
+.message.bad, .message.warn { color: var(--bad); }
+
+.buttons { display: flex; gap: 10px; }
+button {
+  font: inherit; font-weight: 800; padding: 9px 16px; border-radius: 11px;
+  border: 2px solid var(--line); background: #fff; color: var(--ink); cursor: pointer;
+}
+button:hover { background: #fffaf0; border-color: var(--green); }
+kbd {
+  font: inherit; font-size: 11px; background: #efe6d2; border-radius: 5px;
+  padding: 1px 5px; margin-left: 4px; color: var(--muted);
+}
+
+.sidebar {
+  width: 290px; background: #fff; border: 2px solid var(--line);
+  border-radius: 16px; padding: 16px 18px;
+}
+.sidebar h2 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); margin: 18px 0 8px;
+}
+.scores { display: flex; gap: 12px; }
+.stat {
+  flex: 1; text-align: center; background: #faf5ea;
+  border-radius: 12px; padding: 10px 6px;
+}
+.stat span { display: block; font-size: 26px; font-weight: 800; color: var(--green); }
+.stat label { font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 800; }
+
+.legend { list-style: none; margin: 0; padding: 0; }
+.legend li { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 13px; }
+.legend i { width: 14px; height: 14px; border-radius: 4px; flex: none; }
+.legend span { color: var(--muted); font-size: 12px; }
+
+.finished { margin: 0; padding-left: 20px; max-height: 190px; overflow-y: auto; }
+.finished li { font-size: 14px; padding: 3px 0; font-weight: 700; }
+.finished .empty { list-style: none; margin-left: -20px; color: var(--muted); font-weight: 400; }
+
+.help { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+.help li { padding: 3px 0; }
