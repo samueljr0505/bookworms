@@ -1,0 +1,13 @@
+{
+  "defaultWorm": "garden",
+  "worms": [
+    { "id": "garden",  "name": "Garden Green",   "body": "#6eb478", "head": "#4f8a5b" },
+    { "id": "bubble",  "name": "Bubblegum",      "body": "#f28fb1", "head": "#c95d84" },
+    { "id": "ocean",   "name": "Ocean Blue",     "body": "#6fb6e8", "head": "#3f7fb5" },
+    { "id": "sunny",   "name": "Sunshine",       "body": "#f2cf5a", "head": "#c9a22e" },
+    { "id": "grape",   "name": "Grape",          "body": "#b18fe0", "head": "#7d5cae" },
+    { "id": "tangerine", "name": "Tangerine",    "body": "#f2a05a", "head": "#c46f2c" },
+    { "id": "mint",    "name": "Minty",          "body": "#7fd4c1", "head": "#42a18a" },
+    { "id": "midnight", "name": "Midnight",      "body": "#7c86b8", "head": "#4a5382" }
+  ]
+}

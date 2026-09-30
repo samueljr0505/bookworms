@@ -34,5 +34,12 @@ echo "  Open this in your browser:   http://localhost:$PORT"
 echo "  Press Control-C here to stop the server."
 echo
 
+# tools/serve.py is http.server plus "do not cache anything", which stops the
+# browser showing you an old copy of a file you just edited. If it is missing
+# for any reason, fall back to the plain built-in server.
 # exec so Control-C reaches Python directly, and so a failure to start is visible
-exec "$PY" -m http.server "$PORT"
+if [ -f tools/serve.py ]; then
+  exec "$PY" tools/serve.py "$PORT"
+else
+  exec "$PY" -m http.server "$PORT"
+fi

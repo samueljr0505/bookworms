@@ -56,17 +56,22 @@ what each test proves.
 
 ```
 bookworms/
-  index.html            the page
+  index.html            the home page: pick your worm, then play
+  game.html             the game itself
   serve.sh              starts the local web server
   Docs/
     Requirements.md              what the game has to do
     How-Requirements-Are-Met.md  how each one was built, with line numbers
     Design-Patterns.md           the patterns used, where, and what was left out
-  css/style.css         all the styling
+  css/home.css          styling for the home page
+  css/style.css         styling for the game
   data/
     packs.json          which word pack to load
     packs/starter.json  THE WORDS AND SENTENCE PATTERNS  <- edit this one
+    worms.json          the worm colours offered on the home page
   js/
+    home.js             the home page: worm picker
+    worm-skin.js        which worm was picked (shared by both pages)
     config.js           tweakable numbers: speed, board size, rules
     util.js             random-number helpers and the sound effects
     grammar.js          sentence patterns, what may be eaten next, final text
@@ -118,6 +123,18 @@ afterwards - it will tell you if the new pattern can produce something ungrammat
 Add an entry to `pos` (with the kid-friendly label, hint, and colour), add a word list under
 `words` with the same key, then use that key in a pattern. Nothing in the JavaScript needs to
 change - the legend, the colours, and the hints are all generated from the pack file.
+
+### Add a worm colour
+
+Add an entry to `data/worms.json` and it appears on the home page immediately:
+
+```json
+{ "id": "coral", "name": "Coral", "body": "#f2857a", "head": "#c9524a" }
+```
+
+`body` colours the worm's plain squares (lightening towards the tail) and `head` colours its
+head. The squares carrying letters keep their part-of-speech colours, so the worm colour shows
+on the head and on any body squares that are not spelling anything yet.
 
 ### Add a whole new pack
 
