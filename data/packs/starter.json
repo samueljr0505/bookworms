@@ -4,31 +4,92 @@
   "description": "Silly but grammatically correct sentences for 3rd-5th grade.",
 
   "pos": {
-    "determiner": { "label": "Little Word", "hint": "the, a, my", "color": "#9aa7d7" },
-    "adjective":  { "label": "Describing Word", "hint": "tells you what kind", "color": "#f2a65a" },
-    "noun":       { "label": "Naming Word", "hint": "a person, place, or thing", "color": "#5ec4a3" },
-    "verb":       { "label": "Action Word", "hint": "something you do", "color": "#e9797a" },
-    "adverb":     { "label": "How Word", "hint": "tells you how it happened", "color": "#c79ae0" },
-    "preposition":{ "label": "Where Word", "hint": "over, under, near", "color": "#72b6e8" }
+    "determiner":   { "label": "Little Word", "hint": "the, a, my", "color": "#9aa7d7" },
+    "adjective":    { "label": "Describing Word", "hint": "tells you what kind", "color": "#f2a65a" },
+    "noun":         { "label": "Naming Word", "hint": "a person, place, or thing", "color": "#5ec4a3" },
+    "name":         { "label": "Name", "hint": "a special name, with a capital letter", "color": "#8fd694" },
+    "pronoun":      { "label": "Stand-in Word", "hint": "takes the place of a name: he, she, we", "color": "#b7d56b" },
+    "verb":         { "label": "Action Word", "hint": "something you do", "color": "#e9797a" },
+    "transitive":   { "label": "Doing-To Word", "hint": "an action done to someone: chased, hugged", "color": "#f08fa8" },
+    "linking":      { "label": "Linking Word", "hint": "joins to a describing word: looked, felt", "color": "#d98bb5" },
+    "baseVerb":     { "label": "Plain Action Word", "hint": "an action with no ending: run, sing", "color": "#f4a3a0" },
+    "helper":       { "label": "Helper Word", "hint": "helps ask: did, can, will", "color": "#a6a0e8" },
+    "question":     { "label": "Question Word", "hint": "where, why, how", "color": "#7fb0c9" },
+    "adverb":       { "label": "How Word", "hint": "tells you how it happened", "color": "#c79ae0" },
+    "preposition":  { "label": "Where Word", "hint": "over, under, near", "color": "#72b6e8" },
+    "conjunction":  { "label": "Joining Word", "hint": "and, but, so - joins two ideas", "color": "#e7c35a" },
+    "subordinator": { "label": "When or Why Word", "hint": "when, because, after, while", "color": "#d6a86c" },
+    "interjection": { "label": "Feeling Word", "hint": "wow, yikes, hooray", "color": "#ff9f6e" },
+    "comma":        { "label": "Comma", "hint": "a little pause: ,", "color": "#c9b48a" }
   },
 
   "words": {
-    "determiner": ["the", "a", "my", "our", "this"],
-    "adjective": ["happy", "sleepy", "giant", "tiny", "purple", "fuzzy", "brave", "silly", "grumpy", "shiny", "speedy", "wiggly"],
+    "determiner": ["the", "a", "my", "our", "this", "that", "every", "your", "their"],
+    "adjective": ["happy", "sleepy", "giant", "tiny", "purple", "fuzzy", "brave", "silly", "grumpy", "shiny", "speedy", "wiggly", "orange", "enormous", "icy"],
     "noun": ["cat", "dog", "dragon", "robot", "teacher", "worm", "book", "bus", "monster", "frog", "wizard", "rocket", "turtle", "pizza", "penguin", "elephant", "astronaut", "owl", "igloo", "apple"],
-    "verb": ["ran", "jumped", "sang", "danced", "wiggled", "giggled", "slept", "zoomed", "hopped", "painted", "roared", "wobbled", "sneezed", "marched", "swam", "climbed", "tiptoed", "whistled"],
+    "name": ["Maya", "Leo", "Grandma", "Omar", "Priya", "Zoe"],
+    "pronoun": ["I", "he", "she", "we", "they"],
+    "verb": ["ran", "jumped", "sang", "danced", "wiggled", "giggled", "slept", "zoomed", "hopped", "roared", "wobbled", "sneezed", "marched", "swam", "climbed", "tiptoed", "whistled"],
+    "transitive": ["chased", "hugged", "tickled", "found", "carried", "painted", "followed", "visited", "surprised", "kicked"],
+    "linking": ["looked", "felt", "seemed", "sounded", "became"],
+    "baseVerb": ["run", "jump", "sing", "dance", "wiggle", "sleep", "hop", "swim", "climb", "tiptoe", "whistle", "march"],
+    "helper": ["did", "can", "could", "will", "should"],
+    "question": ["where", "why", "how"],
     "adverb": ["quickly", "slowly", "loudly", "quietly", "happily", "gently", "wildly", "carefully", "bravely", "suddenly"],
-    "preposition": ["over", "under", "near", "beside", "behind", "inside", "around", "above"]
+    "preposition": ["over", "under", "near", "beside", "behind", "inside", "around", "above"],
+    "conjunction": ["and", "but", "so"],
+    "subordinator": ["when", "because", "after", "before", "while", "since", "until"],
+    "interjection": ["wow", "yikes", "hooray", "oops", "whoa"],
+    "comma": [","]
+  },
+
+  "rules": {
+    "thing":   "determiner ( adjective ( , adjective )? )? noun",
+    "subject": "<thing> | name | pronoun",
+    "object":  "<thing> | name",
+    "place":   "preposition <object>",
+    "action":  "verb adverb? <place>? | transitive <object> adverb? <place>? | linking adjective ( 'and' adjective )?",
+    "clause":  "<subject> <action>"
   },
 
   "patterns": [
-    { "id": "short",  "name": "Simple sentence",  "slots": ["determiner", "noun", "verb"] },
-    { "id": "simple", "name": "Describing sentence", "slots": ["determiner", "adjective?", "noun", "verb", "adverb?"] },
-    { "id": "place",  "name": "Where sentence",   "slots": ["determiner", "adjective?", "noun", "verb", "preposition", "determiner", "adjective?", "noun"] }
+    { "id": "simple", "name": "Simple sentence", "weight": 2,
+      "shape": "<subject> verb adverb?" },
+    { "id": "doing-to", "name": "Doing-to sentence", "weight": 2,
+      "shape": "<subject> transitive <object> adverb?" },
+    { "id": "describing", "name": "Describing sentence",
+      "shape": "<subject> linking adjective ( 'and' adjective )?" },
+    { "id": "place", "name": "Where sentence", "weight": 2,
+      "shape": "<subject> verb adverb? <place>" },
+    { "id": "opener", "name": "Opener sentence",
+      "shape": "adverb , <clause>" },
+    { "id": "place-first", "name": "Where-first sentence",
+      "shape": "<place> , <clause>" },
+    { "id": "feeling", "name": "Feeling sentence", "end": ["!"],
+      "shape": "interjection , <clause>" },
+    { "id": "compound", "name": "Joined sentence",
+      "shape": "<clause> , conjunction <clause>" },
+    { "id": "complex-first", "name": "When-or-why-first sentence",
+      "shape": "subordinator <clause> , <clause>" },
+    { "id": "complex-last", "name": "When-or-why-last sentence",
+      "shape": "<clause> subordinator <clause>" },
+    { "id": "team", "name": "Team sentence",
+      "shape": "<object> 'and' <object> <action>" },
+    { "id": "list", "name": "List sentence",
+      "shape": "<object> , <object> , 'and' <object> <action>" },
+    { "id": "yes-no", "name": "Yes-or-no question", "end": ["?"],
+      "shape": "helper <subject> baseVerb adverb? <place>?" },
+    { "id": "wh-question", "name": "Question-word question", "end": ["?"],
+      "shape": "question helper <subject> baseVerb" },
+    { "id": "command", "name": "Command", "end": ["!", "."],
+      "shape": "baseVerb adverb? <place>?" },
+    { "id": "talking-to", "name": "Talking-to sentence", "end": ["!", "."],
+      "shape": "name , baseVerb adverb? <place>?" }
   ],
 
   "punctuation": [
     { "mark": ".", "name": "period" },
-    { "mark": "!", "name": "exclamation point" }
+    { "mark": "!", "name": "exclamation point" },
+    { "mark": "?", "name": "question mark" }
   ]
 }

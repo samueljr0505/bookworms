@@ -35,18 +35,21 @@ the design has gone wrong. Pass the value in instead.
 A sentence pattern is a miniature language:
 
 ```json
-["determiner", "adjective?", "noun", "verb", "adverb?"]
+"<subject> verb adverb? ( , conjunction <clause> )?"
 ```
 
-`allowedPos()` (`js/grammar.js:25`) and `accept()` (`js/grammar.js:48`) are its interpreter. They
-walk the slot list and decide what may be eaten next; `?` means the slot may be skipped.
+Parts of speech, commas, exact words (`'and'`), optional parts (`?`), repeats (`*`, `+`),
+choices (`|`) and named phrases from the pack's `rules` (`<subject>`). `parse()` reads it into a
+tree, `compile()` turns the tree into a small state machine (a Thompson NFA), and `wants()`,
+`accept()` and `canEnd()` in `js/grammar.js` run that machine to decide what may be eaten next
+and whether the sentence may stop.
 
 This is the single most important design decision in the project. Because the interpreter is the
 only way a word can enter a sentence, **grammatical correctness is a property of the design, not a
 check that runs afterwards.** There is no `isThisSentenceOk()` function anywhere, and there does
 not need to be.
 
-It is also what makes the game extensible by a child: a new sentence shape is three lines of JSON
+It is also what makes the game extensible by a child: a new sentence shape is one line of JSON
 and no JavaScript.
 
 ---
@@ -156,7 +159,7 @@ letter count. One seam, one line, and the model layer stays clean.
 
 ## 8. Factory
 
-**Where:** `BW.Grammar.newSentence(pack, rng)` (`js/grammar.js:115`).
+**Where:** `BW.Grammar.newSentence(pack, rng)` (`js/grammar.js:342`).
 
 Callers never construct a `Sentence` themselves or choose a pattern. They ask for a new sentence
 and get one with a random pattern already attached. `Sentence` is not even exported - the factory
@@ -169,7 +172,7 @@ is the only door in.
 **Where:** `js/grammar.js`, `js/util.js` and `js/main.js` are wrapped in
 `(function () { ... })()`; everything public hangs off a single global, `BW`.
 
-Helpers like `slotPos`, `VOWELS`, `tone()` and `renderHud` stay private. There is no build step,
+Helpers like `compile`, `VOWELS`, `tone()` and `renderHud` stay private. There is no build step,
 no bundler and no `npm install` - the files load as plain `<script>` tags in dependency order and
 a student can edit one and hit reload.
 

@@ -58,11 +58,17 @@ window.BW = window.BW || {};
         el.style.background = posColor(pack, slot.pos);
         el.textContent = slot.word;
       } else {
-        el.textContent = posLabel(pack, slot.pos) + (slot.optional ? '?' : '');
+        el.textContent = slot.literal ? '"' + slot.literal + '"' : posLabel(pack, slot.pos);
       }
       building.appendChild(el);
     }
-    if (s.punctuation) {
+    if (!s.punctuation) {
+      const el = document.createElement('span');
+      el.className = 'chip todo';
+      el.style.borderColor = '#f5c26b';
+      el.textContent = s.endMarks().join(' ');
+      building.appendChild(el);
+    } else {
       const el = document.createElement('span');
       el.className = 'chip done';
       el.style.background = '#f5c26b';
@@ -72,8 +78,10 @@ window.BW = window.BW || {};
     }
 
     // what to hunt for next
-    const wanted = s.allowedPos().map(p => posLabel(pack, p));
-    if (s.canEnd() && s.tokens.length > 0) wanted.push('a punctuation mark (. or !) to end it');
+    const wanted = s.wants().map(m => m.word ? '"' + m.word + '"' : posLabel(pack, m.pos));
+    if (s.canEnd() && s.tokens.length > 0) {
+      wanted.push('a punctuation mark (' + s.endMarks().join(' or ') + ') to end it');
+    }
     $('next-up').innerHTML = 'Go eat: <b>' + wanted.join('</b> or <b>') + '</b>';
 
     $('btn-pause').innerHTML = (game.mode === 'paused' ? 'Resume' : 'Pause') + ' <kbd>P</kbd>';
@@ -124,6 +132,9 @@ window.BW = window.BW || {};
       $('error-detail').textContent = String(err);
       return;
     }
+
+    const problems = BW.Grammar.checkPack(pack);
+    if (problems.length) console.warn('Word pack problems:\n  ' + problems.join('\n  '));
 
     $('loading').hidden = true;
     $('game').hidden = false;

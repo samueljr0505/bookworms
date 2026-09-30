@@ -18,44 +18,114 @@ const measure = text => Math.max(1, Math.ceil((text.length * 8 + 18) / NS.CONFIG
 let failures = 0;
 function check(cond, msg) { if (!cond) { failures++; console.error('  FAIL: ' + msg); } }
 
-/* Independent re-check: do the chosen parts of speech line up with the pattern? */
-function validate(pattern, tokens, text, mark) {
-  let i = 0;
-  for (const tok of tokens) {
-    let matched = false;
-    while (i < pattern.slots.length) {
-      const slot = pattern.slots[i];
-      const pos = NS.Grammar.slotPos(slot);
-      i++;
-      if (pos === tok.pos) { matched = true; break; }
-      if (!NS.Grammar.slotOptional(slot)) return 'required slot "' + slot + '" was skipped';
+/* Independent re-check: walk the pattern's tree directly (not the game's state machine) and see
+   whether the eaten words can line up with it from start to finish. */
+function ends(node, tokens, i) {
+  switch (node.t) {
+    case 'pos':  return i < tokens.length && tokens[i].pos === node.pos ? [i + 1] : [];
+    case 'word': return i < tokens.length && tokens[i].word === node.word ? [i + 1] : [];
+    case 'seq': {
+      let at = [i];
+      for (const item of node.items) at = [...new Set(at.flatMap(j => ends(item, tokens, j)))];
+      return at;
     }
-    if (!matched) return 'word "' + tok.word + '" (' + tok.pos + ') does not fit the pattern';
+    case 'alt': return [...new Set(node.opts.flatMap(o => ends(o, tokens, i)))];
+    case 'opt': return [...new Set([i, ...ends(node.x, tokens, i)])];
+    case 'star':
+    case 'plus': {
+      const out = new Set(node.t === 'star' ? [i] : []);
+      let frontier = ends(node.x, tokens, i);
+      while (frontier.length) {
+        const next = [];
+        for (const j of frontier) if (!out.has(j)) { out.add(j); next.push(...ends(node.x, tokens, j)); }
+        frontier = next.filter(j => j > i);
+      }
+      return [...out];
+    }
   }
-  for (; i < pattern.slots.length; i++) {
-    if (!NS.Grammar.slotOptional(pattern.slots[i])) return 'sentence ended before a required slot';
+  throw new Error('unknown node ' + node.t);
+}
+
+function validate(pattern, tokens, text, mark) {
+  const tree = NS.Grammar.parse(NS.Grammar.shapeOf(pattern), pack.rules);
+  if (!ends(tree, tokens, 0).includes(tokens.length)) {
+    return 'words ' + tokens.map(t => t.word + '/' + t.pos).join(' ') + ' do not fit pattern "' + pattern.id + '"';
   }
+  for (const tok of tokens) {
+    if (!(pack.words[tok.pos] || []).includes(tok.word)) return '"' + tok.word + '" is not a ' + tok.pos;
+  }
+  const allowedMarks = pattern.end || ['.', '!'];
+  if (!allowedMarks.includes(mark)) return '"' + mark + '" does not suit pattern "' + pattern.id + '"';
   if (!/^[A-Z]/.test(text)) return 'not capitalised: ' + text;
   if (!text.endsWith(mark)) return 'missing end punctuation: ' + text;
+  if (/ ,/.test(text)) return 'space before a comma: ' + text;
+  if (/,(?! )/.test(text)) return 'comma not followed by a space: ' + text;
+  if (/^,|,[.!?]$/.test(text)) return 'comma at the start or end: ' + text;
   if (/\ba [aeiou]/i.test(text)) return '"a" before a vowel: ' + text;
   if (/\ban [^aeiou]/i.test(text)) return '"an" before a consonant: ' + text;
   return null;
 }
 
+/* --- test 0: the pack itself is sound, and the engine does what the shapes say --- */
+console.log('Checking the word pack...');
+for (const p of NS.Grammar.checkPack(pack)) check(false, 'pack: ' + p);
+
+function build(patternId, words) {
+  const pattern = pack.patterns.find(p => p.id === patternId);
+  const s = NS.Grammar.newSentence({ ...pack, patterns: [pattern] }, NS.rng);
+  for (const w of words) {
+    const pos = w === ',' ? 'comma' : NS.Grammar.posOfWord(pack, w);
+    if (!s.accept(w, pos)) return { s, refused: w };
+  }
+  return { s, refused: null };
+}
+function expectText(patternId, words, mark, want) {
+  const { s, refused } = build(patternId, words);
+  check(!refused, patternId + ': "' + refused + '" was refused');
+  check(s.end(mark), patternId + ': could not end with ' + mark);
+  check(s.text() === want, patternId + ': expected "' + want + '", got "' + s.text() + '"');
+}
+expectText('opener', ['suddenly', ',', 'the', 'cat', 'roared'], '.', 'Suddenly, the cat roared.');
+expectText('compound', ['Maya', 'slept', ',', 'but', 'the', 'dragon', 'danced'], '.',
+           'Maya slept, but the dragon danced.');
+expectText('complex-first', ['when', 'a', 'owl', 'sang', ',', 'we', 'giggled'], '!',
+           'When an owl sang, we giggled!');
+expectText('list', ['the', 'cat', ',', 'a', 'dog', ',', 'and', 'Leo', 'danced'], '.',
+           'The cat, a dog, and Leo danced.');
+expectText('describing', ['my', 'robot', 'looked', 'sleepy', 'and', 'grumpy'], '.',
+           'My robot looked sleepy and grumpy.');
+expectText('doing-to', ['a', 'enormous', ',', 'icy', 'dragon', 'chased', 'Omar'], '!',
+           'An enormous, icy dragon chased Omar!');
+expectText('yes-no', ['did', 'the', 'frog', 'swim', 'under', 'the', 'bus'], '?', 'Did the frog swim under the bus?');
+expectText('talking-to', ['Zoe', ',', 'dance', 'quickly'], '!', 'Zoe, dance quickly!');
+
+check(build('opener', ['suddenly', 'the']).refused === 'the', 'opener should insist on a comma');
+check(build('simple', [',']).refused === ',', 'a sentence should not start with a comma');
+check(build('compound', ['I', 'slept', 'but']).refused === 'but', 'a joined sentence needs its comma');
+check(build('team', ['the', 'cat', 'but']).refused === 'but', 'a team sentence only takes "and"');
+check(build('doing-to', ['we', 'chased', 'they']).refused === 'they', '"chased they" should be refused');
+{
+  const { s } = build('yes-no', ['can', 'she', 'hop']);
+  check(!s.end('.') && s.end('?'), 'a question should take "?" and nothing else');
+  const t = build('simple', ['she', 'hopped']).s;
+  check(!t.end('?') && t.end('.'), 'a statement should not take "?"');
+}
+
 /* --- test 1: play greedily, always eating a legal tile --- */
 console.log('Playing 2000 sentences with correct picks...');
 const samples = [];
+const seenPatterns = new Set();
 for (let n = 0; n < 2000; n++) {
   const worm = new NS.Worm(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, 4);
   const board = new NS.Board(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, measure);
   const sentence = NS.Grammar.newSentence(pack, NS.rng);
   let guard = 0;
 
-  while (!sentence.isComplete() && guard++ < 40) {
+  while (!sentence.isComplete() && guard++ < 80) {
     board.disperse(pack, sentence, worm, NS.CONFIG);
     const legal = board.tiles.filter(t =>
-      t.kind === 'punct' ? sentence.canEnd() && sentence.tokens.length > 0
-                         : sentence.allowedPos().includes(t.pos));
+      t.kind === 'punct' ? sentence.canEnd() && sentence.tokens.length > 0 && sentence.endMarks().includes(t.word)
+                         : sentence.fits(t.word, t.pos));
     check(legal.length > 0, 'board had no legal move at all');
     if (!legal.length) break;
     const pick = NS.rng.pick(legal);
@@ -67,9 +137,10 @@ for (let n = 0; n < 2000; n++) {
   if (sentence.isComplete()) {
     const err = validate(sentence.pattern, sentence.tokens, sentence.text(), sentence.punctuation);
     check(!err, err + '  ->  ' + sentence.text());
-    if (samples.length < 12) samples.push(sentence.text());
+    if (!seenPatterns.has(sentence.pattern.id)) { seenPatterns.add(sentence.pattern.id); samples.push(sentence.text()); }
   }
 }
+for (const p of pack.patterns) check(seenPatterns.has(p.id), 'pattern "' + p.id + '" never finished a sentence');
 
 /* --- test 2: mash buttons - eat whatever, legal or not --- */
 console.log('Playing 2000 sentences with random (often wrong) picks...');
@@ -78,7 +149,7 @@ for (let n = 0; n < 2000; n++) {
   const board = new NS.Board(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, measure);
   const sentence = NS.Grammar.newSentence(pack, NS.rng);
 
-  for (let k = 0; k < 60 && !sentence.isComplete(); k++) {
+  for (let k = 0; k < 120 && !sentence.isComplete(); k++) {
     board.disperse(pack, sentence, worm, NS.CONFIG);
     if (!board.tiles.length) break;
     const pick = NS.rng.pick(board.tiles);
@@ -135,7 +206,7 @@ for (let n = 0; n < 500; n++) {
   const eaten = [];
   for (let k = 0; k < 3; k++) {
     board.disperse(pack, sentence, worm, NS.CONFIG);
-    const legal = board.tiles.filter(t => t.kind === 'word' && sentence.allowedPos().includes(t.pos));
+    const legal = board.tiles.filter(t => t.kind === 'word' && sentence.fits(t.word, t.pos));
     if (!legal.length) break;
     const pick = NS.rng.pick(legal);
     sentence.accept(pick.word, pick.pos);
@@ -150,13 +221,13 @@ for (let n = 0; n < 500; n++) {
   check(lost.length === eaten.length, 'reset should hand back every word that was eaten');
   check(fromBody.map(w => w.word).join(' ') === eaten.join(' '),
         'the body should be carrying exactly the words the sentence had');
-  check(sentence.tokens.length === 0 && sentence.slotIndex === 0, 'reset should clear the sentence');
+  check(sentence.tokens.length === 0 && !sentence.canEnd(), 'reset should clear the sentence');
   check(sentence.pattern === pattern, 'reset should keep the same pattern to retry');
 
   board.disperse(pack, sentence, worm, NS.CONFIG, lost);
   const onBoard = board.tiles.map(t => t.word);
   for (const w of eaten) check(onBoard.includes(w), 'lost word "' + w + '" is not back on the board');
-  const validOnBoard = board.tiles.filter(t => sentence.allowedPos().includes(t.pos));
+  const validOnBoard = board.tiles.filter(t => sentence.fits(t.word, t.pos));
   check(validOnBoard.length > 0, 'no legal move after a bonk');
 }
 
@@ -215,6 +286,54 @@ const neck = w3.cells[1];
 check(w3.hitsSelf(neck.x, neck.y) === true, 'running into the neck should count as a crash');
 const tail = w3.cells[w3.cells.length - 1];
 check(w3.hitsSelf(tail.x, tail.y) === false, 'the tail square moves away, so it is safe');
+
+/* --- test 8: punctuation is always available, and ending early is refused --- */
+console.log('Checking that ending early is offered but refused...');
+for (let n = 0; n < 400; n++) {
+  const worm = new NS.Worm(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, 4);
+  const board = new NS.Board(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, measure);
+  const sentence = NS.Grammar.newSentence(pack, NS.rng);
+  board.disperse(pack, sentence, worm, NS.CONFIG);
+
+  // a player must always be able to *try* to finish, even on an empty sentence
+  const marks = board.tiles.filter(t => t.kind === 'punct');
+  check(marks.length > 0, 'there should always be an ending mark on the board');
+
+  // ...but trying too early must not end anything
+  check(sentence.end(marks[0].word) === false,
+        'an empty sentence must not be endable with "' + marks[0].word + '"');
+  check(sentence.punctuation === null, 'a refused mark must not attach to the sentence');
+
+  // play it properly, trying to end after every single word
+  let guard = 0;
+  while (!sentence.isComplete() && guard++ < 40) {
+    board.disperse(pack, sentence, worm, NS.CONFIG);
+    const out = board.tiles.filter(t => t.kind === 'punct');
+    check(out.length > 0, 'ending marks should stay on the board mid-sentence');
+
+    // every mark that is NOT a legal ending must be refused
+    for (const m of out) {
+      if (!sentence.endMarks().includes(m.word) || !sentence.canEnd()) {
+        check(sentence.end(m.word) === false,
+              'mark "' + m.word + '" should be refused before the sentence is ready');
+      }
+    }
+
+    // once it really can end, a mark that works must be out there to eat
+    if (sentence.canEnd() && sentence.tokens.length > 0) {
+      const works = out.filter(m => sentence.endMarks().includes(m.word));
+      check(works.length > 0, 'a usable ending mark must be on the board once ready');
+      sentence.end(works[0].word);
+      break;
+    }
+
+    const legal = board.tiles.filter(t => t.kind === 'word' && sentence.fits(t.word, t.pos));
+    if (!legal.length) break;
+    const pick = NS.rng.pick(legal);
+    sentence.accept(pick.word, pick.pos);
+  }
+  check(sentence.isComplete(), 'the sentence should have been finished');
+}
 
 console.log('\nSample sentences:');
 samples.forEach(s => console.log('  ' + s));

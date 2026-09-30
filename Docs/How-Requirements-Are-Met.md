@@ -75,31 +75,39 @@ sentence before they have looked at the board.
 
 **Status: done - correct by construction, not by checking afterwards.**
 
-Each sentence follows a **pattern**, which is a list of slots such as
-`["determiner", "adjective?", "noun", "verb", "adverb?"]`. A `?` marks an optional slot.
-Patterns live in `data/packs/starter.json` and every word in the word bank is filed under its
-part of speech.
+Each sentence follows a **pattern**, written in a small shape language such as
+`"adverb , <subject> verb ( preposition <thing> )?"` - parts of speech, commas, exact words,
+optional parts (`?`), repeats (`*`, `+`), choices (`a | b`) and reusable phrases from the pack's
+`rules` (`<subject>`). Patterns live in `data/packs/starter.json` and every word in the word bank
+is filed under its part of speech. The starter pack has 16 shapes: simple, compound, complex,
+openers, lists, questions, commands and more.
 
-The rules that keep sentences correct:
+`js/grammar.js` turns each shape into a small state machine. The rules that keep sentences
+correct:
 
-1. **Only a word that fits the next slot can be added.** `allowedPos()` (`js/grammar.js:25`)
-   returns the next required slot plus any optional slots in front of it; `accept()`
-   (`js/grammar.js:48`) refuses anything else. A wrong word bounces off with a hint - it is
-   never added to the sentence.
-2. **The sentence cannot be ended early.** `canEnd()` (`js/grammar.js:38`) is only true once
-   every remaining slot is optional, so a subject with no verb can never be punctuated.
-3. **"a" becomes "an" before a vowel.** `text()` (`js/grammar.js:78`) fixes the article when it
-   renders, so "a elephant" is impossible.
-4. **The first word is capitalised** and the ending mark is appended (`js/grammar.js:86`).
+1. **Only a word that moves the machine forward can be added.** `wants()` / `fits()` list the
+   correct picks right now; `accept()` refuses anything else. A wrong word bounces off with a
+   hint - it is never added to the sentence. Commas are tiles too, so a comma can only be eaten
+   where the shape has one, and cannot be skipped where it is required.
+2. **The sentence cannot be ended early.** `canEnd()` is only true once the machine has reached
+   the end of the shape, so a subject with no verb can never be punctuated.
+3. **The ending mark must suit the sentence.** Each pattern lists its marks (`end`); questions
+   only take `?` and statements only take `.` or `!`. `end(mark)` refuses anything else.
+4. **Text is tidied when it renders.** `text()` turns "a" into "an" before a vowel, attaches
+   commas to the word before them ("Suddenly, the ..."), capitalises the first word and appends
+   the ending mark.
 5. **Subject-verb agreement is sidestepped on purpose.** Every verb in the pack is past tense
    (`ran`, `sang`, `wiggled`), which agrees with any subject, singular or plural. That keeps the
    first version simple. If you add present-tense verbs later you will need agreement tags -
-   see the note in `README.md`.
+   see the note in `README.md`. Questions and commands use the plain form (`baseVerb`) after a
+   helper word or on its own, which also agrees with every subject.
 
 **Check it:** tests 1 and 2 in `tools/test.js` play 4000 sentences - 2000 with correct picks and
 2000 with deliberate button-mashing - and independently re-parse every finished sentence against
-its pattern, checking slot order, no skipped required slots, capitalisation, end punctuation, and
-the a/an rule. The button-mashing run is the important one: it proves that wrong picks cannot
+its pattern (walking the pattern tree directly, not the game's state machine), checking the words
+fit the shape, the ending mark suits it, capitalisation, comma spacing, and the a/an rule. Test 0
+checks the pack itself (unknown parts of speech, words in two lists, missing marks) and builds a
+handful of known sentences to prove commas and question marks are required where they belong. The button-mashing run is the important one: it proves that wrong picks cannot
 sneak into a finished sentence.
 
 Sample output:
@@ -132,7 +140,7 @@ Crashing into a wall **or biting your own body** runs the same handler.
 
 **Beat two**, `crashDelayMs` later (900ms by default) - `scatterAfterCrash()` (`js/game.js:178`):
 
-5. The sentence is wiped - `reset()` (`js/grammar.js:63`) clears the tokens and returns them,
+5. The sentence is wiped - `reset()` (`js/grammar.js`) clears the tokens and returns them,
    keeping the same pattern so you retry the same shape of sentence.
 6. The words fall off the body - `dropCarried()` (`js/worm.js:63`) empties the body and shrinks
    the worm by exactly the letters those words had written into it.
@@ -166,20 +174,20 @@ the drop and the self-bite rule (the tail square is safe, because it moves away 
 
 **Status: done.**
 
-- Punctuation marks are data, not code - `data/packs/starter.json` lists `.` and `!`.
+- Punctuation marks are data, not code - `data/packs/starter.json` lists `.`, `!` and `?`, and
+  each pattern says which of them may end it (`end`, default `.` and `!`).
 - `js/board.js:110` - punctuation tiles only appear once `canEnd()` is true and at least one
-  word has been eaten, so there is never a full stop available for an empty sentence.
-- `js/grammar.js:71` - `end(mark)` double-checks `canEnd()` before accepting the mark, so even a
+  word has been eaten, and only the marks that suit the sentence are offered.
+- `js/grammar.js:240` - `end(mark)` double-checks `canEnd()` and the pattern's marks, so even a
   stale tile cannot end a sentence early.
-- `js/game.js:170` - eating a mark finishes the sentence: it is added to the "Sentences you
+- `js/game.js:246` - eating a mark finishes the sentence: it is added to the "Sentences you
   wrote" list, scores a bonus, plays a jingle, clears the words off the worm's body (leaving one
   trophy square behind), speeds the game up slightly, and draws a brand new pattern.
 - The in-game instructions say it in as many words: *"Eat a punctuation mark (. or !) to end the
   sentence."*
-- Only `.` and `!` ship in the starter pack. `?` is deliberately left out because the current
-  patterns are all statements - see `README.md` for how to add question patterns.
+- Commas are not ending marks: they are tiles eaten mid-sentence wherever the shape has a `,`.
 
-**Check it:** build any sentence until the strip says "a punctuation mark (. or !) to end it",
+**Check it:** build any sentence until the strip says "a punctuation mark (. or !) to end it" (or "(?)" for a question),
 then eat the mark.
 
 ---
