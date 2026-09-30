@@ -1,0 +1,201 @@
+/* The home page. The game itself is styled by css/style.css. */
+
+:root {
+  --paper: #fdf6e8;
+  --ink: #2c2a26;
+  --muted: #7b7263;
+  --line: #e3d7be;
+  --green: #4f8a5b;
+
+  /* set from js/home.js when a worm is picked */
+  --worm-body: #6eb478;
+  --worm-head: #4f8a5b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #f4ecdb;
+  color: var(--ink);
+  font-family: "Nunito", ui-rounded, "Trebuchet MS", system-ui, sans-serif;
+}
+
+.home {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 16px 60px;
+  text-align: center;
+}
+
+/* ---------- hero ---------- */
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(42px, 11vw, 76px);
+  letter-spacing: -2px;
+  color: var(--green);
+  text-shadow: 0 3px 0 #e0d2b4;
+}
+.tagline {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 17px;
+}
+
+/* ---------- the wiggling worm ---------- */
+
+.preview {
+  margin: 30px 0 10px;
+}
+.worm {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  height: 90px;
+}
+.worm .seg {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--worm-body);
+  animation: wiggle 1.6s ease-in-out infinite;
+  transition: background 0.25s;
+}
+.worm .seg.head {
+  width: 36px;
+  height: 36px;
+  border-radius: 13px;
+  background: var(--worm-head);
+  position: relative;
+}
+/* two eyes, looking forward */
+.worm .seg.head::before,
+.worm .seg.head::after {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  top: 8px;
+  box-shadow: inset -2px 1px 0 0 #1b2430;
+}
+.worm .seg.head::before { right: 6px; }
+.worm .seg.head::after  { right: 19px; }
+
+@keyframes wiggle {
+  0%, 100% { transform: translateY(-9px); }
+  50%      { transform: translateY(9px); }
+}
+
+.worm-name {
+  margin: 0;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--worm-head);
+  transition: color 0.25s;
+}
+
+/* ---------- colour picker ---------- */
+
+.picker { margin-top: 26px; }
+
+h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+
+.swatches {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.swatch {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 3px solid transparent;
+  background: none;
+  padding: 3px;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.swatch i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 11px;
+}
+.swatch:hover { transform: translateY(-3px); }
+.swatch[aria-checked="true"] {
+  border-color: var(--ink);
+  transform: translateY(-3px);
+}
+.swatch:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+
+.picker-error {
+  color: #c0563f;
+  font-weight: 700;
+  font-size: 14px;
+  max-width: 420px;
+  margin: 12px auto 0;
+}
+.picker-error code {
+  background: #efe6d2;
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+
+/* ---------- play ---------- */
+
+.start { margin-top: 34px; }
+
+.play {
+  display: inline-block;
+  font-size: 26px;
+  font-weight: 800;
+  text-decoration: none;
+  color: #fff;
+  background: var(--green);
+  padding: 14px 54px;
+  border-radius: 16px;
+  box-shadow: 0 5px 0 #3c6b46;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.play:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #3c6b46; }
+.play:active { transform: translateY(3px); box-shadow: 0 2px 0 #3c6b46; }
+
+.hint { margin: 12px 0 0; color: var(--muted); font-weight: 700; font-size: 14px; }
+
+/* ---------- placeholder for later ---------- */
+
+.soon {
+  margin-top: 54px;
+  padding-top: 22px;
+  border-top: 2px dashed var(--line);
+}
+.soon-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+.soon-list li { padding: 4px 0; opacity: 0.75; }
+
+@media (max-width: 420px) {
+  .worm .seg { width: 24px; height: 24px; }
+  .worm .seg.head { width: 30px; height: 30px; }
+}

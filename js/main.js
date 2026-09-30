@@ -100,6 +100,20 @@ window.BW = window.BW || {};
     messageTimer = setTimeout(() => { el.className = 'message'; }, 2600);
   }
 
+  /* The worm picked on the home page. If this fails the game still runs,
+     it just uses the default green. */
+  async function loadWorm() {
+    try {
+      const data = await fetch('data/worms.json').then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      });
+      return BW.chooseWorm(data);
+    } catch (err) {
+      return { id: 'garden', name: 'Garden Green', body: '#6eb478', head: '#4f8a5b' };
+    }
+  }
+
   async function boot() {
     let pack;
     try {
@@ -114,6 +128,11 @@ window.BW = window.BW || {};
     $('loading').hidden = true;
     $('game').hidden = false;
     renderLegend(pack);
+
+    BW.CONFIG.worm = await loadWorm();
+    // tint the little worm in the page heading to match
+    document.documentElement.style.setProperty('--worm-body', BW.CONFIG.worm.body);
+    document.documentElement.style.setProperty('--worm-head', BW.CONFIG.worm.head);
 
     const game = new BW.Game(pack, $('board'), {
       onChange: renderHud,

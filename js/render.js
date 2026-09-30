@@ -17,6 +17,24 @@ BW.Renderer = class Renderer {
     this.ctx.scale(dpr, dpr);
 
     this.shake = 0;
+
+    // the worm the player picked on the home page (see js/home.js)
+    const worm = cfg.worm || { body: '#6eb478', head: '#4f8a5b' };
+    this.wormBody = worm.body;
+    this.wormHead = worm.head;
+  }
+
+  /* Body squares fade towards white along the worm, so the tail looks lighter
+     than the neck whatever colour was chosen. */
+  bodyShade(t) {
+    return this.mix(this.wormBody, 255, t * 0.34);
+  }
+
+  mix(hex, towards, amount) {
+    const n = parseInt(hex.slice(1), 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const m = c => Math.round(c + (towards - c) * amount);
+    return `rgb(${m(r)}, ${m(g)}, ${m(b)})`;
   }
 
   measureCells(text) {
@@ -128,9 +146,8 @@ BW.Renderer = class Renderer {
       const t = i / Math.max(1, cells.length - 1);
       const pad = i === 0 ? 1 : (label ? 1.5 : 2 + t * 1.5);
 
-      ctx.fillStyle = label
-        ? this.posColor(state.pack, label.pos)
-        : `hsl(${104 - t * 14}, 52%, ${42 + t * 18}%)`;
+      ctx.fillStyle = label ? this.posColor(state.pack, label.pos)
+                            : (i === 0 ? this.wormHead : this.bodyShade(t));
       this.roundRect(c.x * cell + pad, c.y * cell + pad,
                      cell - pad * 2, cell - pad * 2, i === 0 ? 8 : 6);
       ctx.fill();

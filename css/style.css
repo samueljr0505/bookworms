@@ -1,4 +1,8 @@
 :root {
+  /* set from js/main.js to whatever worm was picked on the home page */
+  --worm-body: #7fc98a;
+  --worm-head: #3f7a4c;
+
   --paper: #fdf6e8;
   --ink: #2c2a26;
   --muted: #7b7263;
@@ -29,8 +33,8 @@ body {
 }
 .worm-dot {
   width: 22px; height: 22px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #7fc98a, #3f7a4c);
-  box-shadow: 14px 0 0 -3px #57975f, 26px 0 0 -6px #6aa76d;
+  background: radial-gradient(circle at 35% 35%, var(--worm-body), var(--worm-head));
+  box-shadow: 14px 0 0 -3px var(--worm-head), 26px 0 0 -6px var(--worm-body);
 }
 .tagline { margin: 6px 0 0; color: var(--muted); font-weight: 700; }
 
@@ -91,6 +95,14 @@ button {
   border: 2px solid var(--line); background: #fff; color: var(--ink); cursor: pointer;
 }
 button:hover { background: #fffaf0; border-color: var(--green); }
+
+/* the link back to the home page sits in the same row as the buttons */
+.btn-link {
+  font-weight: 800; padding: 9px 16px; border-radius: 11px;
+  border: 2px solid var(--line); background: #fff; color: var(--muted);
+  text-decoration: none; display: inline-block;
+}
+.btn-link:hover { background: #fffaf0; border-color: var(--green); color: var(--ink); }
 kbd {
   font: inherit; font-size: 11px; background: #efe6d2; border-radius: 5px;
   padding: 1px 5px; margin-left: 4px; color: var(--muted);
