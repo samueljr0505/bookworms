@@ -115,8 +115,11 @@ BW.Game = class Game {
   }
 
   isTileValid(tile) {
-    if (tile.kind === 'punct') return this.sentence.canEnd() && this.sentence.tokens.length > 0;
-    return this.sentence.allowedPos().includes(tile.pos);
+    if (tile.kind === 'punct') {
+      return this.sentence.canEnd() && this.sentence.tokens.length > 0 &&
+             this.sentence.endMarks().includes(tile.word);
+    }
+    return this.sentence.fits(tile.word, tile.pos);
   }
 
   /* ---------- one move ---------- */
@@ -193,7 +196,7 @@ BW.Game = class Game {
       if (this.sentence.end(tile.word)) {
         this.finishSentence();
       } else {
-        this.rejected(tile, 'That sentence is not finished yet!');
+        this.rejected(tile, this.whyNotFinished(tile.word));
       }
       return;
     }
@@ -211,12 +214,40 @@ BW.Game = class Game {
     }
   }
 
+  /* A player may try to end the sentence at any moment. When it will not work, say
+     exactly why - that refusal is the teaching moment, so it has to be specific. */
+  whyNotFinished(mark) {
+    const s = this.sentence;
+    const label = pos => (this.pack.pos[pos] && this.pack.pos[pos].label) || pos;
+
+    if (s.tokens.length === 0) {
+      return 'You have not started a sentence yet. Eat a word first, then end it with "' +
+             mark + '".';
+    }
+
+    if (!s.canEnd()) {
+      const needs = s.wants()
+        .map(m => m.word ? '"' + m.word + '"' : 'a ' + label(m.pos));
+      const list = needs.length > 2
+        ? needs.slice(0, 2).join(', ') + ' or ' + needs[2]
+        : needs.join(' or ');
+      return 'Not finished yet: "' + s.text().replace(/[.!?]$/, '') +
+             '" still needs ' + list + ' before it can end.';
+    }
+
+    // it can end, but not with this mark - that only happens for questions
+    const wanted = s.endMarks().map(m => '"' + m + '"').join(' or ');
+    return s.endMarks().includes('?')
+      ? 'That is a question, so it ends with ' + wanted + ', not "' + mark + '".'
+      : 'This sentence ends with ' + wanted + ', not "' + mark + '".';
+  }
+
   whyNot(tile) {
-    const need = this.sentence.allowedPos()
-      .map(p => (this.pack.pos[p] && this.pack.pos[p].label) || p)
-      .join(' or ');
-    const got = (this.pack.pos[tile.pos] && this.pack.pos[tile.pos].label) || tile.pos;
-    return '"' + tile.word + '" is a ' + got + '. You need a ' + need + '.';
+    const label = pos => (this.pack.pos[pos] && this.pack.pos[pos].label) || pos;
+    const need = this.sentence.wants()
+      .map(m => m.word ? 'the word "' + m.word + '"' : 'a ' + label(m.pos));
+    if (this.sentence.canEnd()) need.push('an ending mark');
+    return '"' + tile.word + '" is a ' + label(tile.pos) + '. You need ' + need.join(' or ') + '.';
   }
 
   rejected(tile, message) {

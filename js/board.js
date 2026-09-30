@@ -69,17 +69,15 @@ BW.Board = class Board {
   disperse(pack, sentence, worm, cfg, returnWords) {
     this.clear();
 
-    const allowed = sentence.allowedPos();
     const valid = [];
     const wrong = [];
+    const isValid = item => sentence.fits(item.word, item.pos);
     for (const pos of Object.keys(pack.words)) {
-      const bucket = allowed.includes(pos) ? valid : wrong;
-      for (const word of pack.words[pos]) bucket.push({ word, pos });
+      for (const word of pack.words[pos]) (isValid({ word, pos }) ? valid : wrong).push({ word, pos });
     }
 
     const chosen = [];
     const used = new Set();
-    const isValid = item => allowed.includes(item.pos);
     const add = item => {
       if (used.has(item.word)) return false;
       used.add(item.word);
@@ -107,10 +105,19 @@ BW.Board = class Board {
 
     for (const item of BW.rng.shuffle(chosen)) this.place(item.word, item.pos, 'word', worm);
 
-    // Req 6: once the sentence can stand on its own, offer punctuation to finish it.
-    if (sentence.canEnd() && sentence.tokens.length > 0) {
-      const marks = BW.rng.shuffle(pack.punctuation).slice(0, 1 + BW.rng.int(2));
-      for (const m of marks) this.place(m.mark, 'punctuation', 'punct', worm);
+    // Req 6: ending marks are on the board the whole time, so a player can try to
+    // finish whenever they think the sentence is done. Eating one too early does not
+    // end anything - the game says what is still missing instead. Once the sentence
+    // really can end, a mark that actually works is guaranteed to be out there.
+    const marks = [];
+    const suits = pack.punctuation.filter(p => sentence.endMarks().includes(p.mark));
+    if (sentence.canEnd() && sentence.tokens.length > 0 && suits.length) {
+      marks.push(BW.rng.pick(suits));
     }
+    for (const m of BW.rng.shuffle(pack.punctuation)) {
+      if (marks.length >= 2) break;
+      if (!marks.includes(m)) marks.push(m);
+    }
+    for (const m of marks) this.place(m.mark, 'punctuation', 'punct', worm);
   }
 };

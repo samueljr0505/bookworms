@@ -74,7 +74,7 @@ bookworms/
     worm-skin.js        which worm was picked (shared by both pages)
     config.js           tweakable numbers: speed, board size, rules
     util.js             random-number helpers and the sound effects
-    grammar.js          sentence patterns, what may be eaten next, final text
+    grammar.js          sentence-shape language, what may be eaten next, final text
     worm.js             the worm: its squares, turning, growing, shrinking
     board.js            word tiles: choosing them and finding space for them
     render.js           everything drawn on the canvas
@@ -101,22 +101,57 @@ useful change a student can make.
 Two rules for new words:
 
 - Put it under the right part of speech, or sentences will come out wrong.
-- **Verbs must be past tense** (`jumped`, `sang`, `flew`). Past-tense verbs agree with every
-  subject, which is how the game guarantees correct grammar without any extra machinery. Adding
-  `jumps` would let "My dogs jumps" happen.
+- **Verbs must be past tense** (`jumped`, `sang`, `flew`) - that goes for `verb`, `transitive`
+  and `linking`. Past-tense verbs agree with every subject, which is how the game guarantees
+  correct grammar without any extra machinery. Adding `jumps` would let "My dogs jumps" happen.
+  The one exception is `baseVerb` (`run`, `sing`), the plain form used after a helper word in
+  questions ("Did the cat **sing**?") and in commands ("**Sing**!").
+- A word may only appear in one list, because a tile carries a single part of speech.
 
 ### Add a sentence shape
 
-A pattern is a list of slots. A `?` on the end means the slot is optional - the player may fill it
-or skip straight past it.
+A pattern describes the shape of a sentence in a tiny language. Words in it are parts of speech
+from the pack; the symbols around them say how they may be combined:
+
+| Write | Means | Example |
+| --- | --- | --- |
+| `noun` | eat any word of that part of speech | `determiner noun verb` |
+| `,` | eat a comma tile here | `adverb , <clause>` -> "Suddenly, the cat ran." |
+| `'and'` | eat exactly this word | `<object> 'and' <object> <action>` |
+| `x?` | optional | `verb adverb?` |
+| `x*` / `x+` | any number of times / one or more | `adjective ( , adjective )*` |
+| `( a b )` | a group | `( preposition <thing> )?` |
+| `a \| b` | either one | `( name \| pronoun )` |
+| `<clause>` | a phrase from the pack's `rules` | see below |
+
+Reusable phrases live under `rules` so patterns stay short:
 
 ```json
-{ "id": "two-things", "name": "Two things sentence",
-  "slots": ["determiner", "noun", "verb", "preposition", "determiner", "adjective?", "noun"] }
+"rules": {
+  "thing":   "determiner ( adjective ( , adjective )? )? noun",
+  "subject": "<thing> | name | pronoun",
+  "clause":  "<subject> <action>"
+}
 ```
 
-Add it to the `patterns` list and it starts showing up immediately. Run `node tools/test.js`
-afterwards - it will tell you if the new pattern can produce something ungrammatical.
+Then a pattern is one line. `end` lists the marks that may finish it (default `.` and `!`), and
+`weight` makes it show up more or less often (default 1):
+
+```json
+{ "id": "compound", "name": "Joined sentence", "shape": "<clause> , conjunction <clause>" },
+{ "id": "yes-no", "name": "Yes-or-no question", "end": ["?"],
+  "shape": "helper <subject> baseVerb adverb? <place>?" }
+```
+
+The starter pack ships 16 shapes: simple, doing-to (with an object), describing (linking verbs),
+where, opener (`Suddenly, ...`), where-first (`Under the bridge, ...`), feeling (`Wow, ...!`),
+joined/compound (`..., but ...`), when-or-why first and last (`When ..., ...` / `... because ...`),
+team (`Maya and the dog ...`), list (`The cat, the dog, and Leo ...`), yes-or-no and question-word
+questions, commands, and talking-to (`Leo, dance!`).
+
+The old list form (`"slots": ["determiner", "adjective?", "noun", "verb"]`) still works. Run
+`node tools/test.js` afterwards - it checks the pack, and will tell you if a new pattern can
+produce something ungrammatical or can never be finished.
 
 ### Add a new part of speech
 
@@ -149,7 +184,6 @@ grows, how many words are on the board at once, points, sound on or off, and wha
 ## Ideas for the next version
 
 - A pack picker so a class can switch between topics.
-- Questions: add `?` to `punctuation` plus a question pattern, and only offer `?` for that pattern.
 - Present-tense verbs, which needs a `number` tag on nouns and verbs so they agree.
 - Two players on one board.
 - Save finished sentences so a teacher can print what the class wrote.
