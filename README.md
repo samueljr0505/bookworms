@@ -66,8 +66,9 @@ bookworms/
   css/home.css          styling for the home page
   css/style.css         styling for the game
   data/
-    packs.json          which word pack to load
-    packs/starter.json  THE WORDS AND SENTENCE PATTERNS  <- edit this one
+    packs.json          which word pack to load (the default is "words")
+    packs/words.json    THE WORDS AND SENTENCE PATTERNS, from words.pdf  <- edit this one
+    packs/starter.json  the original, smaller pack (past tense only)
     worms.json          the worm colours offered on the home page
   js/
     home.js             the home page: worm picker
@@ -81,6 +82,7 @@ bookworms/
     game.js             the game loop and all the rules
     main.js             loads the JSON, starts the game, updates the panels
   tools/test.js         headless checks, no browser needed
+  tools/verbs.py        writes the verb lists in words.json from one table of verb forms
 ```
 
 Files load as plain `<script>` tags in that order and share one global called `BW`. No build
@@ -90,7 +92,7 @@ step, no npm install, no framework - open a file, change it, reload the page.
 
 ### Add words
 
-Open `data/packs/starter.json` and add to any list under `words`. This is the safest, most
+Open `data/packs/words.json` and add to any list under `words`. This is the safest, most
 useful change a student can make.
 
 ```json
@@ -98,14 +100,26 @@ useful change a student can make.
 "adjective": ["happy", "sleepy", "glittery"]
 ```
 
-Two rules for new words:
+Rules for new words:
 
 - Put it under the right part of speech, or sentences will come out wrong.
-- **Verbs must be past tense** (`jumped`, `sang`, `flew`) - that goes for `verb`, `transitive`
-  and `linking`. Past-tense verbs agree with every subject, which is how the game guarantees
-  correct grammar without any extra machinery. Adding `jumps` would let "My dogs jumps" happen.
-  The one exception is `baseVerb` (`run`, `sing`), the plain form used after a helper word in
-  questions ("Did the cat **sing**?") and in commands ("**Sing**!").
+- **Add verbs to the table in `tools/verbs.py`, not straight into the pack**, then run
+  `python3 tools/verbs.py`. Each verb has four forms, and each form has its own list:
+
+  | Form | Stands alone | Needs something after it |
+  | --- | --- | --- |
+  | now, for he / she / it | `verbS` - hops | `transitiveS` - builds |
+  | plain: I / you / we / they, after a helper, commands | `baseVerb` - hop | `baseTransitive` - build |
+  | past, for anyone | `verb` - hopped | `transitive` - built |
+  | -ing, after am / is / are / was / were | `ing` - hopping | |
+
+  The pack's rules pick the form that agrees with the subject: `<one>` (a singular noun, a name,
+  he, she, it) takes `hops` and `is`; `<iOrMany>` (I, you, we, they, or "Mom and Dad") takes
+  `hop` and `are`. Verbs in the table's `EITHER` group (`eat`, `paint`, `sing`) stand alone or
+  take something after them: "The bear eats." and "The bear eats the berries."
+- Nouns under `noun` must be singular things you can count ("a cat"). Plurals and stuff you
+  cannot count (`berries`, `mud`) go under `mass`, which is never used after "a" and only
+  appears after the verb.
 - A word may only appear in one list, because a tile carries a single part of speech.
 
 ### Add a sentence shape
@@ -143,11 +157,14 @@ Then a pattern is one line. `end` lists the marks that may finish it (default `.
   "shape": "helper <subject> baseVerb adverb? <place>?" }
 ```
 
-The starter pack ships 16 shapes: simple, doing-to (with an object), describing (linking verbs),
-where, opener (`Suddenly, ...`), where-first (`Under the bridge, ...`), feeling (`Wow, ...!`),
-joined/compound (`..., but ...`), when-or-why first and last (`When ..., ...` / `... because ...`),
-team (`Maya and the dog ...`), list (`The cat, the dog, and Leo ...`), yes-or-no and question-word
-questions, commands, and talking-to (`Leo, dance!`).
+The words pack ships 40 shapes that follow the sections of words.pdf: simple and doing-to
+sentences in the present and past, describing (`The soup is hot.`), is-a (`He is a brave
+firefighter.`), where (`The frog jumps into the pond.`), time-first (`At night, the moon
+glows.`), two and three actions (`She jumps, spins, and lands.`), want-to, future (`will`),
+-ing (`The kids were playing.`), negatives (`does not`, `can't`), there-is, joined and
+when-or-why sentences, five kinds of question, commands (`Please ...`, `Don't ...`, `Let's ...`),
+and exclamations (`What a big dog!`, `How cold!`). A word with an apostrophe goes in double
+quotes inside a shape, which in the JSON file is written `\"can't\"`.
 
 The old list form (`"slots": ["determiner", "adjective?", "noun", "verb"]`) still works. Run
 `node tools/test.js` afterwards - it checks the pack, and will tell you if a new pattern can
@@ -184,7 +201,6 @@ grows, how many words are on the board at once, points, sound on or off, and wha
 ## Ideas for the next version
 
 - A pack picker so a class can switch between topics.
-- Present-tense verbs, which needs a `number` tag on nouns and verbs so they agree.
 - Two players on one board.
 - Save finished sentences so a teacher can print what the class wrote.
 

@@ -5,7 +5,7 @@
 
    - a word like `noun` or `verb` is a part of speech from the pack - eat any word of that kind
    - `,` is a comma the player has to eat, just like a word
-   - `'and'` in quotes means that exact word
+   - `'and'` in quotes means that exact word (use double quotes for a word with an apostrophe: "can't")
    - `<subject>` pulls in a reusable phrase from the pack's `rules`
    - `( ... )` groups things, and `a | b` inside a group means "either a or b"
    - after a part or a group: `?` optional, `*` any number of times, `+` one or more times
@@ -28,7 +28,7 @@ window.BW = window.BW || {};
 
   function tokenize(src) {
     const out = [];
-    const re = /\s*(?:(<[\w-]+>)|'([^']+)'|([A-Za-z][\w-]*)|([(),|?*+]))/y;
+    const re = /\s*(?:(<[\w-]+>)|'([^']+)'|"([^"]+)"|([A-Za-z][\w-]*)|([(),|?*+]))/y;
     let m;
     re.lastIndex = 0;
     while (re.lastIndex < src.length) {
@@ -37,9 +37,9 @@ window.BW = window.BW || {};
       m = re.exec(src);
       if (!m) throw new Error('Pattern "' + src + '": do not understand "' + src.slice(at).trim() + '"');
       if (m[1]) out.push({ t: 'rule', v: m[1].slice(1, -1) });
-      else if (m[2]) out.push({ t: 'word', v: m[2] });
-      else if (m[3]) out.push({ t: 'pos', v: m[3] });
-      else out.push({ t: m[4] });
+      else if (m[2] || m[3]) out.push({ t: 'word', v: m[2] || m[3] });
+      else if (m[4]) out.push({ t: 'pos', v: m[4] });
+      else out.push({ t: m[5] });
     }
     return out;
   }
@@ -183,15 +183,19 @@ window.BW = window.BW || {};
       this.reset();
     }
 
-    /* Every kind of tile that would be a correct pick right now, as { pos } or { word }. */
+    /* Every kind of tile that would be a correct pick right now, as { pos } or { word }.
+       An exact word is dropped when its whole part of speech is already wanted - "a Does-It
+       Word" already covers "eats", so the hints do not list it twice. */
     wants() {
+      if (this.wanted) return this.wanted;
       const out = [];
       for (const id of this.states) {
         for (const e of this.nfa.nodes[id].edges) {
           if (!out.some(m => sameMatcher(m, e.m))) out.push(e.m);
         }
       }
-      return out;
+      this.wanted = out.filter(m => !m.word || !out.some(o => o.pos && o.pos === posOfWord(this.pack, m.word)));
+      return this.wanted;
     }
 
     /* Would this word be a correct pick right now? */
@@ -224,6 +228,7 @@ window.BW = window.BW || {};
       if (!next.length) return false;
       this.tokens.push({ word, pos });
       this.states = closure(this.nfa, next);
+      this.wanted = null;
       return true;
     }
 
@@ -233,6 +238,7 @@ window.BW = window.BW || {};
       const lost = (this.tokens || []).slice();
       this.tokens = [];        // [{ word, pos }]
       this.states = closure(this.nfa, [this.nfa.start]);
+      this.wanted = null;      // what wants() worked out for the old states
       this.punctuation = null;
       return lost;
     }
@@ -294,9 +300,18 @@ window.BW = window.BW || {};
     }
   }
 
+  /* Word -> part of speech, built once per pack (a word lives in only one list). */
+  const posIndex = new WeakMap();
   function posOfWord(pack, word) {
-    for (const pos of Object.keys(pack.words)) if (pack.words[pos].includes(word)) return pos;
-    return null;
+    let index = posIndex.get(pack.words);
+    if (!index) {
+      index = new Map();
+      for (const pos of Object.keys(pack.words)) {
+        for (const w of pack.words[pos]) if (!index.has(w)) index.set(w, pos);
+      }
+      posIndex.set(pack.words, index);
+    }
+    return index.get(word) || null;
   }
 
   /* Checks a pack and returns a list of problems (empty means all good). */

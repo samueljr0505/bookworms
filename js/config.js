@@ -6,9 +6,12 @@ BW.CONFIG = {
   grid: { cols: 34, rows: 22, cell: 26 },   // board size in squares, and how big a square is
 
   startDelayMs: 3000,      // Req 3: countdown before the worm starts moving
-  stepMs: 170,             // how many milliseconds between worm steps (smaller = faster)
-  minStepMs: 110,          // the fastest the worm is ever allowed to go
-  speedUpPerSentence: 4,   // shave this many ms off stepMs after each finished sentence
+  // Pace. The worm is deliberately unhurried: a player needs time to read the
+  // sentence forming along its body and to spot the word they want before they
+  // have to turn. Smaller numbers mean a faster worm.
+  stepMs: 240,             // milliseconds between worm steps
+  minStepMs: 165,          // the fastest the worm is ever allowed to get
+  speedUpPerSentence: 3,   // shave this many ms off stepMs after each finished sentence
 
   wordsOnBoard: 7,         // how many word tiles float around at once
   minValidWords: 2,        // always keep at least this many tiles that would be a correct pick

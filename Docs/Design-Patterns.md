@@ -30,7 +30,7 @@ the design has gone wrong. Pass the value in instead.
 
 ## 2. Interpreter (a tiny language for sentences)
 
-**Where:** `js/grammar.js`, driven by `data/packs/starter.json`.
+**Where:** `js/grammar.js`, driven by `data/packs/words.json`.
 
 A sentence pattern is a miniature language:
 
@@ -60,7 +60,7 @@ and no JavaScript.
 
 Two separate knobs for two separate audiences:
 
-- **`data/packs/starter.json`** holds the words, the parts of speech, the sentence patterns, the
+- **`data/packs/words.json`** holds the words, the parts of speech, the sentence patterns, the
   punctuation, the colours and the kid-friendly labels ("Naming Word", not "noun"). Nothing in
   the JavaScript hard-codes a part of speech - the legend, the tile colours and the hint text are
   all generated from this file, so adding a new part of speech needs no code at all.
