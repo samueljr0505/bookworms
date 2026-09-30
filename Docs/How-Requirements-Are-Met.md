@@ -78,9 +78,9 @@ sentence before they have looked at the board.
 Each sentence follows a **pattern**, written in a small shape language such as
 `"adverb , <subject> verb ( preposition <thing> )?"` - parts of speech, commas, exact words,
 optional parts (`?`), repeats (`*`, `+`), choices (`a | b`) and reusable phrases from the pack's
-`rules` (`<subject>`). Patterns live in `data/packs/starter.json` and every word in the word bank
-is filed under its part of speech. The starter pack has 16 shapes: simple, compound, complex,
-openers, lists, questions, commands and more.
+`rules` (`<subject>`). Patterns live in `data/packs/words.json` and every word in the word bank
+is filed under its part of speech. The words pack has 40 shapes taken from words.pdf: simple,
+compound, complex, openers, lists, questions, commands, negatives, exclamations and more.
 
 `js/grammar.js` turns each shape into a small state machine. The rules that keep sentences
 correct:
@@ -96,11 +96,13 @@ correct:
 4. **Text is tidied when it renders.** `text()` turns "a" into "an" before a vowel, attaches
    commas to the word before them ("Suddenly, the ..."), capitalises the first word and appends
    the ending mark.
-5. **Subject-verb agreement is sidestepped on purpose.** Every verb in the pack is past tense
-   (`ran`, `sang`, `wiggled`), which agrees with any subject, singular or plural. That keeps the
-   first version simple. If you add present-tense verbs later you will need agreement tags -
-   see the note in `README.md`. Questions and commands use the plain form (`baseVerb`) after a
-   helper word or on its own, which also agrees with every subject.
+5. **Subject-verb agreement lives in the pack's rules.** Each verb form has its own list
+   (`hops` / `hop` / `hopped` / `hopping`), and the rules split subjects into `<one>` (a
+   singular noun, a name, he, she, it) and `<iOrMany>` (I, you, we, they, "Mom and Dad"). Only
+   the matching form fits after each, so "they hops", "I is" and "does they" are refused like
+   any other wrong word. Joined sentences keep both halves in the same time (`<clauseNow>` or
+   `<clausePast>`), and "Yesterday," only opens a past-tense sentence. The engine needed no
+   agreement code at all.
 
 **Check it:** tests 1 and 2 in `tools/test.js` play 4000 sentences - 2000 with correct picks and
 2000 with deliberate button-mashing - and independently re-parse every finished sentence against

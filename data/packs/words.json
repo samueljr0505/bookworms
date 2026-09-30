@@ -1,0 +1,277 @@
+{
+  "id": "words",
+  "name": "Everyday Sentences",
+  "description": "Word lists and sentence patterns from words.pdf: nouns, verbs in every tense, and 100 sentence shapes for 3rd-5th grade.",
+
+  "pos": {
+    "determiner":     { "label": "Little Word", "hint": "a, the, this, that, every", "color": "#9aa7d7" },
+    "possessive":     { "label": "Whose Word", "hint": "tells whose it is: my, your, her", "color": "#aab8f0" },
+    "adjective":      { "label": "Describing Word", "hint": "tells you what kind: big, sticky", "color": "#f2a65a" },
+    "noun":           { "label": "Naming Word", "hint": "one person, place, or thing", "color": "#5ec4a3" },
+    "mass":           { "label": "Stuff Word", "hint": "stuff, or lots of things: mud, berries - never after \"a\"", "color": "#4fb39a" },
+    "name":           { "label": "Name", "hint": "a special name, with a capital letter", "color": "#8fd694" },
+    "pronoun":        { "label": "Stand-in Word", "hint": "takes the place of a name: I, you, he, she, it, we, they", "color": "#b7d56b" },
+    "objectPronoun":  { "label": "Me-Us Word", "hint": "a stand-in that comes after the action: me, us, them", "color": "#a5c75a" },
+    "verbS":          { "label": "Does-It Word", "hint": "happening now, for he, she, it or one thing: hops, eats", "color": "#ef8f7d" },
+    "baseVerb":       { "label": "Do-It Word", "hint": "plain action for I, you, we, they, or after a helper: hop, eat", "color": "#f4a3a0" },
+    "verb":           { "label": "Did-It Word", "hint": "already happened: hopped, ate", "color": "#e9797a" },
+    "ing":            { "label": "-ing Word", "hint": "keeps going, after am, is, are, was, were: hopping", "color": "#e58fc4" },
+    "transitiveS":    { "label": "Does-It-To Word", "hint": "needs something after it, for he, she, it: builds", "color": "#f3a0b8" },
+    "baseTransitive": { "label": "Do-It-To Word", "hint": "plain, and needs something after it: build", "color": "#f6b7c8" },
+    "transitive":     { "label": "Did-It-To Word", "hint": "already happened, and needs something after it: built", "color": "#f08fa8" },
+    "linking":        { "label": "Linking Word", "hint": "joins to a describing word: looked, felt", "color": "#d98bb5" },
+    "be":             { "label": "Being Word", "hint": "am, is, are, was, were", "color": "#c48bd9" },
+    "helper":         { "label": "Helper Word", "hint": "helps ask or tell: do, does, did, can, will", "color": "#a6a0e8" },
+    "negative":       { "label": "No Word", "hint": "not, never, don't, can't", "color": "#8e8ad0" },
+    "question":       { "label": "Question Word", "hint": "where, why, how, what", "color": "#7fb0c9" },
+    "adverb":         { "label": "How Word", "hint": "tells how or where: slowly, fast, outside", "color": "#c79ae0" },
+    "preposition":    { "label": "Where Word", "hint": "on, under, into, with", "color": "#72b6e8" },
+    "time":           { "label": "Time Word", "hint": "yesterday, night, Saturday", "color": "#6fc7d8" },
+    "conjunction":    { "label": "Joining Word", "hint": "and, but, or, so - joins two sentences", "color": "#e7c35a" },
+    "subordinator":   { "label": "When or Why Word", "hint": "because, when, if, while, until", "color": "#d6a86c" },
+    "interjection":   { "label": "Feeling Word", "hint": "wow", "color": "#ff9f6e" },
+    "polite":         { "label": "Polite Word", "hint": "please", "color": "#ffc48a" },
+    "comma":          { "label": "Comma", "hint": "a little pause: ,", "color": "#c9b48a" }
+  },
+
+  "words": {
+    "determiner": ["a", "the", "this", "that", "every"],
+    "possessive": ["my", "your", "our", "her", "its", "their"],
+    "adjective": [
+      "big", "full", "heavy", "huge", "little", "long", "tall", "tiny",
+      "bright", "dark", "gray", "green", "pink", "red", "white", "yellow",
+      "brave", "friendly", "gentle", "happy", "hungry", "loud", "noisy", "silly", "sleepy",
+      "beautiful", "cold", "deep", "fluffy", "furry", "gooey", "hot", "muddy", "sandy", "shiny",
+      "slimy", "soft", "sour", "spooky", "sticky", "sweet", "warm", "wooden",
+      "fresh", "funny", "lost", "new", "old", "sick"
+    ],
+    "noun": [
+      "baby", "baker", "bear", "bee", "bird", "boy", "brother", "butterfly", "caterpillar", "cat",
+      "chicken", "class", "crowd", "dog", "duck", "farmer", "firefighter", "fish", "fox", "friend",
+      "frog", "giraffe", "girl", "horse", "kid", "mouse", "nurse", "puppy", "rabbit", "sister",
+      "snail", "squirrel", "teacher", "team",
+      "builder", "climber", "dancer", "driver", "knitter", "painter", "player", "rider", "runner",
+      "singer", "swimmer", "visitor", "walker", "writer",
+      "beach", "bridge", "forest", "garden", "hill", "home", "house", "kitchen", "library", "park",
+      "playground", "pond", "room", "school", "sidewalk", "sky", "station", "store", "street",
+      "tank", "yard", "zoo",
+      "backpack", "bag", "bed", "bell", "blanket", "board", "bone", "book", "box", "branch", "bus",
+      "candle", "car", "card", "carrot", "chapter", "clock", "cloud", "coat", "cookie", "couch",
+      "door", "face", "fence", "flower", "game", "gift", "hand", "hole", "ladder", "leaf", "light",
+      "log", "lunch", "neck", "newspaper", "nut", "pancake", "picture", "pie", "piano", "pizza",
+      "puddle", "race", "raincoat", "rope", "scarf", "seed", "sentence", "shoe", "slice", "snack",
+      "snowflake", "snowman", "song", "star", "story", "tail", "tag", "toy", "train", "tree",
+      "trail", "trampoline", "voice", "wall",
+      "moon", "sun", "wind",
+      "moment", "name", "treat", "wish"
+    ],
+    "mass": ["berries", "bread", "eyes", "feet", "hay", "honey", "joy", "lemonade", "mud", "peas", "people", "rain", "snow", "water"],
+    "name": ["Anna", "Jake", "Tom", "Mom", "Dad", "Grandma", "Grandpa"],
+    "pronoun": ["I", "you", "he", "she", "it", "we", "they"],
+    "objectPronoun": ["me", "us", "them"],
+
+    "verbS": [
+      "buzzes", "cheers", "claps", "crawls", "dances", "drifts", "flies", "glows", "hops", "jumps",
+      "lands", "pounces", "runs", "shines", "sits", "skips", "sneaks", "swims", "walks", "waves",
+      "laughs", "listens", "smiles", "thinks", "yawns", "giggles", "creaks", "sleeps", "ticks",
+      "bakes", "blows", "chews", "cleans", "climbs", "cooks", "digs", "draws", "drives", "eats",
+      "helps", "kicks", "knits", "learns", "melts", "paints", "plays", "reads", "rides", "rings",
+      "rolls", "searches", "sings", "spins", "stops", "stretches", "visits", "washes", "writes"
+    ],
+    "baseVerb": [
+      "buzz", "cheer", "clap", "crawl", "dance", "drift", "fly", "glow", "hop", "jump", "land",
+      "pounce", "run", "shine", "sit", "skip", "sneak", "swim", "walk", "wave", "laugh", "listen",
+      "smile", "think", "yawn", "giggle", "creak", "sleep", "tick", "bake", "blow", "chew", "clean",
+      "climb", "cook", "dig", "draw", "drive", "eat", "help", "kick", "knit", "learn", "melt",
+      "paint", "play", "read", "ride", "ring", "roll", "search", "sing", "spin", "stop", "stretch",
+      "visit", "wash", "write"
+    ],
+    "verb": [
+      "buzzed", "cheered", "clapped", "crawled", "danced", "drifted", "flew", "glowed", "hopped",
+      "jumped", "landed", "pounced", "ran", "shone", "sat", "skipped", "snuck", "swam", "walked",
+      "waved", "laughed", "listened", "smiled", "thought", "yawned", "giggled", "creaked", "slept",
+      "ticked", "baked", "blew", "chewed", "cleaned", "climbed", "cooked", "dug", "drew", "drove",
+      "ate", "helped", "kicked", "knitted", "learned", "melted", "painted", "played", "rode", "rang",
+      "rolled", "searched", "sang", "spun", "stopped", "stretched", "visited", "washed", "wrote"
+    ],
+    "ing": [
+      "buzzing", "cheering", "clapping", "crawling", "dancing", "drifting", "flying", "glowing",
+      "hopping", "jumping", "landing", "pouncing", "running", "shining", "sitting", "skipping",
+      "sneaking", "swimming", "walking", "waving", "laughing", "listening", "smiling", "thinking",
+      "yawning", "giggling", "creaking", "sleeping", "ticking", "baking", "blowing", "chewing",
+      "cleaning", "climbing", "cooking", "digging", "drawing", "driving", "eating", "helping",
+      "kicking", "knitting", "learning", "melting", "painting", "playing", "reading", "riding",
+      "ringing", "rolling", "searching", "singing", "spinning", "stopping", "stretching", "visiting",
+      "washing", "writing"
+    ],
+
+    "transitiveS": [
+      "brushes", "builds", "buries", "carries", "catches", "crosses", "cuts", "feeds", "fills",
+      "gives", "grabs", "hears", "leaves", "makes", "packs", "picks", "plants", "pulls", "raises",
+      "reaches", "rubs", "sees", "sets", "tells", "throws", "ties", "wags", "wants", "wears",
+      "waters"
+    ],
+    "baseTransitive": [
+      "brush", "build", "bury", "carry", "catch", "cross", "cut", "feed", "fill", "give", "grab",
+      "hear", "leave", "make", "pack", "pick", "plant", "pull", "raise", "reach", "rub", "see",
+      "set", "tell", "throw", "tie", "wag", "want", "wear"
+    ],
+    "transitive": [
+      "brushed", "built", "buried", "carried", "caught", "crossed", "fed", "filled", "gave",
+      "grabbed", "heard", "left", "made", "packed", "picked", "planted", "pulled", "raised",
+      "reached", "rubbed", "saw", "told", "threw", "tied", "wagged", "wanted", "wore", "watered"
+    ],
+
+    "linking": ["felt", "looked", "smelled", "tasted"],
+    "be": ["am", "is", "are", "was", "were"],
+    "helper": ["do", "does", "did", "can", "will", "let's"],
+    "negative": ["not", "never", "don't", "can't"],
+    "question": ["where", "why", "how", "what"],
+    "adverb": ["fast", "slowly", "outside", "out loud", "too", "there"],
+    "preposition": ["across", "around", "at", "down", "for", "from", "in", "into", "on", "onto", "over", "to", "under", "with"],
+    "time": ["yesterday", "last", "day", "week", "morning", "night", "noon", "Saturday", "Sunday", "spring", "fall"],
+    "conjunction": ["and", "but", "or", "so"],
+    "subordinator": ["because", "when", "while", "after", "before", "if", "until"],
+    "interjection": ["wow"],
+    "polite": ["please"],
+    "comma": [","]
+  },
+
+  "rules": {
+    "thing":      "( determiner | possessive ) ( adjective ( , adjective )? )? noun",
+    "someone":    "<thing> | name",
+    "stuff":      "( 'the' | possessive )? adjective? mass",
+    "object":     "<someone> | <stuff> | objectPronoun | 'you' | 'it'",
+    "place":      "preposition ( <someone> | objectPronoun )",
+    "extra":      "( adverb | <place> )?",
+
+    "one":        "<someone> | 'he' | 'she' | 'it'",
+    "many":       "'we' | 'you' | 'they' | <someone> 'and' <someone>",
+    "iOrMany":    "'I' | <many>",
+    "subject":    "<one> | <iOrMany>",
+
+    "eitherBase": "'bake' | 'blow' | 'chew' | 'clean' | 'climb' | 'cook' | 'dig' | 'draw' | 'drive' | 'eat' | 'help' | 'kick' | 'knit' | 'learn' | 'melt' | 'paint' | 'play' | 'read' | 'ride' | 'ring' | 'roll' | 'search' | 'sing' | 'spin' | 'stop' | 'stretch' | 'visit' | 'wash' | 'write'",
+    "eitherS":    "'bakes' | 'blows' | 'chews' | 'cleans' | 'climbs' | 'cooks' | 'digs' | 'draws' | 'drives' | 'eats' | 'helps' | 'kicks' | 'knits' | 'learns' | 'melts' | 'paints' | 'plays' | 'reads' | 'rides' | 'rings' | 'rolls' | 'searches' | 'sings' | 'spins' | 'stops' | 'stretches' | 'visits' | 'washes' | 'writes'",
+    "eitherPast": "'baked' | 'blew' | 'chewed' | 'cleaned' | 'climbed' | 'cooked' | 'dug' | 'drew' | 'drove' | 'ate' | 'helped' | 'kicked' | 'knitted' | 'learned' | 'melted' | 'painted' | 'played' | 'rode' | 'rang' | 'rolled' | 'searched' | 'sang' | 'spun' | 'stopped' | 'stretched' | 'visited' | 'washed' | 'wrote'",
+    "eitherIng":  "'baking' | 'blowing' | 'chewing' | 'cleaning' | 'climbing' | 'cooking' | 'digging' | 'drawing' | 'driving' | 'eating' | 'helping' | 'kicking' | 'knitting' | 'learning' | 'melting' | 'painting' | 'playing' | 'reading' | 'riding' | 'ringing' | 'rolling' | 'searching' | 'singing' | 'spinning' | 'stopping' | 'stretching' | 'visiting' | 'washing' | 'writing'",
+    "doTo":       "baseTransitive | <eitherBase>",
+    "doesTo":     "transitiveS | <eitherS>",
+    "didTo":      "transitive | <eitherPast>",
+
+    "do":         "baseVerb <extra> | <doTo> <object> <extra>",
+    "does":       "verbS <extra> | <doesTo> <object> <extra>",
+    "did":        "verb <extra> | <didTo> <object> <extra> | linking 'too'? adjective",
+
+    "isNow":      "'I' 'am' | <one> 'is' | <many> 'are'",
+    "wasThen":    "( 'I' | <one> ) 'was' | <many> 'were'",
+    "going":      "ing <extra> | <eitherIng> <object> <extra>",
+    "beWhat":     "'too'? adjective | <going> | <place>",
+
+    "clauseNow":  "<one> <does> | <iOrMany> <do> | <isNow> <beWhat>",
+    "clausePast": "<subject> <did> | <wasThen> <beWhat>",
+    "clause":     "<clauseNow> | <clausePast>",
+
+    "askDo":      "'does' <one> | 'do' <iOrMany> | ( 'did' | 'can' | 'will' ) <subject>",
+    "askBe":      "'am' 'I' | ( 'is' | 'was' ) <one> | ( 'are' | 'were' ) <many>",
+
+    "pastTime":   "'yesterday' | 'last' ( 'night' | 'week' | 'Saturday' | 'Sunday' | 'spring' | 'fall' )",
+    "anyTime":    "'at' ( 'night' | 'noon' ) | 'on' ( 'Saturday' | 'Sunday' ) | 'in' 'the' ( 'morning' | 'spring' | 'fall' ) | 'every' ( 'day' | 'week' | 'morning' | 'night' )"
+  },
+
+  "patterns": [
+    { "id": "simple-now", "name": "Simple sentence (now)", "weight": 3,
+      "shape": "<one> verbS adverb? | <iOrMany> baseVerb adverb?" },
+    { "id": "simple-past", "name": "Simple sentence (past)", "weight": 2,
+      "shape": "<subject> verb adverb?" },
+
+    { "id": "doing-to-now", "name": "Doing-to sentence (now)", "weight": 3,
+      "shape": "<one> <doesTo> <object> adverb? | <iOrMany> <doTo> <object> adverb?" },
+    { "id": "doing-to-past", "name": "Doing-to sentence (past)", "weight": 2,
+      "shape": "<subject> <didTo> <object> adverb?" },
+    { "id": "doing-to-where", "name": "Doing-to-where sentence",
+      "shape": "<one> <doesTo> <object> <place> | <iOrMany> <doTo> <object> <place> | <subject> <didTo> <object> <place>" },
+
+    { "id": "describing", "name": "Describing sentence", "weight": 2,
+      "shape": "( <isNow> | <wasThen> ) 'too'? adjective | <subject> linking 'too'? adjective" },
+    { "id": "is-a", "name": "Is-a sentence",
+      "shape": "( 'I' ( 'am' | 'was' ) | <one> ( 'is' | 'was' ) ) <thing>" },
+    { "id": "where-is", "name": "Where-is sentence",
+      "shape": "( <isNow> | <wasThen> ) <place>" },
+
+    { "id": "where-now", "name": "Where sentence (now)", "weight": 2,
+      "shape": "<one> verbS <place> | <iOrMany> baseVerb <place>" },
+    { "id": "where-past", "name": "Where sentence (past)", "weight": 2,
+      "shape": "<subject> verb <place> <place>?" },
+    { "id": "who-where", "name": "Where-in-the-subject sentence",
+      "shape": "<thing> <place> ( verbS | <doesTo> <object> )" },
+
+    { "id": "time-first", "name": "Time-first sentence", "weight": 2,
+      "shape": "<pastTime> , <clausePast> | <anyTime> , <clause>" },
+    { "id": "opener", "name": "Opener sentence",
+      "shape": "( 'slowly' | 'outside' ) , <clause>" },
+    { "id": "feeling", "name": "Feeling sentence", "end": ["!"],
+      "shape": "interjection , <clause>" },
+
+    { "id": "two-verbs", "name": "Two-action sentence",
+      "shape": "<one> verbS 'and' verbS | <iOrMany> baseVerb 'and' baseVerb | <subject> verb 'and' verb" },
+    { "id": "three-verbs", "name": "Three-action sentence",
+      "shape": "<one> verbS , verbS , 'and' verbS | <iOrMany> baseVerb , baseVerb , 'and' baseVerb | <subject> verb , verb , 'and' verb" },
+    { "id": "two-jobs", "name": "Two-job sentence",
+      "shape": "<one> <doesTo> <object> 'and' <doesTo> <object> | <iOrMany> <doTo> <object> 'and' <doTo> <object> | <subject> <didTo> <object> 'and' <didTo> <object>" },
+    { "id": "two-things", "name": "Two-thing sentence",
+      "shape": "( <one> <doesTo> | <iOrMany> <doTo> | <subject> <didTo> ) <object> 'and' <object>" },
+    { "id": "team", "name": "Team sentence",
+      "shape": "<someone> 'and' <someone> ( <do> | <did> )" },
+    { "id": "list", "name": "List sentence",
+      "shape": "<someone> , <someone> , 'and' <someone> ( <do> | <did> )" },
+    { "id": "want-to", "name": "Want-to sentence",
+      "shape": "( <one> 'wants' | <iOrMany> 'want' | <subject> 'wanted' ) 'to' <do>" },
+
+    { "id": "future", "name": "Future sentence",
+      "shape": "<subject> 'will' 'not'? <do>" },
+    { "id": "ing", "name": "Still-going sentence",
+      "shape": "( <isNow> | <wasThen> ) <going>" },
+    { "id": "negative", "name": "Not sentence",
+      "shape": "<one> 'does' 'not' <do> | <iOrMany> 'do' 'not' <do> | <subject> ( 'did' 'not' | \"can't\" ) <do> | ( <isNow> | <wasThen> ) 'not' adjective" },
+    { "id": "there-is", "name": "There-is sentence",
+      "shape": "'there' ( 'is' | 'was' ) <thing> <place>?" },
+
+    { "id": "compound", "name": "Joined sentence",
+      "shape": "<clauseNow> , conjunction <clauseNow> | <clausePast> , conjunction <clausePast>" },
+    { "id": "complex-first", "name": "When-or-why-first sentence",
+      "shape": "subordinator <clauseNow> , <clauseNow> | subordinator <clausePast> , <clausePast>" },
+    { "id": "complex-last", "name": "When-or-why-last sentence",
+      "shape": "<clauseNow> subordinator <clauseNow> | <clausePast> subordinator <clausePast>" },
+
+    { "id": "yes-no", "name": "Yes-or-no question", "end": ["?"],
+      "shape": "<askDo> <do>" },
+    { "id": "be-question", "name": "Is-it question", "end": ["?"],
+      "shape": "<askBe> ( 'too'? adjective | <going> )" },
+    { "id": "wh-question", "name": "Question-word question", "end": ["?"],
+      "shape": "( 'where' | 'why' | 'how' ) <askDo> baseVerb" },
+    { "id": "what-question", "name": "What question", "end": ["?"],
+      "shape": "'what' <askDo> <doTo>" },
+    { "id": "where-question", "name": "Where-is question", "end": ["?"],
+      "shape": "'where' <askBe>" },
+
+    { "id": "command", "name": "Command", "end": ["!", "."],
+      "shape": "'please'? <do>" },
+    { "id": "dont", "name": "Don't command", "end": ["!", "."],
+      "shape": "( \"don't\" | 'never' ) <do>" },
+    { "id": "lets", "name": "Let's sentence", "end": ["!", "."],
+      "shape": "\"let's\" <do>" },
+    { "id": "talking-to", "name": "Talking-to sentence", "end": ["!", "."],
+      "shape": "name , 'please'? <do>" },
+
+    { "id": "what-a", "name": "What-a exclamation", "end": ["!"],
+      "shape": "'what' 'a' adjective noun" },
+    { "id": "how-adj", "name": "How exclamation", "end": ["!"],
+      "shape": "'how' adjective" }
+  ],
+
+  "punctuation": [
+    { "mark": ".", "name": "period" },
+    { "mark": "!", "name": "exclamation point" },
+    { "mark": "?", "name": "question mark" }
+  ]
+}
