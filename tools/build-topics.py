@@ -28,7 +28,7 @@ OUT = os.path.join(ROOT, "data", "topics")
 # The five kinds of word a sentence is built from, plus the punctuation that
 # closes it. Real grammatical names, because that is what is being taught.
 FAMILIES = {
-    "determiner": {"label": "Determiner", "hint": "points at a noun: a, the, my",
+    "determiner": {"label": "Determiner", "hint": "starts the sentence: A, The, My",
                    "color": "#9aa7d7", "role": "other"},
     "adjective":  {"label": "Adjective", "hint": "describes a noun: big, grey",
                    "color": "#f2a65a", "role": "describing"},
@@ -49,7 +49,7 @@ TOPICS = {
         "emoji": "\U0001F43E",
         # every noun is an animal that can do every one of these verbs
         "words": {
-            "determiner": ["a", "the", "my"],
+            "determiner": ["A", "The", "My"],
             "adjective": ["big", "small", "brown", "grey", "fluffy",
                           "hungry", "sleepy", "quick", "noisy", "happy"],
             "noun": ["cat", "dog", "rabbit", "duck", "horse",
@@ -68,7 +68,7 @@ TOPICS = {
         "emoji": "\U0001F392",
         # people only, so every noun can do every verb
         "words": {
-            "determiner": ["a", "the", "my"],
+            "determiner": ["A", "The", "My"],
             "adjective": ["new", "old", "tall", "small", "quiet",
                           "noisy", "happy", "busy", "kind", "clever"],
             "noun": ["teacher", "student", "class", "boy", "girl",
@@ -88,7 +88,7 @@ TOPICS = {
         "emoji": "\U0001F34E",
         # food does not run about, so this topic describes rather than acts
         "words": {
-            "determiner": ["a", "the", "my"],
+            "determiner": ["A", "The", "My"],
             "adjective": ["warm", "cold", "fresh", "sweet", "soft",
                           "big", "small", "sticky", "tasty"],
             "noun": ["soup", "bread", "rice", "apple", "cookie",

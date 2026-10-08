@@ -498,10 +498,14 @@ window.BW = window.BW || {};
        vowel, and the first word gets a capital letter. */
     text() {
       const words = this.tokens.map(t => t.word);
+      // "a apple" -> "an apple". Determiners are capitalised in the word lists
+      // because they open the sentence, so "A" has to be handled as well as "a".
       for (let i = 0; i < words.length; i++) {
-        if (words[i] !== 'a') continue;
+        if (words[i] !== 'a' && words[i] !== 'A') continue;
         const next = words.slice(i + 1).find(w => w !== ',');
-        if (next && VOWELS.includes(next[0].toLowerCase())) words[i] = 'an';
+        if (next && VOWELS.includes(next[0].toLowerCase())) {
+          words[i] = words[i] === 'A' ? 'An' : 'an';
+        }
       }
       if (words.length === 0) return '';
       let s = '';

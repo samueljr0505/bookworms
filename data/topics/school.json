@@ -7,7 +7,7 @@
   "families": {
     "determiner": {
       "label": "Determiner",
-      "hint": "points at a noun: a, the, my",
+      "hint": "starts the sentence: A, The, My",
       "color": "#9aa7d7",
       "role": "other"
     },
@@ -57,7 +57,7 @@
     },
     "determiner": {
       "label": "Determiner",
-      "hint": "points at a noun: a, the, my",
+      "hint": "starts the sentence: A, The, My",
       "color": "#9aa7d7",
       "family": "determiner"
     },
@@ -76,9 +76,9 @@
   },
   "words": {
     "determiner": [
-      "a",
-      "the",
-      "my"
+      "A",
+      "The",
+      "My"
     ],
     "adjective": [
       "new",
