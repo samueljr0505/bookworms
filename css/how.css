@@ -1,0 +1,242 @@
+/* The how-to-play page. Written for a 3rd to 5th grader, so: big type, short
+   lines, and a picture for every idea rather than a paragraph about it. */
+
+:root {
+  --paper: #fdf6e8;
+  --ink: #2c2a26;
+  --muted: #7b7263;
+  --line: #e3d7be;
+  --green: #4f8a5b;
+
+  --c-det:  #9aa7d7;
+  --c-adj:  #f2a65a;
+  --c-noun: #5ec4a3;
+  --c-verb: #e9797a;
+  --c-adv:  #c79ae0;
+  --c-end:  #f5c26b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #f4ecdb;
+  color: var(--ink);
+  font-family: "Nunito", ui-rounded, "Trebuchet MS", system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.guide { max-width: 640px; margin: 0 auto; padding: 26px 16px 70px; }
+
+/* ---------- header ---------- */
+
+.top { text-align: center; margin-bottom: 34px; position: relative; }
+.back {
+  position: absolute; left: 0; top: 4px;
+  font-size: 14px; font-weight: 800; color: var(--muted); text-decoration: none;
+  padding: 6px 12px; border-radius: 10px; border: 2px solid var(--line); background: #fff;
+}
+.back:hover { color: var(--ink); border-color: var(--green); }
+.top h1 {
+  margin: 34px 0 6px;
+  font-size: clamp(34px, 9vw, 52px);
+  color: var(--green);
+  letter-spacing: -1.4px;
+}
+.sub { margin: 0; font-size: 19px; font-weight: 800; color: var(--muted); }
+
+/* ---------- a numbered step ---------- */
+
+.step {
+  display: flex; gap: 16px;
+  background: #fff;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+.num {
+  flex: none;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--green); color: #fff;
+  font-size: 20px; font-weight: 800;
+  display: grid; place-items: center;
+}
+.body { flex: 1; min-width: 0; }
+.body h2 { margin: 4px 0 8px; font-size: 22px; }
+.body p { margin: 0 0 12px; }
+.caption { font-size: 14px; color: var(--muted); font-weight: 700; margin-top: 8px !important; }
+
+.plain { margin: 0 0 12px; padding-left: 20px; }
+.plain li { padding: 3px 0; }
+
+/* ---------- keyboard ---------- */
+
+.keys { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.keyset {
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(2, 40px);
+  gap: 5px;
+}
+.keyset kbd {
+  display: grid; place-items: center;
+  font: inherit; font-weight: 800; font-size: 16px;
+  background: #fff; border: 2px solid var(--line);
+  border-bottom-width: 4px; border-radius: 9px;
+}
+.keyset .up    { grid-column: 2; grid-row: 1; }
+.keyset .left  { grid-column: 1; grid-row: 2; }
+.keyset .down  { grid-column: 2; grid-row: 2; }
+.keyset .right { grid-column: 3; grid-row: 2; }
+.or { font-weight: 800; color: var(--muted); }
+
+/* ---------- the strip, as the game shows it ---------- */
+
+.strip-demo {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  background: #faf5ea; border: 2px solid var(--line);
+  border-radius: 12px; padding: 10px 12px;
+}
+.slot {
+  font-size: 13px; font-weight: 800;
+  padding: 5px 12px; border-radius: 999px;
+  border: 2px solid var(--line); background: #fff; color: var(--muted);
+}
+.slot.det  { border-color: var(--c-det); }
+.slot.adj  { border-color: var(--c-adj); }
+.slot.noun { border-color: var(--c-noun); }
+.slot.verb { border-color: var(--c-verb); }
+.slot.adv  { border-color: var(--c-adv); }
+.slot.end  { border-color: var(--c-end); }
+
+.slot.done { color: var(--ink); }
+.slot.det.done  { background: var(--c-det); }
+.slot.noun.done { background: var(--c-noun); }
+.slot.verb.done { background: var(--c-verb); }
+
+.slot.next {
+  color: var(--ink);
+  box-shadow: 0 0 0 4px rgba(79, 138, 91, 0.2);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% { box-shadow: 0 0 0 7px rgba(79, 138, 91, 0.1); }
+}
+
+/* ---------- a little board ---------- */
+
+.board-demo {
+  position: relative;
+  height: 190px;
+  background: var(--paper);
+  background-image:
+    linear-gradient(rgba(190,170,130,.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(190,170,130,.16) 1px, transparent 1px);
+  background-size: 22px 22px;
+  border: 3px solid #d8c9a9;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.tile {
+  position: absolute;
+  font-size: 13px; font-weight: 800; color: #20242e;
+  padding: 3px 11px; border-radius: 999px;
+}
+.tile.det  { background: var(--c-det); }
+.tile.adj  { background: var(--c-adj); }
+.tile.noun { background: var(--c-noun); }
+.tile.verb { background: var(--c-verb); }
+
+.worm-mini { position: absolute; left: 30%; top: 30%; display: flex; gap: 3px; }
+.worm-mini i {
+  width: 19px; height: 19px; border-radius: 6px; background: #6eb478;
+}
+.worm-mini i.head {
+  background: #4f8a5b; border-radius: 8px; position: relative;
+}
+.worm-mini i.head::before, .worm-mini i.head::after {
+  content: ""; position: absolute; width: 5px; height: 5px;
+  border-radius: 50%; background: #fff; right: 3px;
+}
+.worm-mini i.head::before { top: 3px; }
+.worm-mini i.head::after  { bottom: 3px; }
+
+/* ---------- the worm spelling a sentence ---------- */
+
+.spell { display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
+.spell i {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: grid; place-items: center;
+  font-style: normal; font-weight: 800; font-size: 14px; color: #20242e;
+}
+.spell i.det  { background: var(--c-det); }
+.spell i.noun { background: var(--c-noun); }
+.spell i.worm-head {
+  background: #4f8a5b; border-radius: 10px; position: relative; width: 30px; height: 30px;
+}
+.spell i.worm-head::before, .spell i.worm-head::after {
+  content: ""; position: absolute; width: 7px; height: 7px;
+  border-radius: 50%; background: #fff; right: 5px;
+}
+.spell i.worm-head::before { top: 6px; }
+.spell i.worm-head::after  { bottom: 6px; }
+
+/* ---------- callouts ---------- */
+
+.callout {
+  background: #faf5ea; border-left: 5px solid var(--line);
+  border-radius: 0 10px 10px 0; padding: 10px 14px;
+  font-size: 15px; margin-bottom: 10px;
+}
+.callout.good { border-left-color: var(--green); background: #f2faf3; }
+.callout em { font-style: normal; font-weight: 800; }
+
+.mark {
+  display: inline-grid; place-items: center;
+  width: 26px; height: 26px; border-radius: 8px;
+  background: var(--c-end); font-weight: 800; vertical-align: middle;
+}
+
+/* ---------- word kind cards ---------- */
+
+.kinds { margin-top: 30px; }
+.kinds h2 { text-align: center; font-size: 24px; margin-bottom: 14px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.card {
+  background: #fff; border: 2px solid var(--line);
+  border-top-width: 7px; border-radius: 14px; padding: 12px 14px;
+}
+.card h3 { margin: 0 0 4px; font-size: 17px; }
+.card p { margin: 0 0 6px; font-size: 14px; color: var(--muted); font-weight: 700; }
+.card span { font-size: 14px; font-weight: 800; }
+.card.det  { border-top-color: var(--c-det); }
+.card.adj  { border-top-color: var(--c-adj); }
+.card.noun { border-top-color: var(--c-noun); }
+.card.verb { border-top-color: var(--c-verb); }
+.card.adv  { border-top-color: var(--c-adv); }
+.card.end  { border-top-color: var(--c-end); }
+
+/* ---------- finish ---------- */
+
+.finish { text-align: center; margin-top: 34px; }
+.play {
+  display: inline-block;
+  font-size: 24px; font-weight: 800; text-decoration: none; color: #fff;
+  background: var(--green); padding: 14px 48px; border-radius: 16px;
+  box-shadow: 0 5px 0 #3c6b46;
+}
+.play:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #3c6b46; }
+.play:active { transform: translateY(3px); box-shadow: 0 2px 0 #3c6b46; }
+.keys-note { margin-top: 14px; color: var(--muted); font-weight: 700; font-size: 14px; }
+.keys-note kbd {
+  font: inherit; font-size: 12px; background: #efe6d2;
+  border-radius: 5px; padding: 1px 6px; font-weight: 800;
+}
+
+@media (max-width: 420px) {
+  .step { padding: 16px; gap: 12px; }
+  .board-demo { height: 160px; }
+}

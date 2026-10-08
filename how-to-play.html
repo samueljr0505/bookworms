@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bookworms - How to Play</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%9B%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/how.css" />
+</head>
+<body>
+
+<main class="guide">
+
+  <header class="top">
+    <a class="back" href="index.html">&larr; Back</a>
+    <h1>How to Play</h1>
+    <p class="sub">You are a worm. You eat words. The words make a sentence.</p>
+  </header>
+
+  <!-- 1 ------------------------------------------------------------ -->
+  <section class="step">
+    <div class="num">1</div>
+    <div class="body">
+      <h2>Steer your worm</h2>
+      <p>Your worm never stops moving. Use the <b>arrow keys</b> or <b>W A S D</b>
+         to turn it.</p>
+
+      <div class="keys">
+        <div class="keyset">
+          <kbd class="up">&uarr;</kbd>
+          <kbd class="left">&larr;</kbd><kbd class="down">&darr;</kbd><kbd class="right">&rarr;</kbd>
+        </div>
+        <span class="or">or</span>
+        <div class="keyset">
+          <kbd class="up">W</kbd>
+          <kbd class="left">A</kbd><kbd class="down">S</kbd><kbd class="right">D</kbd>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 ------------------------------------------------------------ -->
+  <section class="step">
+    <div class="num">2</div>
+    <div class="body">
+      <h2>Read the strip at the top</h2>
+      <p>The strip shows the <b>shape</b> of the sentence you are building.
+         It always tells you what kind of word to look for next.</p>
+
+      <div class="strip-demo">
+        <span class="slot det next">Determiner</span>
+        <span class="slot noun">Noun</span>
+        <span class="slot verb">Verb</span>
+        <span class="slot end">. !</span>
+      </div>
+      <p class="caption">The glowing one is what you need right now.</p>
+    </div>
+  </section>
+
+  <!-- 3 ------------------------------------------------------------ -->
+  <section class="step">
+    <div class="num">3</div>
+    <div class="body">
+      <h2>Drive over that kind of word</h2>
+      <p>Words float around the board. Drive your worm into one to eat it.</p>
+
+      <div class="board-demo">
+        <span class="tile noun" style="left:8%;  top:14%">fox</span>
+        <span class="tile verb" style="left:62%; top:10%">jumped</span>
+        <span class="tile det"  style="left:38%; top:52%">the</span>
+        <span class="tile adj"  style="left:74%; top:62%">fluffy</span>
+        <span class="tile noun" style="left:12%; top:68%">duck</span>
+        <span class="worm-mini">
+          <i></i><i></i><i></i><i class="head"></i>
+        </span>
+      </div>
+
+      <div class="callout good">
+        <b>Any word of the right kind works.</b> If the strip asks for a Noun, then
+        <em>fox</em> works, <em>duck</em> works, <em>cat</em> works. There is no
+        one secret answer.
+      </div>
+      <div class="callout">
+        Eat the wrong kind and nothing breaks. The game just says what that word was
+        and what you needed instead.
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 ------------------------------------------------------------ -->
+  <section class="step">
+    <div class="num">4</div>
+    <div class="body">
+      <h2>Your worm spells the sentence</h2>
+      <p>Every word you eat is written along your worm, <b>one letter per square</b>,
+         in the colour of that kind of word. Read your worm from its tail to its head.</p>
+
+      <div class="spell">
+        <i class="det">t</i><i class="det">h</i><i class="det">e</i><i class="noun">f</i><i class="noun">o</i><i class="noun">x</i><i class="worm-head"></i>
+      </div>
+      <p class="caption">Long words make you long &ndash; and harder to steer!</p>
+    </div>
+  </section>
+
+  <!-- 5 ------------------------------------------------------------ -->
+  <section class="step">
+    <div class="num">5</div>
+    <div class="body">
+      <h2>Finish with punctuation</h2>
+      <p>A sentence is <b>not finished</b> until you close it. Eat a
+         <span class="mark">.</span> or a <span class="mark">!</span> and your sentence
+         goes up on your list.</p>
+
+      <div class="strip-demo">
+        <span class="slot det done">the</span>
+        <span class="slot noun done">fox</span>
+        <span class="slot verb done">jumped</span>
+        <span class="slot end next">. !</span>
+      </div>
+      <p class="caption">Three words eaten. Now close it.</p>
+    </div>
+  </section>
+
+  <!-- 6 ------------------------------------------------------------ -->
+  <section class="step">
+    <div class="num">6</div>
+    <div class="body">
+      <h2>If you crash, you are fine</h2>
+      <p>Hit a wall or bite your own body and you drop the sentence you were building.</p>
+      <ul class="plain">
+        <li>The words you ate go <b>back onto the board</b>.</li>
+        <li>Your worm starts again in the <b>middle</b>.</li>
+        <li>You keep your points and your finished sentences.</li>
+      </ul>
+      <p>Nothing is lost. Just start the sentence again.</p>
+    </div>
+  </section>
+
+  <!-- the word kinds ------------------------------------------------ -->
+  <section class="kinds">
+    <h2>The five kinds of word</h2>
+    <div class="cards">
+      <div class="card det">
+        <h3>Determiner</h3>
+        <p>Points at a noun.</p>
+        <span>a &middot; the &middot; my</span>
+      </div>
+      <div class="card adj">
+        <h3>Adjective</h3>
+        <p>Describes a noun.</p>
+        <span>big &middot; grey &middot; warm</span>
+      </div>
+      <div class="card noun">
+        <h3>Noun</h3>
+        <p>A person, place or thing.</p>
+        <span>fox &middot; teacher &middot; apple</span>
+      </div>
+      <div class="card verb">
+        <h3>Verb</h3>
+        <p>What happens.</p>
+        <span>jumped &middot; read &middot; is</span>
+      </div>
+      <div class="card adv">
+        <h3>Adverb</h3>
+        <p>How it happened.</p>
+        <span>quickly &middot; quietly</span>
+      </div>
+      <div class="card end">
+        <h3>Punctuation</h3>
+        <p>Ends the sentence.</p>
+        <span>. &middot; !</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="finish">
+    <a class="play" href="index.html">Let's play</a>
+    <p class="keys-note"><kbd>P</kbd> pauses &middot; <kbd>R</kbd> starts a new game</p>
+  </section>
+
+</main>
+</body>
+</html>

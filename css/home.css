@@ -292,3 +292,21 @@ h2 {
   margin: 18px 0 0; font-size: 13.5px; color: var(--muted);
   font-weight: 700; border-top: 2px dashed var(--line); padding-top: 14px;
 }
+
+/* ---------- link to the how-to-play page ---------- */
+
+.learn { margin-top: 34px; }
+.learn-link {
+  display: inline-flex; align-items: center; gap: 14px;
+  text-align: left; text-decoration: none; color: var(--ink);
+  background: #fff; border: 2px solid var(--line); border-radius: 16px;
+  padding: 14px 22px; transition: transform 0.15s, border-color 0.15s;
+}
+.learn-link:hover { transform: translateY(-3px); border-color: var(--green); }
+.learn-icon {
+  flex: none; width: 38px; height: 38px; border-radius: 50%;
+  background: var(--green); color: #fff;
+  display: grid; place-items: center; font-size: 22px; font-weight: 800;
+}
+.learn-link b { display: block; font-size: 17px; }
+.learn-link small { display: block; color: var(--muted); font-weight: 700; font-size: 13px; }
