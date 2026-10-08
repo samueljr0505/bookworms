@@ -199,3 +199,96 @@ h2 {
   .worm .seg { width: 24px; height: 24px; }
   .worm .seg.head { width: 30px; height: 30px; }
 }
+
+/* ---------- topic picker ---------- */
+
+.topics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.topic {
+  font: inherit;
+  font-weight: 800;
+  font-size: 15px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: 3px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.topic small { display: block; font-weight: 700; font-size: 11px; color: var(--muted); }
+.topic:hover { transform: translateY(-3px); }
+.topic[aria-checked="true"] { border-color: var(--green); background: #f3faf4; }
+.topic:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+
+/* ---------- how a sentence gets built ---------- */
+
+.how {
+  margin-top: 46px;
+  padding: 24px 26px;
+  background: #fff;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  text-align: left;
+}
+.how h2, .how h3 { text-align: left; }
+.how h3 { margin-top: 22px; }
+.how-lead { margin: 0 0 18px; font-size: 15px; font-weight: 700; color: var(--ink); }
+
+.how-steps { list-style: none; margin: 0; padding: 0; }
+.how-steps li { display: flex; gap: 12px; padding: 10px 0; font-size: 14.5px; }
+.step-n {
+  flex: none; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--green); color: #fff; font-weight: 800;
+  display: grid; place-items: center; font-size: 14px;
+}
+
+/* the little worked example */
+.demo { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.demo i {
+  font-style: normal; font-weight: 800; font-size: 12px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 2px dashed #c9bda3; color: var(--muted); background: #fbf7ee;
+}
+.demo i.done { border-style: solid; color: #20242e; }
+
+.d-det  { border-color: #9aa7d7; } .d-det.done  { background: #9aa7d7; }
+.d-adj  { border-color: #f2a65a; } .d-adj.done  { background: #f2a65a; }
+.d-noun { border-color: #5ec4a3; } .d-noun.done { background: #5ec4a3; }
+.d-verb { border-color: #e9797a; } .d-verb.done { background: #e9797a; }
+.d-adv  { border-color: #c79ae0; } .d-adv.done  { background: #c79ae0; }
+.d-prep { border-color: #72b6e8; } .d-prep.done { background: #72b6e8; }
+.d-end  { border-color: #f5c26b; } .d-end.done  { background: #f5c26b; }
+
+.how-pos { list-style: none; margin: 0; padding: 0; }
+.how-pos li {
+  display: flex; align-items: center; gap: 9px;
+  padding: 5px 0; font-size: 14px;
+}
+/* the swatch takes the colour of its word kind; currentColor would pick up the
+   list's text colour instead, which is why these are set explicitly */
+.how-pos i {
+  flex: none; width: 15px; height: 15px; border-radius: 5px; border: none;
+}
+.how-pos .d-det  { background: #9aa7d7; }
+.how-pos .d-adj  { background: #f2a65a; }
+.how-pos .d-noun { background: #5ec4a3; }
+.how-pos .d-verb { background: #e9797a; }
+.how-pos .d-adv  { background: #c79ae0; }
+.how-pos .d-prep { background: #72b6e8; }
+.how-pos .d-end  { background: #f5c26b; }
+.how-pos em { color: var(--muted); font-style: normal; font-weight: 700; }
+.how-note {
+  margin: 18px 0 0; font-size: 13.5px; color: var(--muted);
+  font-weight: 700; border-top: 2px dashed var(--line); padding-top: 14px;
+}

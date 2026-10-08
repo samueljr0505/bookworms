@@ -67,6 +67,20 @@ BW.Worm = class Worm {
     return dropped;
   }
 
+  /* Start again from the middle of the board, facing right and standing still.
+     After a crash the worm is pressed against a wall or folded over itself,
+     which is a miserable place to be handed back to a player. */
+  respawn(cols, rows) {
+    const x = Math.floor(cols / 2);
+    const y = Math.floor(rows / 2);
+    this.cells = [];
+    for (let i = 0; i < this.startLength; i++) this.cells.push({ x: x - i, y });
+    this.dir = { x: 1, y: 0 };
+    this.pendingDir = null;
+    this.grow = 0;
+    this.moving = false;
+  }
+
   /* Never shrink below the starting size - a two-square worm is no fun to steer. */
   shrink(n) {
     this.grow = 0;

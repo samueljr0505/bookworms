@@ -69,9 +69,14 @@ BW.Board = class Board {
   disperse(pack, sentence, worm, cfg, returnWords) {
     this.clear();
 
+    // In a free-build topic nothing is "wrong" to eat, but the board still has
+    // to make finishing possible - so it always carries some words that would
+    // keep the sentence going, alongside others that would not.
+    const onTrack = sentence.continuations ? sentence.continuations() : null;
     const valid = [];
     const wrong = [];
-    const isValid = item => sentence.fits(item.word, item.pos);
+    const isValid = item => onTrack ? onTrack.has(item.word)
+                                    : sentence.fits(item.word, item.pos);
     for (const pos of Object.keys(pack.words)) {
       for (const word of pack.words[pos]) (isValid({ word, pos }) ? valid : wrong).push({ word, pos });
     }
@@ -90,7 +95,7 @@ BW.Board = class Board {
     returned.forEach(add);
 
     const total = Math.max(cfg.wordsOnBoard, chosen.length + cfg.minValidWords);
-    const wantValid = cfg.minValidWords + BW.rng.int(2);   // a couple of right answers, sometimes three
+    const wantValid = (onTrack ? cfg.minOnTrackWords : cfg.minValidWords) + BW.rng.int(2);   // a couple of right answers, sometimes three
 
     const take = (list, n) => {
       for (const item of BW.rng.shuffle(list)) {

@@ -1,0 +1,2585 @@
+{
+  "id": "school",
+  "name": "School",
+  "emoji": "🎒",
+  "description": "170 sentences, every one written and checked by hand.",
+  "sentenceCount": 170,
+  "families": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "a, the, my",
+      "color": "#9aa7d7",
+      "role": "other"
+    },
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, red",
+      "color": "#f2a65a",
+      "role": "describing"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "role": "naming"
+    },
+    "verb": {
+      "label": "Verb",
+      "hint": "an action or a state",
+      "color": "#e9797a",
+      "role": "action"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "describes a verb: slowly",
+      "color": "#c79ae0",
+      "role": "other"
+    },
+    "preposition": {
+      "label": "Preposition",
+      "hint": "shows where: under, near",
+      "color": "#72b6e8",
+      "role": "other"
+    },
+    "question": {
+      "label": "Question Word",
+      "hint": "where, what",
+      "color": "#7fb0c9",
+      "role": "other"
+    }
+  },
+  "pos": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "a, the, my",
+      "color": "#9aa7d7",
+      "family": "determiner"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, red",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "describes a verb: slowly",
+      "color": "#c79ae0",
+      "family": "adverb"
+    },
+    "verb": {
+      "label": "Verb",
+      "hint": "an action or a state",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "preposition": {
+      "label": "Preposition",
+      "hint": "shows where: under, near",
+      "color": "#72b6e8",
+      "family": "preposition"
+    },
+    "be": {
+      "label": "Verb",
+      "hint": "an action or a state",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "question": {
+      "label": "Question Word",
+      "hint": "where, what",
+      "color": "#7fb0c9",
+      "family": "question"
+    }
+  },
+  "words": {
+    "determiner": [
+      "a",
+      "my",
+      "the"
+    ],
+    "noun": [
+      "backpack",
+      "bag",
+      "bell",
+      "board",
+      "book",
+      "chair",
+      "class",
+      "desk",
+      "door",
+      "gym",
+      "library",
+      "lunchbox",
+      "pencil",
+      "playground",
+      "student",
+      "teacher",
+      "window"
+    ],
+    "adjective": [
+      "big",
+      "new",
+      "old",
+      "small",
+      "tall"
+    ],
+    "adverb": [
+      "carefully",
+      "loudly",
+      "quickly",
+      "quietly",
+      "slowly",
+      "together"
+    ],
+    "verb": [
+      "closed",
+      "drew",
+      "listened",
+      "opened",
+      "packed",
+      "rang",
+      "read",
+      "reads",
+      "studied",
+      "waited",
+      "writes",
+      "wrote"
+    ],
+    "preposition": [
+      "in",
+      "near"
+    ],
+    "be": [
+      "is",
+      "was"
+    ],
+    "question": [
+      "where"
+    ]
+  },
+  "sentences": [
+    {
+      "words": [
+        "the",
+        "teacher",
+        "read"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "wrote"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "drew"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "read"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "wrote"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "drew"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "read",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "read",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "read",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "wrote",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "wrote",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "wrote",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "drew",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "drew",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "drew",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "read",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "read",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "read",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "wrote",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "wrote",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "wrote",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "drew",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "drew",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "drew",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "opened",
+        "the",
+        "book"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "opened",
+        "the",
+        "door"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "opened",
+        "the",
+        "window"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "opened",
+        "the",
+        "book"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "opened",
+        "the",
+        "door"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "opened",
+        "the",
+        "window"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "listened",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "listened",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "waited",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "waited",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "listened",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "listened",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "waited",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "waited",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "book",
+        "is",
+        "new"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "book",
+        "is",
+        "old"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "book",
+        "is",
+        "big"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "book",
+        "was",
+        "new"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "book",
+        "was",
+        "old"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "book",
+        "was",
+        "big"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "pencil",
+        "is",
+        "new"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "pencil",
+        "is",
+        "old"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "pencil",
+        "is",
+        "big"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "pencil",
+        "was",
+        "new"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "pencil",
+        "was",
+        "old"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "pencil",
+        "was",
+        "big"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "bag",
+        "is",
+        "new"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "bag",
+        "is",
+        "old"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "bag",
+        "is",
+        "big"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "bag",
+        "was",
+        "new"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "bag",
+        "was",
+        "old"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "bag",
+        "was",
+        "big"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bell",
+        "rang",
+        "loudly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bell",
+        "rang",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "opened",
+        "the",
+        "door"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "opened",
+        "the",
+        "window"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "opened",
+        "the",
+        "book"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "closed",
+        "the",
+        "door"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "closed",
+        "the",
+        "window"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "closed",
+        "the",
+        "book"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "packed",
+        "the",
+        "lunchbox"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "packed",
+        "the",
+        "backpack"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "packed",
+        "the",
+        "bag"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "packed",
+        "the",
+        "lunchbox"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "packed",
+        "the",
+        "backpack"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "packed",
+        "the",
+        "bag"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "studied"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "studied"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "studied",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "studied",
+        "in",
+        "the",
+        "gym"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "studied",
+        "in",
+        "the",
+        "playground"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "studied",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "studied",
+        "near",
+        "the",
+        "gym"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "studied",
+        "near",
+        "the",
+        "playground"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "studied",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "studied",
+        "in",
+        "the",
+        "gym"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "studied",
+        "in",
+        "the",
+        "playground"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "studied",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "studied",
+        "near",
+        "the",
+        "gym"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "studied",
+        "near",
+        "the",
+        "playground"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "is",
+        "my",
+        "book"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "is",
+        "my",
+        "pencil"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "is",
+        "my",
+        "bag"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "was",
+        "my",
+        "book"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "was",
+        "my",
+        "pencil"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "was",
+        "my",
+        "bag"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "reads",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "reads",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "writes",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "writes",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "reads",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "reads",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "writes",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "class",
+        "writes",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "desk",
+        "is",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "desk",
+        "is",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "desk",
+        "is",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "desk",
+        "is",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "desk",
+        "was",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "desk",
+        "was",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "desk",
+        "was",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "desk",
+        "was",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "chair",
+        "is",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "chair",
+        "is",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "chair",
+        "is",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "chair",
+        "is",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "chair",
+        "was",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "chair",
+        "was",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "chair",
+        "was",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "chair",
+        "was",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "board",
+        "is",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "board",
+        "is",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "board",
+        "is",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "board",
+        "is",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "board",
+        "was",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "board",
+        "was",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "board",
+        "was",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "tall",
+        "board",
+        "was",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "desk",
+        "is",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "desk",
+        "is",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "desk",
+        "is",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "desk",
+        "is",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "desk",
+        "was",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "desk",
+        "was",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "desk",
+        "was",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "desk",
+        "was",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "chair",
+        "is",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "chair",
+        "is",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "chair",
+        "is",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "chair",
+        "is",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "chair",
+        "was",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "chair",
+        "was",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "chair",
+        "was",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "chair",
+        "was",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "board",
+        "is",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "board",
+        "is",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "board",
+        "is",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "board",
+        "is",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "board",
+        "was",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "board",
+        "was",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "board",
+        "was",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "board",
+        "was",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "desk",
+        "is",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "desk",
+        "is",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "desk",
+        "is",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "desk",
+        "is",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "desk",
+        "was",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "desk",
+        "was",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "desk",
+        "was",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "desk",
+        "was",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "chair",
+        "is",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "chair",
+        "is",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "chair",
+        "is",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "chair",
+        "is",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "chair",
+        "was",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "chair",
+        "was",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "chair",
+        "was",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "chair",
+        "was",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "board",
+        "is",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "board",
+        "is",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "board",
+        "is",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "board",
+        "is",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "board",
+        "was",
+        "in",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "board",
+        "was",
+        "in",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "board",
+        "was",
+        "near",
+        "the",
+        "class"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "new",
+        "board",
+        "was",
+        "near",
+        "the",
+        "library"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    }
+  ],
+  "patterns": [
+    {
+      "id": "school-1",
+      "name": "Sentence 1",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'teacher' | 'student' ) ( 'read' | 'wrote' | 'drew' )"
+    },
+    {
+      "id": "school-2",
+      "name": "Sentence 2",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'teacher' | 'student' ) ( 'read' | 'wrote' | 'drew' ) ( 'quickly' | 'slowly' | 'carefully' )"
+    },
+    {
+      "id": "school-3",
+      "name": "Sentence 3",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'a' ( 'student' | 'teacher' ) 'opened' 'the' ( 'book' | 'door' | 'window' )"
+    },
+    {
+      "id": "school-4",
+      "name": "Sentence 4",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'class' | 'student' ) ( 'listened' | 'waited' ) ( 'quietly' | 'carefully' )"
+    },
+    {
+      "id": "school-5",
+      "name": "Sentence 5",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'my' ( 'book' | 'pencil' | 'bag' ) ( 'is' | 'was' ) ( 'new' | 'old' | 'big' )"
+    },
+    {
+      "id": "school-6",
+      "name": "Sentence 6",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'bell' ) 'rang' ( 'loudly' | 'quietly' )"
+    },
+    {
+      "id": "school-7",
+      "name": "Sentence 7",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' 'teacher' ( 'opened' | 'closed' ) 'the' ( 'door' | 'window' | 'book' )"
+    },
+    {
+      "id": "school-8",
+      "name": "Sentence 8",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'a' ( 'student' | 'teacher' ) 'packed' 'the' ( 'lunchbox' | 'backpack' | 'bag' )"
+    },
+    {
+      "id": "school-9",
+      "name": "Sentence 9",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'class' | 'student' ) 'studied'"
+    },
+    {
+      "id": "school-10",
+      "name": "Sentence 10",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'class' | 'student' ) 'studied' ( 'in' | 'near' ) 'the' ( 'library' | 'gym' | 'playground' )"
+    },
+    {
+      "id": "school-11",
+      "name": "Sentence 11",
+      "end": [
+        "?"
+      ],
+      "shape": "'where' ( 'is' | 'was' ) 'my' ( 'book' | 'pencil' | 'bag' )"
+    },
+    {
+      "id": "school-12",
+      "name": "Sentence 12",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'student' | 'class' ) ( 'reads' | 'writes' ) ( 'quietly' | 'together' )"
+    },
+    {
+      "id": "school-13",
+      "name": "Sentence 13",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'a' ( 'tall' | 'small' | 'new' ) ( 'desk' | 'chair' | 'board' ) ( 'is' | 'was' ) ( 'in' | 'near' ) 'the' ( 'class' | 'library' )"
+    }
+  ],
+  "punctuation": [
+    {
+      "mark": ".",
+      "name": "period"
+    },
+    {
+      "mark": "!",
+      "name": "exclamation point"
+    },
+    {
+      "mark": "?",
+      "name": "question mark"
+    }
+  ]
+}

@@ -4,34 +4,50 @@ window.BW = window.BW || {};
 (function () {
   const $ = id => document.getElementById(id);
 
+  /* Load the topic the player picked on the home page. Each topic is a set of
+     sentences written out by hand, so everything it can produce has been read
+     by a person first. */
   async function loadPack() {
-    const index = await fetch('data/packs.json').then(r => {
-      if (!r.ok) throw new Error('packs.json: HTTP ' + r.status);
+    const index = await fetch('data/topics.json').then(r => {
+      if (!r.ok) throw new Error('topics.json: HTTP ' + r.status);
       return r.json();
     });
-    const entry = index.packs.find(p => p.id === index.defaultPack) || index.packs[0];
-    const pack = await fetch('data/' + entry.file).then(r => {
-      if (!r.ok) throw new Error(entry.file + ': HTTP ' + r.status);
+    const topic = BW.chooseTopic(index);
+    const pack = await fetch('data/' + topic.file).then(r => {
+      if (!r.ok) throw new Error(topic.file + ': HTTP ' + r.status);
       return r.json();
     });
     return pack;
   }
 
+  /* Players only ever see the family a part of speech belongs to. The fine-grained
+     tags (transitive, baseVerb, subordinator...) are for the grammar engine; showing
+     a 3rd grader seventeen of them is noise, not teaching. */
+  function family(pack, pos) {
+    const info = pack.pos[pos];
+    return (info && pack.families && pack.families[info.family]) || null;
+  }
+
   function posLabel(pack, pos) {
     if (pos === 'punctuation') return 'Ending mark';
+    const fam = family(pack, pos);
+    if (fam) return fam.label;
     return (pack.pos[pos] && pack.pos[pos].label) || pos;
   }
 
   function posColor(pack, pos) {
     if (pos === 'punctuation') return '#f5c26b';
-    return (pack.pos[pos] && pack.pos[pos].color) || '#9aa7d7';
+    const fam = family(pack, pos);
+    return (fam && fam.color) || (pack.pos[pos] && pack.pos[pos].color) || '#9aa7d7';
   }
 
+  /* One row per family, not one per part of speech - a short list a child can learn. */
   function renderLegend(pack) {
     const ul = $('legend');
     ul.innerHTML = '';
-    for (const pos of Object.keys(pack.pos)) {
-      const info = pack.pos[pos];
+    const groups = pack.families || pack.pos;
+    for (const id of Object.keys(groups)) {
+      const info = groups[id];
       const li = document.createElement('li');
       li.innerHTML = `<i style="background:${info.color}"></i>
                       <b>${info.label}</b><span>${info.hint}</span>`;
@@ -58,7 +74,11 @@ window.BW = window.BW || {};
         el.style.background = posColor(pack, slot.pos);
         el.textContent = slot.word;
       } else {
-        el.textContent = slot.literal ? '"' + slot.literal + '"' : posLabel(pack, slot.pos);
+        // Never show the word itself - with hand-written sentences every slot is
+        // a specific word, and printing it hands the player the answer. Show
+        // what KIND of word is needed and let them find it on the board.
+        const pos = slot.pos || BW.Grammar.posOfWord(pack, slot.literal);
+        el.textContent = posLabel(pack, pos);
       }
       building.appendChild(el);
     }
@@ -78,11 +98,15 @@ window.BW = window.BW || {};
     }
 
     // what to hunt for next
-    const wanted = s.wants().map(m => m.word ? '"' + m.word + '"' : posLabel(pack, m.pos));
+    const wanted = [];
+    for (const m of s.wants()) {
+      const label = posLabel(pack, m.pos || BW.Grammar.posOfWord(pack, m.word));
+      if (!wanted.includes(label)) wanted.push(label);
+    }
     if (s.canEnd() && s.tokens.length > 0) {
       wanted.push('a punctuation mark (' + s.endMarks().join(' or ') + ') to end it');
     }
-    $('next-up').innerHTML = 'Go eat: <b>' + wanted.join('</b> or <b>') + '</b>';
+    $('next-up').innerHTML = 'Find a <b>' + wanted.join('</b> or a <b>') + '</b>';
 
     $('btn-pause').innerHTML = (game.mode === 'paused' ? 'Resume' : 'Pause') + ' <kbd>P</kbd>';
 
@@ -139,6 +163,10 @@ window.BW = window.BW || {};
     $('loading').hidden = true;
     $('game').hidden = false;
     renderLegend(pack);
+    document.title = 'Bookworms - ' + pack.name;
+    const heading = document.querySelector('.tagline');
+    if (heading) heading.textContent = pack.emoji + ' ' + pack.name +
+      ' - eat the words in the right order and build a sentence.';
 
     BW.CONFIG.worm = await loadWorm();
     // tint the little worm in the page heading to match

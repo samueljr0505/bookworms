@@ -1,0 +1,4158 @@
+{
+  "id": "animals",
+  "name": "Animals",
+  "emoji": "🐾",
+  "description": "273 sentences, every one written and checked by hand.",
+  "sentenceCount": 273,
+  "families": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "a, the, my",
+      "color": "#9aa7d7",
+      "role": "other"
+    },
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, red",
+      "color": "#f2a65a",
+      "role": "describing"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "role": "naming"
+    },
+    "verb": {
+      "label": "Verb",
+      "hint": "an action or a state",
+      "color": "#e9797a",
+      "role": "action"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "describes a verb: slowly",
+      "color": "#c79ae0",
+      "role": "other"
+    },
+    "preposition": {
+      "label": "Preposition",
+      "hint": "shows where: under, near",
+      "color": "#72b6e8",
+      "role": "other"
+    },
+    "conjunction": {
+      "label": "Conjunction",
+      "hint": "joins ideas: and, but, so",
+      "color": "#e7c35a",
+      "role": "other"
+    },
+    "question": {
+      "label": "Question Word",
+      "hint": "where, what",
+      "color": "#7fb0c9",
+      "role": "other"
+    }
+  },
+  "pos": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "a, the, my",
+      "color": "#9aa7d7",
+      "family": "determiner"
+    },
+    "conjunction": {
+      "label": "Conjunction",
+      "hint": "joins ideas: and, but, so",
+      "color": "#e7c35a",
+      "family": "conjunction"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "describes a verb: slowly",
+      "color": "#c79ae0",
+      "family": "adverb"
+    },
+    "verb": {
+      "label": "Verb",
+      "hint": "an action or a state",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, red",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "preposition": {
+      "label": "Preposition",
+      "hint": "shows where: under, near",
+      "color": "#72b6e8",
+      "family": "preposition"
+    },
+    "be": {
+      "label": "Verb",
+      "hint": "an action or a state",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "question": {
+      "label": "Question Word",
+      "hint": "where, what",
+      "color": "#7fb0c9",
+      "family": "question"
+    }
+  },
+  "words": {
+    "determiner": [
+      "a",
+      "my",
+      "the"
+    ],
+    "conjunction": [
+      "and"
+    ],
+    "adverb": [
+      "away",
+      "inside",
+      "loudly",
+      "outside",
+      "quickly",
+      "quietly",
+      "slowly"
+    ],
+    "verb": [
+      "barked",
+      "flew",
+      "hopped",
+      "jumped",
+      "ran",
+      "rested",
+      "sings",
+      "sleeps",
+      "slept",
+      "swam"
+    ],
+    "noun": [
+      "barn",
+      "bee",
+      "bird",
+      "branch",
+      "cat",
+      "dog",
+      "duck",
+      "field",
+      "fish",
+      "frog",
+      "garden",
+      "horse",
+      "kitten",
+      "mouse",
+      "nest",
+      "pond",
+      "pool",
+      "puppy",
+      "rabbit",
+      "tree"
+    ],
+    "adjective": [
+      "big",
+      "brown",
+      "fluffy",
+      "grey",
+      "happy",
+      "hungry",
+      "quick",
+      "sleepy",
+      "small"
+    ],
+    "preposition": [
+      "in",
+      "into",
+      "near",
+      "on",
+      "over",
+      "under"
+    ],
+    "be": [
+      "is",
+      "was"
+    ],
+    "question": [
+      "where"
+    ]
+  },
+  "sentences": [
+    {
+      "words": [
+        "the",
+        "cat",
+        "ran",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "ran",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "ran",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "jumped",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "jumped",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "jumped",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "hopped",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "hopped",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "hopped",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "ran",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "ran",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "ran",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "jumped",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "jumped",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "jumped",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "hopped",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "hopped",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "hopped",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "ran",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "ran",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "ran",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "jumped",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "jumped",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "jumped",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "hopped",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "hopped",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "hopped",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "ran",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "ran",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "ran",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "jumped",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "jumped",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "jumped",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "hopped",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "hopped",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "hopped",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "slept",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "slept",
+        "outside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cat",
+        "slept",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "slept",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "slept",
+        "outside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "slept",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "slept",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "slept",
+        "outside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rabbit",
+        "slept",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "slept",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "slept",
+        "outside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "slept",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "puppy",
+        "slept",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "puppy",
+        "slept",
+        "under",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "puppy",
+        "slept",
+        "near",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "puppy",
+        "slept",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "kitten",
+        "slept",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "kitten",
+        "slept",
+        "under",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "kitten",
+        "slept",
+        "near",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "kitten",
+        "slept",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "rabbit",
+        "slept",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "rabbit",
+        "slept",
+        "under",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "rabbit",
+        "slept",
+        "near",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "rabbit",
+        "slept",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "puppy",
+        "slept",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "puppy",
+        "slept",
+        "under",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "puppy",
+        "slept",
+        "near",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "puppy",
+        "slept",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "kitten",
+        "slept",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "kitten",
+        "slept",
+        "under",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "kitten",
+        "slept",
+        "near",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "kitten",
+        "slept",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "rabbit",
+        "slept",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "rabbit",
+        "slept",
+        "under",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "rabbit",
+        "slept",
+        "near",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "rabbit",
+        "slept",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "puppy",
+        "slept",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "puppy",
+        "slept",
+        "under",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "puppy",
+        "slept",
+        "near",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "puppy",
+        "slept",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "kitten",
+        "slept",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "kitten",
+        "slept",
+        "under",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "kitten",
+        "slept",
+        "near",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "kitten",
+        "slept",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "rabbit",
+        "slept",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "rabbit",
+        "slept",
+        "under",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "rabbit",
+        "slept",
+        "near",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fluffy",
+        "rabbit",
+        "slept",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "cat",
+        "ran",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "cat",
+        "ran",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "cat",
+        "ran",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "cat",
+        "ran",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "cat",
+        "rested",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "cat",
+        "rested",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "cat",
+        "rested",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "cat",
+        "rested",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "dog",
+        "ran",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "dog",
+        "ran",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "dog",
+        "ran",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "dog",
+        "ran",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "dog",
+        "rested",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "dog",
+        "rested",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "dog",
+        "rested",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "dog",
+        "rested",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "horse",
+        "ran",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "horse",
+        "ran",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "horse",
+        "ran",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "horse",
+        "ran",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "horse",
+        "rested",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "horse",
+        "rested",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "horse",
+        "rested",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "hungry",
+        "horse",
+        "rested",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "cat",
+        "ran",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "cat",
+        "ran",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "cat",
+        "ran",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "cat",
+        "ran",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "cat",
+        "rested",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "cat",
+        "rested",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "cat",
+        "rested",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "cat",
+        "rested",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "dog",
+        "ran",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "dog",
+        "ran",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "dog",
+        "ran",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "dog",
+        "ran",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "dog",
+        "rested",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "dog",
+        "rested",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "dog",
+        "rested",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "dog",
+        "rested",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "horse",
+        "ran",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "horse",
+        "ran",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "horse",
+        "ran",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "horse",
+        "ran",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "horse",
+        "rested",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "horse",
+        "rested",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "horse",
+        "rested",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "sleepy",
+        "horse",
+        "rested",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "cat",
+        "ran",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "cat",
+        "ran",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "cat",
+        "ran",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "cat",
+        "ran",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "cat",
+        "rested",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "cat",
+        "rested",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "cat",
+        "rested",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "cat",
+        "rested",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "dog",
+        "ran",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "dog",
+        "ran",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "dog",
+        "ran",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "dog",
+        "ran",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "dog",
+        "rested",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "dog",
+        "rested",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "dog",
+        "rested",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "dog",
+        "rested",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "horse",
+        "ran",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "horse",
+        "ran",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "horse",
+        "ran",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "horse",
+        "ran",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "horse",
+        "rested",
+        "in",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "horse",
+        "rested",
+        "in",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "horse",
+        "rested",
+        "near",
+        "the",
+        "field"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "quick",
+        "horse",
+        "rested",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bird",
+        "flew"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bee",
+        "flew"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "duck",
+        "flew"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bird",
+        "flew",
+        "over",
+        "the",
+        "pond"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bird",
+        "flew",
+        "over",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bird",
+        "flew",
+        "over",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bird",
+        "flew",
+        "near",
+        "the",
+        "pond"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bird",
+        "flew",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bird",
+        "flew",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bee",
+        "flew",
+        "over",
+        "the",
+        "pond"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bee",
+        "flew",
+        "over",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bee",
+        "flew",
+        "over",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bee",
+        "flew",
+        "near",
+        "the",
+        "pond"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bee",
+        "flew",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "bee",
+        "flew",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "duck",
+        "flew",
+        "over",
+        "the",
+        "pond"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "duck",
+        "flew",
+        "over",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "duck",
+        "flew",
+        "over",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "duck",
+        "flew",
+        "near",
+        "the",
+        "pond"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "duck",
+        "flew",
+        "near",
+        "the",
+        "garden"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "duck",
+        "flew",
+        "near",
+        "the",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "fish",
+        "swam",
+        "in",
+        "the",
+        "pond"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "fish",
+        "swam",
+        "in",
+        "the",
+        "pool"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "fish",
+        "swam",
+        "under",
+        "the",
+        "pond"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "fish",
+        "swam",
+        "under",
+        "the",
+        "pool"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "frog",
+        "swam",
+        "in",
+        "the",
+        "pond"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "frog",
+        "swam",
+        "in",
+        "the",
+        "pool"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "frog",
+        "swam",
+        "under",
+        "the",
+        "pond"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "frog",
+        "swam",
+        "under",
+        "the",
+        "pool"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "brown",
+        "mouse",
+        "hopped",
+        "into",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "brown",
+        "mouse",
+        "hopped",
+        "into",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "brown",
+        "mouse",
+        "hopped",
+        "under",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "brown",
+        "mouse",
+        "hopped",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "brown",
+        "rabbit",
+        "hopped",
+        "into",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "brown",
+        "rabbit",
+        "hopped",
+        "into",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "brown",
+        "rabbit",
+        "hopped",
+        "under",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "brown",
+        "rabbit",
+        "hopped",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "grey",
+        "mouse",
+        "hopped",
+        "into",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "grey",
+        "mouse",
+        "hopped",
+        "into",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "grey",
+        "mouse",
+        "hopped",
+        "under",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "grey",
+        "mouse",
+        "hopped",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "grey",
+        "rabbit",
+        "hopped",
+        "into",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "grey",
+        "rabbit",
+        "hopped",
+        "into",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "grey",
+        "rabbit",
+        "hopped",
+        "under",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "grey",
+        "rabbit",
+        "hopped",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "mouse",
+        "hopped",
+        "into",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "mouse",
+        "hopped",
+        "into",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "mouse",
+        "hopped",
+        "under",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "mouse",
+        "hopped",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "rabbit",
+        "hopped",
+        "into",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "rabbit",
+        "hopped",
+        "into",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "rabbit",
+        "hopped",
+        "under",
+        "the",
+        "nest"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "rabbit",
+        "hopped",
+        "under",
+        "the",
+        "barn"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "barked",
+        "loudly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "barked",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "puppy",
+        "barked",
+        "loudly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "puppy",
+        "barked",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "barked",
+        "loudly",
+        "and",
+        "the",
+        "cat",
+        "ran",
+        "away"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "barked",
+        "loudly",
+        "and",
+        "the",
+        "cat",
+        "ran",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "barked",
+        "loudly",
+        "and",
+        "the",
+        "kitten",
+        "ran",
+        "away"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "barked",
+        "loudly",
+        "and",
+        "the",
+        "kitten",
+        "ran",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "barked",
+        "quietly",
+        "and",
+        "the",
+        "cat",
+        "ran",
+        "away"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "barked",
+        "quietly",
+        "and",
+        "the",
+        "cat",
+        "ran",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "barked",
+        "quietly",
+        "and",
+        "the",
+        "kitten",
+        "ran",
+        "away"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "dog",
+        "barked",
+        "quietly",
+        "and",
+        "the",
+        "kitten",
+        "ran",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "puppy",
+        "barked",
+        "loudly",
+        "and",
+        "the",
+        "cat",
+        "ran",
+        "away"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "puppy",
+        "barked",
+        "loudly",
+        "and",
+        "the",
+        "cat",
+        "ran",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "puppy",
+        "barked",
+        "loudly",
+        "and",
+        "the",
+        "kitten",
+        "ran",
+        "away"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "puppy",
+        "barked",
+        "loudly",
+        "and",
+        "the",
+        "kitten",
+        "ran",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "puppy",
+        "barked",
+        "quietly",
+        "and",
+        "the",
+        "cat",
+        "ran",
+        "away"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "puppy",
+        "barked",
+        "quietly",
+        "and",
+        "the",
+        "cat",
+        "ran",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "puppy",
+        "barked",
+        "quietly",
+        "and",
+        "the",
+        "kitten",
+        "ran",
+        "away"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "puppy",
+        "barked",
+        "quietly",
+        "and",
+        "the",
+        "kitten",
+        "ran",
+        "inside"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "is",
+        "the",
+        "cat"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "is",
+        "the",
+        "dog"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "is",
+        "the",
+        "bird"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "was",
+        "the",
+        "cat"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "was",
+        "the",
+        "dog"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "was",
+        "the",
+        "bird"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bird",
+        "sings"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bird",
+        "sleeps"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "sings"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "sleeps"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bird",
+        "sings",
+        "in",
+        "a",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bird",
+        "sings",
+        "in",
+        "a",
+        "branch"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bird",
+        "sings",
+        "on",
+        "a",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bird",
+        "sings",
+        "on",
+        "a",
+        "branch"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bird",
+        "sleeps",
+        "in",
+        "a",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bird",
+        "sleeps",
+        "in",
+        "a",
+        "branch"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bird",
+        "sleeps",
+        "on",
+        "a",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bird",
+        "sleeps",
+        "on",
+        "a",
+        "branch"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "sings",
+        "in",
+        "a",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "sings",
+        "in",
+        "a",
+        "branch"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "sings",
+        "on",
+        "a",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "sings",
+        "on",
+        "a",
+        "branch"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "sleeps",
+        "in",
+        "a",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "sleeps",
+        "in",
+        "a",
+        "branch"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "sleeps",
+        "on",
+        "a",
+        "tree"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "duck",
+        "sleeps",
+        "on",
+        "a",
+        "branch"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "dog",
+        "is",
+        "hungry"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "dog",
+        "is",
+        "sleepy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "dog",
+        "is",
+        "happy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "dog",
+        "was",
+        "hungry"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "dog",
+        "was",
+        "sleepy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "dog",
+        "was",
+        "happy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "cat",
+        "is",
+        "hungry"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "cat",
+        "is",
+        "sleepy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "cat",
+        "is",
+        "happy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "cat",
+        "was",
+        "hungry"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "cat",
+        "was",
+        "sleepy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "cat",
+        "was",
+        "happy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "rabbit",
+        "is",
+        "hungry"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "rabbit",
+        "is",
+        "sleepy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "rabbit",
+        "is",
+        "happy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "rabbit",
+        "was",
+        "hungry"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "rabbit",
+        "was",
+        "sleepy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "my",
+        "rabbit",
+        "was",
+        "happy"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    }
+  ],
+  "patterns": [
+    {
+      "id": "animals-1",
+      "name": "Sentence 1",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'cat' | 'dog' | 'rabbit' | 'duck' ) ( 'ran' | 'jumped' | 'hopped' ) ( 'quickly' | 'slowly' | 'quietly' )"
+    },
+    {
+      "id": "animals-2",
+      "name": "Sentence 2",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'cat' | 'dog' | 'rabbit' | 'duck' ) 'slept' ( 'quietly' | 'outside' | 'inside' )"
+    },
+    {
+      "id": "animals-3",
+      "name": "Sentence 3",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'a' ( 'small' | 'big' | 'fluffy' ) ( 'puppy' | 'kitten' | 'rabbit' ) 'slept' ( 'under' | 'near' ) 'the' ( 'barn' | 'tree' )"
+    },
+    {
+      "id": "animals-4",
+      "name": "Sentence 4",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'hungry' | 'sleepy' | 'quick' ) ( 'cat' | 'dog' | 'horse' ) ( 'ran' | 'rested' ) ( 'in' | 'near' ) 'the' ( 'field' | 'garden' )"
+    },
+    {
+      "id": "animals-5",
+      "name": "Sentence 5",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'a' ( 'bird' | 'bee' | 'duck' ) 'flew'"
+    },
+    {
+      "id": "animals-6",
+      "name": "Sentence 6",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'a' ( 'bird' | 'bee' | 'duck' ) 'flew' ( 'over' | 'near' ) 'the' ( 'pond' | 'garden' | 'tree' )"
+    },
+    {
+      "id": "animals-7",
+      "name": "Sentence 7",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'fish' | 'frog' ) 'swam' ( 'in' | 'under' ) 'the' ( 'pond' | 'pool' )"
+    },
+    {
+      "id": "animals-8",
+      "name": "Sentence 8",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'a' ( 'brown' | 'grey' | 'small' ) ( 'mouse' | 'rabbit' ) 'hopped' ( 'into' | 'under' ) 'the' ( 'nest' | 'barn' )"
+    },
+    {
+      "id": "animals-9",
+      "name": "Sentence 9",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'dog' | 'puppy' ) 'barked' ( 'loudly' | 'quietly' )"
+    },
+    {
+      "id": "animals-10",
+      "name": "Sentence 10",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'dog' | 'puppy' ) 'barked' ( 'loudly' | 'quietly' ) 'and' 'the' ( 'cat' | 'kitten' ) 'ran' ( 'away' | 'inside' )"
+    },
+    {
+      "id": "animals-11",
+      "name": "Sentence 11",
+      "end": [
+        "?"
+      ],
+      "shape": "'where' ( 'is' | 'was' ) 'the' ( 'cat' | 'dog' | 'bird' )"
+    },
+    {
+      "id": "animals-12",
+      "name": "Sentence 12",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'bird' | 'duck' ) ( 'sings' | 'sleeps' )"
+    },
+    {
+      "id": "animals-13",
+      "name": "Sentence 13",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'bird' | 'duck' ) ( 'sings' | 'sleeps' ) ( 'in' | 'on' ) 'a' ( 'tree' | 'branch' )"
+    },
+    {
+      "id": "animals-14",
+      "name": "Sentence 14",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'my' ( 'dog' | 'cat' | 'rabbit' ) ( 'is' | 'was' ) ( 'hungry' | 'sleepy' | 'happy' )"
+    }
+  ],
+  "punctuation": [
+    {
+      "mark": ".",
+      "name": "period"
+    },
+    {
+      "mark": "!",
+      "name": "exclamation point"
+    },
+    {
+      "mark": "?",
+      "name": "question mark"
+    }
+  ]
+}

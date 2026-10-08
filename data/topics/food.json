@@ -1,0 +1,3236 @@
+{
+  "id": "food",
+  "name": "Food",
+  "emoji": "🍎",
+  "description": "214 sentences, every one written and checked by hand.",
+  "sentenceCount": 214,
+  "families": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "a, the, my",
+      "color": "#9aa7d7",
+      "role": "other"
+    },
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, red",
+      "color": "#f2a65a",
+      "role": "describing"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "role": "naming"
+    },
+    "pronoun": {
+      "label": "Pronoun",
+      "hint": "stands for a noun: it, they",
+      "color": "#8fd694",
+      "role": "naming"
+    },
+    "verb": {
+      "label": "Verb",
+      "hint": "an action or a state",
+      "color": "#e9797a",
+      "role": "action"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "describes a verb: slowly",
+      "color": "#c79ae0",
+      "role": "other"
+    },
+    "preposition": {
+      "label": "Preposition",
+      "hint": "shows where: under, near",
+      "color": "#72b6e8",
+      "role": "other"
+    },
+    "question": {
+      "label": "Question Word",
+      "hint": "where, what",
+      "color": "#7fb0c9",
+      "role": "other"
+    }
+  },
+  "pos": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "a, the, my",
+      "color": "#9aa7d7",
+      "family": "determiner"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "verb": {
+      "label": "Verb",
+      "hint": "an action or a state",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, red",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "describes a verb: slowly",
+      "color": "#c79ae0",
+      "family": "adverb"
+    },
+    "preposition": {
+      "label": "Preposition",
+      "hint": "shows where: under, near",
+      "color": "#72b6e8",
+      "family": "preposition"
+    },
+    "be": {
+      "label": "Verb",
+      "hint": "an action or a state",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "pronoun": {
+      "label": "Pronoun",
+      "hint": "stands for a noun: it, they",
+      "color": "#8fd694",
+      "family": "pronoun"
+    },
+    "question": {
+      "label": "Question Word",
+      "hint": "where, what",
+      "color": "#7fb0c9",
+      "family": "question"
+    }
+  },
+  "words": {
+    "determiner": [
+      "a",
+      "my",
+      "the"
+    ],
+    "noun": [
+      "apple",
+      "banana",
+      "bowl",
+      "bread",
+      "breakfast",
+      "carrot",
+      "cheese",
+      "cook",
+      "cookie",
+      "cookies",
+      "dinner",
+      "juice",
+      "kitchen",
+      "lunch",
+      "milk",
+      "pizza",
+      "plate",
+      "rice",
+      "soup",
+      "student",
+      "teacher",
+      "water"
+    ],
+    "verb": [
+      "ate",
+      "baked",
+      "cooked",
+      "made",
+      "poured",
+      "shared",
+      "tasted",
+      "tastes",
+      "washed"
+    ],
+    "adjective": [
+      "big",
+      "cold",
+      "fresh",
+      "small",
+      "sweet",
+      "warm"
+    ],
+    "adverb": [
+      "carefully",
+      "quickly",
+      "quietly",
+      "slowly",
+      "together"
+    ],
+    "preposition": [
+      "in",
+      "into",
+      "near",
+      "on"
+    ],
+    "be": [
+      "is",
+      "was"
+    ],
+    "pronoun": [
+      "they",
+      "we"
+    ],
+    "question": [
+      "where"
+    ]
+  },
+  "sentences": [
+    {
+      "words": [
+        "the",
+        "cook",
+        "baked",
+        "bread"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "baked",
+        "soup"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "baked",
+        "rice"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "cooked",
+        "bread"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "cooked",
+        "soup"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "cooked",
+        "rice"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "baked",
+        "bread"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "baked",
+        "soup"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "baked",
+        "rice"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "cooked",
+        "bread"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "cooked",
+        "soup"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "teacher",
+        "cooked",
+        "rice"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "baked",
+        "bread"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "baked",
+        "soup"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "baked",
+        "rice"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "cooked",
+        "bread"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "cooked",
+        "soup"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "cooked",
+        "rice"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "ate",
+        "the",
+        "apple"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "ate",
+        "the",
+        "banana"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "ate",
+        "the",
+        "cookie"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "ate",
+        "the",
+        "apple"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "ate",
+        "the",
+        "banana"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "ate",
+        "the",
+        "cookie"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "ate",
+        "the",
+        "apple",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "ate",
+        "the",
+        "apple",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "ate",
+        "the",
+        "banana",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "ate",
+        "the",
+        "banana",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "ate",
+        "the",
+        "cookie",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "student",
+        "ate",
+        "the",
+        "cookie",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "ate",
+        "the",
+        "apple",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "ate",
+        "the",
+        "apple",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "ate",
+        "the",
+        "banana",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "ate",
+        "the",
+        "banana",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "ate",
+        "the",
+        "cookie",
+        "quickly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "teacher",
+        "ate",
+        "the",
+        "cookie",
+        "slowly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "soup",
+        "is",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "soup",
+        "is",
+        "cold"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "soup",
+        "is",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "soup",
+        "was",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "soup",
+        "was",
+        "cold"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "soup",
+        "was",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rice",
+        "is",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rice",
+        "is",
+        "cold"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rice",
+        "is",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rice",
+        "was",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rice",
+        "was",
+        "cold"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "rice",
+        "was",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "milk",
+        "is",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "milk",
+        "is",
+        "cold"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "milk",
+        "is",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "milk",
+        "was",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "milk",
+        "was",
+        "cold"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "milk",
+        "was",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "washed",
+        "the",
+        "apple",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "washed",
+        "the",
+        "apple",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "washed",
+        "the",
+        "carrot",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "washed",
+        "the",
+        "carrot",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "washed",
+        "the",
+        "plate",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "washed",
+        "the",
+        "plate",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "the",
+        "apple",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "the",
+        "apple",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "the",
+        "carrot",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "the",
+        "carrot",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "the",
+        "plate",
+        "carefully"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "the",
+        "plate",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "apple",
+        "is",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "apple",
+        "is",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "apple",
+        "is",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "apple",
+        "is",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "apple",
+        "was",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "apple",
+        "was",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "apple",
+        "was",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "apple",
+        "was",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "carrot",
+        "is",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "carrot",
+        "is",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "carrot",
+        "is",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "carrot",
+        "is",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "carrot",
+        "was",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "carrot",
+        "was",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "carrot",
+        "was",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "carrot",
+        "was",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "cookie",
+        "is",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "cookie",
+        "is",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "cookie",
+        "is",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "cookie",
+        "is",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "cookie",
+        "was",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "cookie",
+        "was",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "cookie",
+        "was",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "small",
+        "cookie",
+        "was",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "apple",
+        "is",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "apple",
+        "is",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "apple",
+        "is",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "apple",
+        "is",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "apple",
+        "was",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "apple",
+        "was",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "apple",
+        "was",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "apple",
+        "was",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "carrot",
+        "is",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "carrot",
+        "is",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "carrot",
+        "is",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "carrot",
+        "is",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "carrot",
+        "was",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "carrot",
+        "was",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "carrot",
+        "was",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "carrot",
+        "was",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "cookie",
+        "is",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "cookie",
+        "is",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "cookie",
+        "is",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "cookie",
+        "is",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "cookie",
+        "was",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "cookie",
+        "was",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "cookie",
+        "was",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "big",
+        "cookie",
+        "was",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "apple",
+        "is",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "apple",
+        "is",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "apple",
+        "is",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "apple",
+        "is",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "apple",
+        "was",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "apple",
+        "was",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "apple",
+        "was",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "apple",
+        "was",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "carrot",
+        "is",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "carrot",
+        "is",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "carrot",
+        "is",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "carrot",
+        "is",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "carrot",
+        "was",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "carrot",
+        "was",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "carrot",
+        "was",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "carrot",
+        "was",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "cookie",
+        "is",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "cookie",
+        "is",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "cookie",
+        "is",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "cookie",
+        "is",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "cookie",
+        "was",
+        "on",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "cookie",
+        "was",
+        "on",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "cookie",
+        "was",
+        "in",
+        "the",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "a",
+        "fresh",
+        "cookie",
+        "was",
+        "in",
+        "the",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "milk",
+        "into",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "milk",
+        "into",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "milk",
+        "in",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "milk",
+        "in",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "water",
+        "into",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "water",
+        "into",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "water",
+        "in",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "water",
+        "in",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "juice",
+        "into",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "juice",
+        "into",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "juice",
+        "in",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cook",
+        "poured",
+        "juice",
+        "in",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "milk",
+        "into",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "milk",
+        "into",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "milk",
+        "in",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "milk",
+        "in",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "water",
+        "into",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "water",
+        "into",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "water",
+        "in",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "water",
+        "in",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "juice",
+        "into",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "juice",
+        "into",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "juice",
+        "in",
+        "a",
+        "bowl"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "student",
+        "poured",
+        "juice",
+        "in",
+        "a",
+        "plate"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "cooked",
+        "pizza",
+        "in",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "cooked",
+        "pizza",
+        "near",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "cooked",
+        "soup",
+        "in",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "cooked",
+        "soup",
+        "near",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "cooked",
+        "rice",
+        "in",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "cooked",
+        "rice",
+        "near",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "made",
+        "pizza",
+        "in",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "made",
+        "pizza",
+        "near",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "made",
+        "soup",
+        "in",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "made",
+        "soup",
+        "near",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "made",
+        "rice",
+        "in",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "made",
+        "rice",
+        "near",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "baked",
+        "bread",
+        "in",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "baked",
+        "bread",
+        "near",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "baked",
+        "cookies",
+        "in",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "they",
+        "baked",
+        "cookies",
+        "near",
+        "the",
+        "kitchen"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "is",
+        "my",
+        "lunch"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "is",
+        "my",
+        "breakfast"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "is",
+        "my",
+        "dinner"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "was",
+        "my",
+        "lunch"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "was",
+        "my",
+        "breakfast"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "where",
+        "was",
+        "my",
+        "dinner"
+      ],
+      "end": [
+        "?"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cheese",
+        "tastes",
+        "sweet"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cheese",
+        "tastes",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cheese",
+        "tastes",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cheese",
+        "tasted",
+        "sweet"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cheese",
+        "tasted",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "cheese",
+        "tasted",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bread",
+        "tastes",
+        "sweet"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bread",
+        "tastes",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bread",
+        "tastes",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bread",
+        "tasted",
+        "sweet"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bread",
+        "tasted",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "bread",
+        "tasted",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "pizza",
+        "tastes",
+        "sweet"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "pizza",
+        "tastes",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "pizza",
+        "tastes",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "pizza",
+        "tasted",
+        "sweet"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "pizza",
+        "tasted",
+        "fresh"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "the",
+        "pizza",
+        "tasted",
+        "warm"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "ate",
+        "lunch",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "ate",
+        "lunch",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "ate",
+        "breakfast",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "ate",
+        "breakfast",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "ate",
+        "dinner",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "ate",
+        "dinner",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "lunch",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "lunch",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "breakfast",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "breakfast",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "dinner",
+        "together"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    },
+    {
+      "words": [
+        "we",
+        "shared",
+        "dinner",
+        "quietly"
+      ],
+      "end": [
+        ".",
+        "!"
+      ]
+    }
+  ],
+  "patterns": [
+    {
+      "id": "food-1",
+      "name": "Sentence 1",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'cook' | 'teacher' | 'student' ) ( 'baked' | 'cooked' ) ( 'bread' | 'soup' | 'rice' )"
+    },
+    {
+      "id": "food-2",
+      "name": "Sentence 2",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'a' ( 'student' | 'teacher' ) 'ate' 'the' ( 'apple' | 'banana' | 'cookie' )"
+    },
+    {
+      "id": "food-3",
+      "name": "Sentence 3",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'a' ( 'student' | 'teacher' ) 'ate' 'the' ( 'apple' | 'banana' | 'cookie' ) ( 'quickly' | 'slowly' )"
+    },
+    {
+      "id": "food-4",
+      "name": "Sentence 4",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'soup' | 'rice' | 'milk' ) ( 'is' | 'was' ) ( 'warm' | 'cold' | 'fresh' )"
+    },
+    {
+      "id": "food-5",
+      "name": "Sentence 5",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'we' ( 'washed' | 'shared' ) 'the' ( 'apple' | 'carrot' | 'plate' ) ( 'carefully' | 'together' )"
+    },
+    {
+      "id": "food-6",
+      "name": "Sentence 6",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'a' ( 'small' | 'big' | 'fresh' ) ( 'apple' | 'carrot' | 'cookie' ) ( 'is' | 'was' ) ( 'on' | 'in' ) 'the' ( 'plate' | 'bowl' )"
+    },
+    {
+      "id": "food-7",
+      "name": "Sentence 7",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'cook' | 'student' ) 'poured' ( 'milk' | 'water' | 'juice' ) ( 'into' | 'in' ) 'a' ( 'bowl' | 'plate' )"
+    },
+    {
+      "id": "food-8",
+      "name": "Sentence 8",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'they' ( 'cooked' | 'made' ) ( 'pizza' | 'soup' | 'rice' ) ( 'in' | 'near' ) 'the' ( 'kitchen' )"
+    },
+    {
+      "id": "food-9",
+      "name": "Sentence 9",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'they' 'baked' ( 'bread' | 'cookies' ) ( 'in' | 'near' ) 'the' ( 'kitchen' )"
+    },
+    {
+      "id": "food-10",
+      "name": "Sentence 10",
+      "end": [
+        "?"
+      ],
+      "shape": "'where' ( 'is' | 'was' ) 'my' ( 'lunch' | 'breakfast' | 'dinner' )"
+    },
+    {
+      "id": "food-11",
+      "name": "Sentence 11",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'the' ( 'cheese' | 'bread' | 'pizza' ) ( 'tastes' | 'tasted' ) ( 'sweet' | 'fresh' | 'warm' )"
+    },
+    {
+      "id": "food-12",
+      "name": "Sentence 12",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "'we' ( 'ate' | 'shared' ) ( 'lunch' | 'breakfast' | 'dinner' ) ( 'together' | 'quietly' )"
+    }
+  ],
+  "punctuation": [
+    {
+      "mark": ".",
+      "name": "period"
+    },
+    {
+      "mark": "!",
+      "name": "exclamation point"
+    },
+    {
+      "mark": "?",
+      "name": "question mark"
+    }
+  ]
+}

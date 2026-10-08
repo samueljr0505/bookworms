@@ -27,7 +27,7 @@ BW.Game = class Game {
     this.crashMs = 0;
     this.mode = 'countdown';
     this.lastBeep = null;
-    this.board.disperse(this.pack, this.sentence, this.worm, this.cfg);
+    this.refill();
     this.notify();
     if (!this.raf) this.raf = requestAnimationFrame(t => this.frame(t));
   }
@@ -181,11 +181,14 @@ BW.Game = class Game {
   scatterAfterCrash() {
     const lost = this.sentence.reset();
     this.worm.dropCarried();
-    this.board.disperse(this.pack, this.sentence, this.worm, this.cfg, lost);
+    // back to the middle of the board, so nobody is handed a worm that is
+    // already jammed against the wall it just hit
+    this.worm.respawn(this.cfg.grid.cols, this.cfg.grid.rows);
+    this.refill(lost);
 
     this.mode = 'playing';
-    this.worm.moving = false;
     if (lost.length) this.say('The words are back on the board. Try again!', 'warn');
+    else this.say('Back to the middle. Pick a direction.', 'warn');
     this.notify();
   }
 
@@ -207,11 +210,26 @@ BW.Game = class Game {
       this.flash = { kind: 'good', life: 0.6 };
       BW.Sound.correct();
       this.say('"' + tile.word + '" - nice pick!', 'good');
-      this.board.disperse(this.pack, this.sentence, this.worm, this.cfg);
+      this.refill();
       this.notify();
     } else {
       this.rejected(tile, this.whyNot(tile));
     }
+  }
+
+  /* Put a fresh set of words out, and make sure at least one of them can actually
+     be eaten. The meaning rules look a couple of words ahead before offering a
+     word, but a pattern can still hide a trap deeper than that - a subject that
+     no verb in the pack will accept. Rather than leave a child staring at a board
+     with no legal move, start the sentence over. */
+  refill(returnWords) {
+    this.board.disperse(this.pack, this.sentence, this.worm, this.cfg, returnWords);
+    if (this.board.tiles.some(t => this.isTileValid(t))) return;
+
+    this.sentence = BW.Grammar.newSentence(this.pack, BW.rng);
+    this.worm.dropCarried();
+    this.board.disperse(this.pack, this.sentence, this.worm, this.cfg);
+    this.say('That sentence got stuck - here is a new one to try.', 'warn');
   }
 
   /* A player may try to end the sentence at any moment. When it will not work, say
@@ -244,8 +262,11 @@ BW.Game = class Game {
 
   whyNot(tile) {
     const label = pos => (this.pack.pos[pos] && this.pack.pos[pos].label) || pos;
-    const need = this.sentence.wants()
-      .map(m => m.word ? 'the word "' + m.word + '"' : 'a ' + label(m.pos));
+    const need = [];
+    for (const m of this.sentence.wants()) {
+      const l = 'a ' + label(m.pos || BW.Grammar.posOfWord(this.pack, m.word));
+      if (!need.includes(l)) need.push(l);
+    }
     if (this.sentence.canEnd()) need.push('an ending mark');
     return '"' + tile.word + '" is a ' + label(tile.pos) + '. You need ' + need.join(' or ') + '.';
   }
@@ -283,7 +304,7 @@ BW.Game = class Game {
 
     this.stepMs = Math.max(this.cfg.minStepMs, this.stepMs - this.cfg.speedUpPerSentence);
     this.sentence = BW.Grammar.newSentence(this.pack, BW.rng);
-    this.board.disperse(this.pack, this.sentence, this.worm, this.cfg);
+    this.refill();
     this.notify();
   }
 

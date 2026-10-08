@@ -45,9 +45,13 @@ BW.Renderer = class Renderer {
 
   bump() { this.shake = 1; }
 
+  /* Tiles are coloured by word family, so the board shows a handful of colours
+     rather than one per grammatical tag. */
   posColor(pack, pos) {
     if (pos === 'punctuation') return '#f5c26b';
-    return (pack.pos[pos] && pack.pos[pos].color) || '#9aa7d7';
+    const info = pack.pos[pos];
+    const fam = info && pack.families && pack.families[info.family];
+    return (fam && fam.color) || (info && info.color) || '#9aa7d7';
   }
 
   draw(state) {

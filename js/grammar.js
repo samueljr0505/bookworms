@@ -174,7 +174,59 @@ window.BW = window.BW || {};
     return entry;
   }
 
+
+  /* ---------- meaning, not just shape ----------------------------------
+     A sentence can follow a pattern perfectly and still be nonsense: "the book
+     chased Omar", "she played into dad". The pattern only knows a noun is a noun.
+
+     These helpers read the pack's "semantics" block: what each naming word IS
+     (person, creature, thing, place, food, stuff, idea) and what each action or
+     where-word ACCEPTS. Everything is driven by the pack - which parts of speech
+     count as naming or action words comes from their family - so a pack can add
+     categories without touching this file. Untagged words stay unconstrained, so
+     a half-tagged pack still plays. */
+
+  /* A family's label is for the player and can be renamed at will. Its ROLE is
+     what the meaning checks key off, so renaming "Naming Word" to "Noun" cannot
+     silently switch those checks off - which is exactly what happened once. */
+  function roleOf(pack, pos) {
+    const info = pack.pos && pack.pos[pos];
+    const fam = info && pack.families && pack.families[info.family];
+    return (fam && fam.role) || (info && info.family);
+  }
+  function isHead(pack, pos) { return roleOf(pack, pos) === 'naming'; }
+  function isVerb(pack, pos) { return roleOf(pack, pos) === 'action'; }
+
+  function classesOf(pack, word, pos) {
+    const sem = pack.semantics;
+    if (sem && sem.classes && sem.classes[word]) return sem.classes[word];
+    return null;                        // unknown: do not block it
+  }
+
+  /* Frames are stored per lemma, so hops / hopped / hopping share one entry. */
+  function frameOf(pack, word) {
+    const sem = pack.semantics;
+    if (!sem || !sem.frames) return null;
+    const base = (sem.lemma && sem.lemma[word]) || word;
+    return sem.frames[base] || sem.frames[word] || null;
+  }
+
+  function allowed(need, have) {
+    if (!need || !need.length) return true;
+    if (!have || !have.length) return true;
+    return have.some(c => need.includes(c));
+  }
+
   class Sentence {
+    /* Verbs that carry no meaning of their own - they prop up a real verb. */
+    static SCAFFOLD = ['be', 'helper', 'negative'];
+
+    /* How many words ahead to check before offering one. 1 catches "the book
+       cannot chase"; 2 also catches "our treat will <no verb fits>", where the
+       trap is one word further on. Each extra level costs real time. */
+    static LOOKAHEAD = 2;
+
+
     constructor(pack, pattern) {
       this.pack = pack;
       this.pattern = pattern;
@@ -198,8 +250,191 @@ window.BW = window.BW || {};
       return this.wanted;
     }
 
+    /* Content words carry meaning, so saying one twice in a sentence reads as a
+       mistake: "purple and purple", "Leo chased Leo", "tiny, tiny pizza". Little
+       words like "the" and "and" repeat perfectly naturally, so they are exempt. */
+    repeats(word, pos) {
+      if (!this.isContent(pos)) return false;
+      return this.tokens.some(t => t.word === word && this.isContent(t.pos));
+    }
+
+    /* Words that carry meaning. Little words like "the" and "and" repeat
+       naturally; so do "is" and "did", which are scaffolding rather than content. */
+    isContent(pos) {
+      const role = roleOf(this.pack, pos);
+      if (role === 'naming' || role === 'describing') return true;
+      return role === 'action' && !['be', 'helper', 'negative'].includes(pos);
+    }
+
+
+    /* The naming word this sentence is talking about most recently. */
+    lastHead() {
+      for (let i = this.tokens.length - 1; i >= 0; i--) {
+        if (isHead(this.pack, this.tokens[i].pos)) return this.tokens[i];
+      }
+      return null;
+    }
+
+    /* Everything the coming verb is about. "Her cookie and our bear chew" has
+       two subjects and BOTH have to be able to chew - checking only the nearest
+       one lets half the nonsense straight through. Collects the naming words
+       back to the previous verb, which is where this clause began. */
+    subjectHeads() {
+      const heads = [];
+      for (let i = this.tokens.length - 1; i >= 0; i--) {
+        const t = this.tokens[i];
+        // "is", "did", "not" are scaffolding - the real subject is behind them,
+        // so stopping here would miss it ("your snowflake is learning")
+        if (Sentence.SCAFFOLD.includes(t.pos)) continue;
+        if (isVerb(this.pack, t.pos)) break;
+        if (isHead(this.pack, t.pos)) heads.push(t);
+      }
+      return heads;
+    }
+
+    /* The action word this where-phrase would hang off. */
+    lastVerb() {
+      for (let i = this.tokens.length - 1; i >= 0; i--) {
+        if (isVerb(this.pack, this.tokens[i].pos)) return this.tokens[i];
+      }
+      return null;
+    }
+
+    /* A word still waiting for the thing it applies to - a where-word with no
+       noun after it yet, or a doing-to word with nothing done to it yet. */
+    openSlot() {
+      for (let i = this.tokens.length - 1; i >= 0; i--) {
+        const t = this.tokens[i];
+        if (isHead(this.pack, t.pos)) return null;        // already filled
+        const f = frameOf(this.pack, t.word);
+        if (f && f.object) return t;
+      }
+      return null;
+    }
+
+    /* A linking word whose describing word has not arrived yet. */
+    openLinking() {
+      for (let i = this.tokens.length - 1; i >= 0; i--) {
+        const t = this.tokens[i];
+        const f = frameOf(this.pack, t.word);
+        if (f && f.complement) return t;
+        // Step over only what can legitimately sit between a linking verb and
+        // its adjective: "smelled TOO happy", "looked happy AND warm". Skipping
+        // anything else walks back into an earlier clause and applies the wrong
+        // verb's rule to this adjective.
+        if (t.pos === 'adjective' || t.pos === 'conjunction' ||
+            t.pos === 'adverb' || t.word === 'too') continue;
+        return null;
+      }
+      return null;
+    }
+
+    /* Would this word actually mean something here? */
+    makesSense(word, pos) {
+      const pack = this.pack;
+
+      if (isVerb(pack, pos)) {
+        const f = frameOf(pack, word);
+        if (!f || !f.subject) return true;
+        const heads = this.subjectHeads();
+        if (!heads.length) return true;
+        return heads.every(h => allowed(f.subject, classesOf(pack, h.word, h.pos)));
+      }
+
+      if (isHead(pack, pos)) {
+        const open = this.openSlot();
+        if (!open) return true;
+        const f = frameOf(pack, open.word);
+        if (!f || !f.object) return true;
+        return allowed(f.object, classesOf(pack, word, pos));
+      }
+
+      /* A where-phrase has to suit the verb it hangs off: you can run INTO a
+         house, but you cannot buzz onto one. A verb with no "prep" list in the
+         pack is left alone, so this can be filled in gradually. */
+      if (pos === 'preposition') {
+        const verb = this.lastVerb();
+        if (!verb) return true;
+        const f = frameOf(pack, verb.word);
+        if (!f || !f.prep) return true;
+        return f.prep.includes(word);
+      }
+
+      if (pos === 'adjective') {
+        const link = this.openLinking();
+        if (!link) return true;
+        const f = frameOf(pack, link.word);
+        if (!f || !f.complement) return true;
+        return allowed(f.complement, classesOf(pack, word, pos));
+      }
+
+      return true;
+    }
+
+    /* Does this word fit the pattern and make sense, ignoring what comes after? */
+    fitsHere(word, pos) {
+      if (this.repeats(word, pos)) return false;
+      const wanted = this.wants();
+      // A word the pattern names outright - the 'to' in "want to swim", the
+      // 'and' in a list - is there because the pattern author put it there.
+      // Meaning rules must not second-guess it: "want" does not license "to"
+      // as a where-word, but "want to swim" is still correct English.
+      const spelledOut = wanted.some(m => m.word === word);
+      if (!spelledOut && !this.makesSense(word, pos)) return false;
+      return wanted.some(m => matches(m, word, pos));
+    }
+
+    /* Run fn as if this word had been eaten, then put everything back. */
+    tryWith(word, pos, fn) {
+      const states = new Set(this.states);
+      const tokens = this.tokens.slice();
+      const wanted = this.wanted;
+      let result = false;
+      if (this.step(word, pos)) result = fn();
+      this.states = states;
+      this.tokens = tokens;
+      this.wanted = wanted;
+      return result;
+    }
+
+    /* Could the sentence still go anywhere after this word?
+
+       Meaning rules can paint a player into a corner: pick "book" as the subject
+       of a doing-to sentence and no action word can follow, because books do not
+       chase anyone. The shape is legal, the meaning is not, and the player is
+       stranded. So only offer a word if something can legally come after it. */
+    leadsSomewhere(word, pos, depth) {
+      if (depth === undefined) depth = Sentence.LOOKAHEAD;
+      return this.tryWith(word, pos, () => {
+        if (this.canEnd()) return true;
+        // Only look at parts of speech the pattern could actually want next.
+        // Scanning the whole word bank here costs 600+ checks per candidate and
+        // makes a big pack crawl.
+        const need = new Set();
+        for (const m of this.wants()) {
+          if (m.pos) { need.add(m.pos); continue; }
+          // a literal like 'and' - check the actual word, do not just assume it
+          const lp = posOfWord(this.pack, m.word);
+          if (!lp) return true;
+          if (this.fitsHere(m.word, lp) &&
+              (depth <= 1 || this.leadsSomewhere(m.word, lp, depth - 1))) return true;
+        }
+        for (const p of need) {
+          const list = this.pack.words[p];
+          if (!list) continue;
+          for (const w of list) {
+            if (!this.fitsHere(w, p)) continue;
+            if (depth <= 1 || this.leadsSomewhere(w, p, depth - 1)) return true;
+          }
+        }
+        return false;
+      });
+    }
+
     /* Would this word be a correct pick right now? */
-    fits(word, pos) { return this.wants().some(m => matches(m, word, pos)); }
+    fits(word, pos) {
+      return this.fitsHere(word, pos) && this.leadsSomewhere(word, pos);
+    }
 
     /* The parts of speech that would be a correct pick right now. */
     allowedPos() {
@@ -220,7 +455,11 @@ window.BW = window.BW || {};
     isComplete() { return this.punctuation !== null; }
 
     /* Try to add a word. Returns true if it fit the pattern. */
-    accept(word, pos) {
+    /* Move the sentence on by one word, checking shape and meaning but without
+       looking ahead. Used while exploring; accept() is the real door in. */
+    step(word, pos) {
+      if (this.repeats(word, pos)) return false;
+      if (!this.wants().some(m => m.word === word) && !this.makesSense(word, pos)) return false;
       const next = [];
       for (const id of this.states) {
         for (const e of this.nfa.nodes[id].edges) if (matches(e.m, word, pos)) next.push(e.to);
@@ -230,6 +469,11 @@ window.BW = window.BW || {};
       this.states = closure(this.nfa, next);
       this.wanted = null;
       return true;
+    }
+
+    accept(word, pos) {
+      if (!this.fits(word, pos)) return false;
+      return this.step(word, pos);
     }
 
     /* Req 5: a wall bonk wipes the sentence and hands the words back.
@@ -344,6 +588,24 @@ window.BW = window.BW || {};
         if (!marks.includes(m)) problems.push('pattern "' + pattern.id + '" ends with "' + m + '", which is not in "punctuation"');
       }
     }
+    // Every verb form must reach a frame, or the meaning checks quietly stop
+    // applying to it. Scaffolding verbs (be / helper / negative) carry no
+    // meaning of their own, so they are exempt.
+    const SCAFFOLD = ['be', 'helper', 'negative'];
+    const sem = pack.semantics;
+    if (sem && sem.frames) {
+      const lemma = sem.lemma || {};
+      for (const pos of Object.keys(pack.pos)) {
+        if (SCAFFOLD.includes(pos)) continue;
+        const fam = pack.families && pack.families[pack.pos[pos].family];
+        if (!fam || fam.role !== 'action') continue;
+        for (const w of pack.words[pos] || []) {
+          const base = lemma[w] || w;
+          if (!sem.frames[base]) problems.push('no meaning rule for the verb "' + w + '"');
+        }
+      }
+    }
+
     return problems;
   }
 
@@ -355,6 +617,7 @@ window.BW = window.BW || {};
     checkPack,
     posOfWord,
     newSentence(pack, rng) {
+
       // patterns may carry a "weight" to show up more (or less) often than the rest
       const total = pack.patterns.reduce((sum, p) => sum + (p.weight || 1), 0);
       let r = rng.int(1000000) / 1000000 * total;

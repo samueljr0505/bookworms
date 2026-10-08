@@ -24,8 +24,12 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def log_message(self, fmt, *args):
-        # quieter: skip the favicon noise, keep everything else
-        if "favicon.ico" in (args[0] if args else ""):
+        # Quieter: skip the favicon noise, keep everything else.
+        # args are not always strings - log_error passes the status code as an
+        # int - so coerce before searching, or this raises and kills the
+        # connection thread mid-response.
+        line = " ".join(str(a) for a in args)
+        if "favicon.ico" in line:
             return
         super().log_message(fmt, *args)
 

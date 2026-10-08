@@ -15,6 +15,7 @@ BW.CONFIG = {
 
   wordsOnBoard: 7,         // how many word tiles float around at once
   minValidWords: 2,        // always keep at least this many tiles that would be a correct pick
+  minOnTrackWords: 3,      // in a free-build topic, tiles that would keep the sentence going
 
   // The worm's body spells out the sentence: one letter per body square. So eating a long
   // word makes you a lot longer. Each finished sentence leaves this many squares behind

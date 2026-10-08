@@ -7,6 +7,18 @@ window.BW = window.BW || {};
   const $ = id => document.getElementById(id);
   const SEGMENTS = 7;
 
+  let chosenWorm = null;
+  let chosenTopic = null;
+
+  /* Both choices ride in the link as well as in storage, so they survive a
+     private window, blocked site data, or the game opening on another port. */
+  function updatePlayLink() {
+    const bits = [];
+    if (chosenWorm) bits.push('worm=' + encodeURIComponent(chosenWorm));
+    if (chosenTopic) bits.push('topic=' + encodeURIComponent(chosenTopic));
+    $('play').href = 'game.html' + (bits.length ? '?' + bits.join('&') : '');
+  }
+
   function buildWorm() {
     const worm = $('worm-preview');
     worm.innerHTML = '';
@@ -23,8 +35,8 @@ window.BW = window.BW || {};
     document.documentElement.style.setProperty('--worm-body', worm.body);
     document.documentElement.style.setProperty('--worm-head', worm.head);
     $('worm-name').textContent = worm.name;
-    // carry the choice in the link too, so it does not rely on storage
-    $('play').href = 'game.html?worm=' + encodeURIComponent(worm.id);
+    chosenWorm = worm.id;
+    updatePlayLink();
   }
 
   function buildSwatches(data, current) {
@@ -53,6 +65,31 @@ window.BW = window.BW || {};
     }
   }
 
+  /* The topic decides which set of hand-written sentences the game uses. */
+  function buildTopics(index, current) {
+    const list = $('topics');
+    list.innerHTML = '';
+    for (const topic of index.topics) {
+      const li = document.createElement('li');
+      const button = document.createElement('button');
+      button.className = 'topic';
+      button.type = 'button';
+      button.setAttribute('role', 'radio');
+      button.setAttribute('aria-checked', String(topic.id === current.id));
+      button.innerHTML = '<span>' + (topic.emoji || '') + '</span><span>' + topic.name +
+                         '<small>' + topic.sentences + ' sentences</small></span>';
+      button.addEventListener('click', () => {
+        BW.saveTopic(topic.id);
+        chosenTopic = topic.id;
+        updatePlayLink();
+        list.querySelectorAll('.topic')
+            .forEach(b => b.setAttribute('aria-checked', String(b === button)));
+      });
+      li.appendChild(button);
+      list.appendChild(li);
+    }
+  }
+
   async function boot() {
     buildWorm();
     try {
@@ -63,6 +100,15 @@ window.BW = window.BW || {};
       const current = BW.chooseWorm(data);
       applyWorm(current);
       buildSwatches(data, current);
+
+      const index = await fetch('data/topics.json').then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      });
+      const topic = BW.chooseTopic(index);
+      chosenTopic = topic.id;
+      updatePlayLink();
+      buildTopics(index, topic);
     } catch (err) {
       // the page still looks right - it just keeps the default green worm
       $('picker-error').hidden = false;

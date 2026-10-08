@@ -33,3 +33,25 @@ BW.chooseWorm = function (data, id) {
   const wanted = id || BW.urlWorm() || BW.savedWorm() || data.defaultWorm;
   return data.worms.find(w => w.id === wanted) || data.worms[0] || BW.DEFAULT_WORM;
 };
+
+/* ---------- which topic the player picked ---------- */
+
+BW.TOPIC_KEY = 'bookworms.topic';
+
+BW.savedTopic = function () {
+  try { return localStorage.getItem(BW.TOPIC_KEY); } catch (e) { return null; }
+};
+
+BW.saveTopic = function (id) {
+  try { localStorage.setItem(BW.TOPIC_KEY, id); } catch (e) { /* not important */ }
+};
+
+BW.urlTopic = function () {
+  try { return new URLSearchParams(location.search).get('topic'); } catch (e) { return null; }
+};
+
+/* The address wins, then the remembered choice, then the file's default. */
+BW.chooseTopic = function (index, id) {
+  const wanted = id || BW.urlTopic() || BW.savedTopic() || index.defaultTopic;
+  return index.topics.find(t => t.id === wanted) || index.topics[0];
+};
