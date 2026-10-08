@@ -33,12 +33,23 @@ for entry in index["topics"]:
         seen = set()
         while len(seen) < howmany // len(pack["patterns"]):
             picked = []
+            # The game refuses a content word that is already in the sentence
+            # ("My quick puppy is quick"), so the sample has to as well - or it
+            # shows sentences the game would never let anyone build.
+            content = {"noun", "adjective", "verb", "linking"}
+            used = set()
             for token in pattern["shape"].split():
                 optional = token.endswith("?")
                 pos = token[:-1] if optional else token
                 if optional and random.random() < 0.4:
                     continue
-                picked.append(random.choice(pack["words"][pos]))
+                choices = pack["words"][pos]
+                if pos in content:
+                    choices = [w for w in choices if w not in used] or choices
+                word = random.choice(choices)
+                if pos in content:
+                    used.add(word)
+                picked.append(word)
             # "a apple" -> "an apple"
             for i, w in enumerate(picked[:-1]):
                 if w == "a" and picked[i + 1][0] in VOWELS:
