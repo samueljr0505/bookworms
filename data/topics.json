@@ -6,21 +6,21 @@
       "name": "Animals",
       "emoji": "\ud83d\udc3e",
       "file": "topics/animals.json",
-      "sentences": 273
+      "sentences": 184
     },
     {
       "id": "school",
       "name": "School",
       "emoji": "\ud83c\udf92",
       "file": "topics/school.json",
-      "sentences": 170
+      "sentences": 154
     },
     {
       "id": "food",
       "name": "Food",
       "emoji": "\ud83c\udf4e",
       "file": "topics/food.json",
-      "sentences": 214
+      "sentences": 216
     }
   ]
 }

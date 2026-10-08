@@ -1,7 +1,0 @@
-{
-  "defaultPack": "words",
-  "packs": [
-    { "id": "words", "file": "packs/words.json" },
-    { "id": "starter", "file": "packs/starter.json" }
-  ]
-}

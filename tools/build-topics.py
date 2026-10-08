@@ -36,8 +36,8 @@ def pos(name, words):
 
 pos("determiner", "a an the this that my our your")
 pos("adjective", "big small brown grey fluffy hungry sleepy noisy quick slow "
-                 "warm cold fresh sweet tall old new happy")
-pos("noun", "cat dog rabbit bird bee horse fish frog duck mouse puppy kitten "
+                 "warm cold fresh sweet tall old new happy quiet")
+pos("noun", "cook fox cat dog rabbit bird bee horse fish frog duck mouse puppy kitten "
             "garden pond field barn nest tree branch pool "
             "teacher student class desk book pencil bag door window bell "
             "playground library gym lunchbox backpack chair board "
@@ -50,7 +50,7 @@ pos("verb", "made ran jumped slept barked sang flew swam hopped climbed rested "
             "ate cooked baked poured washed shared tasted stirred "
             "eats cooks bakes pours washes shares tastes stirs")
 pos("preposition", "in on under over by near into")
-pos("adverb", "quickly slowly quietly loudly carefully together")
+pos("adverb", "quickly slowly quietly loudly carefully together away outside")
 pos("conjunction", "and but so")
 pos("pronoun", "it they we")
 pos("question", "where what")
@@ -72,65 +72,63 @@ FAMILIES = {
 # A template is plain text. {a|b|c} is a choice. Every combination has been
 # read and makes sense - that is the contract. Keep choices in a slot the same
 # kind of thing, or the contract breaks.
+# A sentence is built from five kinds of word and nothing else: determiner,
+# adjective, noun, verb, adverb - then a punctuation mark to close it. That is
+# what a 3rd to 5th grader is taught, and it is what the legend ends up showing.
+# Prepositions, pronouns and question words were dropped: they doubled the
+# length of the legend without making the sentences any better.
 TOPICS = {
     "animals": {
         "name": "Animals",
-        "emoji": "🐾",
+        "emoji": "\U0001F43E",
         "templates": [
             "the {cat|dog|rabbit|duck} {ran|jumped|hopped} {quickly|slowly|quietly}",
-            "the {cat|dog|rabbit|duck} slept {quietly|outside|inside}",
-            "a {small|big|fluffy} {puppy|kitten|rabbit} slept {under|near} the {barn|tree}",
-            "the {hungry|sleepy|quick} {cat|dog|horse} {ran|rested} {in|near} the {field|garden}",
-            "a {bird|bee|duck} flew [{over|near} the {pond|garden|tree}]",
-            "the {fish|frog} swam {in|under} the {pond|pool}",
-            "a {brown|grey|small} {mouse|rabbit} hopped {into|under} the {nest|barn}",
-            "the {dog|puppy} barked {loudly|quietly} [and the {cat|kitten} ran {away|inside}]",
-            "where {is|was} the {cat|dog|bird}",
-            "the {bird|duck} {sings|sleeps} [{in|on} a {tree|branch}]",
-            "my {dog|cat|rabbit} {is|was} {hungry|sleepy|happy}",
+            "a {big|small|brown} {bird|frog|horse} {sang|slept|rested}",
+            "the {hungry|sleepy|noisy} {puppy|kitten|mouse} slept [{quietly|outside}]",
+            "my {cat|dog|rabbit} {is|was} {hungry|sleepy|happy}",
+            "the {grey|fluffy|quick} {rabbit|mouse|fox} hopped [{quickly|away}]",
+            "a {duck|fish|frog} swam [{slowly|quietly}]",
+            "the {dog|puppy} barked {loudly|quietly}",
+            "the {bird|bee} flew [{quickly|away}]",
+            "a {small|brown|fluffy} {puppy|kitten} {jumped|rested}",
+            "the {horse|duck|frog} {is|was} {noisy|quick|slow}",
         ],
     },
     "school": {
         "name": "School",
-        "emoji": "🎒",
+        "emoji": "\U0001F392",
         "templates": [
-            "the {teacher|student} {read|wrote|drew} [{quickly|slowly|carefully}]",
-            "a {student|teacher} opened the {book|door|window}",
+            "the {teacher|student} {read|wrote|drew} {quickly|slowly|carefully}",
+            "a {student|teacher} {opened|closed} the {book|door|window}",
             "the {class|student} {listened|waited} {quietly|carefully}",
             "my {book|pencil|bag} {is|was} {new|old|big}",
-            "the {bell} rang {loudly|quietly}",
-            "the teacher {opened|closed} the {door|window|book}",
-            "a {student|teacher} packed the {lunchbox|backpack|bag}",
-            "the {class|student} studied [{in|near} the {library|gym|playground}]",
-            "where {is|was} my {book|pencil|bag}",
-            "the {student|class} {reads|writes} {quietly|together}",
-            "a {tall|small|new} {desk|chair|board} {is|was} {in|near} the {class|library}",
+            "the bell rang {loudly|quietly}",
+            "a {student|teacher} {packed|opened} the {bag|lunchbox|backpack}",
+            "the {class|student} studied [{quietly|carefully}]",
+            "a {tall|small|new} {desk|chair|board} {is|was} {old|new|big}",
+            "the {student|class} {reads|writes} [{quietly|carefully}]",
+            "my {teacher|class} {is|was} {noisy|quiet|happy}",
         ],
     },
     "food": {
         "name": "Food",
-        "emoji": "🍎",
+        "emoji": "\U0001F34E",
         "templates": [
             "the {cook|teacher|student} {baked|cooked} {bread|soup|rice}",
             "a {student|teacher} ate the {apple|banana|cookie} [{quickly|slowly}]",
             "the {soup|rice|milk} {is|was} {warm|cold|fresh}",
-            "we {washed|shared} the {apple|carrot|plate} {carefully|together}",
-            "a {small|big|fresh} {apple|carrot|cookie} {is|was} {on|in} the {plate|bowl}",
-            "the {cook|student} poured {milk|water|juice} {into|in} a {bowl|plate}",
-            "they {cooked|made} {pizza|soup|rice} {in|near} the {kitchen}",
-            "they baked {bread|cookies} {in|near} the {kitchen}",
-            "where {is|was} my {lunch|breakfast|dinner}",
+            "the {cook|student} {washed|shared} the {apple|carrot|plate}",
+            "a {small|big|fresh} {apple|carrot|cookie} {is|was} {sweet|fresh|cold}",
+            "the {cook|student} {poured|shared} the {milk|water|juice}",
+            "a {teacher|student} {baked|shared} the {bread|pizza|cookie}",
             "the {cheese|bread|pizza} {tastes|tasted} {sweet|fresh|warm}",
-            "we {ate|shared} {lunch|breakfast|dinner} {together|quietly}",
+            "the {lunch|breakfast|dinner} {is|was} {warm|fresh|sweet}",
+            "a {cook|student} {cooked|tasted} the {soup|rice|pizza} [{slowly|carefully}]",
         ],
     },
 }
 
-# a few words only the templates use
-pos("noun", "cook cookies")
-pos("adverb", "away inside outside")
-
-# parts of speech that share a family (and so one legend row, one colour)
+# parts of speech that share one legend row and one colour
 FAMILY_OF = {"be": "verb"}
 
 CHOICE = re.compile(r"\{([^}]*)\}")
