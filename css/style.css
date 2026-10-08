@@ -135,3 +135,9 @@ kbd {
 
 .help { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
 .help li { padding: 3px 0; }
+
+/* a slot the sentence can do without - dashed, so it does not read as required */
+.chip.optional {
+  border-style: dashed;
+  opacity: 0.72;
+}

@@ -1,34 +1,50 @@
 #!/usr/bin/env python3
-"""Print every sentence the game can produce, so a person can read them all.
+"""Show what each topic can produce, for a person to check.
 
-Run:  python3 tools/list-sentences.py          (all topics)
-      python3 tools/list-sentences.py animals  (one topic)
+Every word of a kind is interchangeable with every other, so the full list is
+tens of thousands of sentences and nobody is going to read that. What matters
+instead is the word lists - if they are right, every combination is right - so
+this prints them, then a random sample that mixes them freely. A bad word
+shows up in the sample fast, because it is paired with everything.
+
+Run:  python3 tools/list-sentences.py [topic] [howmany]
 """
-import json, os, re, sys, itertools
+import json, os, random, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 index = json.load(open(os.path.join(ROOT, "data", "topics.json")))
-wanted = sys.argv[1:] or [t["id"] for t in index["topics"]]
+wanted = [a for a in sys.argv[1:] if not a.isdigit()] or [t["id"] for t in index["topics"]]
+howmany = next((int(a) for a in sys.argv[1:] if a.isdigit()), 40)
+VOWELS = "aeiou"
 
-TOKEN = re.compile(r"\(([^)]*)\)|'([^']*)'")
-
-def sentences(pattern):
-    slots = []
-    for group, lone in TOKEN.findall(pattern["shape"]):
-        slots.append([o.strip().strip("'") for o in group.split("|")] if group else [lone])
-    end = pattern.get("end", ["."])
-    for combo in itertools.product(*slots):
-        s = " ".join(combo)
-        yield s[0].upper() + s[1:] + end[0]
-
-total = 0
 for entry in index["topics"]:
     if entry["id"] not in wanted:
         continue
     pack = json.load(open(os.path.join(ROOT, "data", entry["file"])))
-    lines = [s for p in pack["patterns"] for s in sentences(p)]
-    total += len(lines)
-    print("\n=== %s  (%d sentences) ===" % (pack["name"], len(lines)))
-    for s in lines:
-        print("  " + s)
-print("\n%d sentences in total." % total)
+    print("\n=== %s  (%d possible sentences) ===" % (pack["name"], pack["sentenceCount"]))
+
+    print("\n  the words, which are what actually need checking:")
+    for pos in sorted(pack["words"]):
+        label = pack["pos"][pos]["label"]
+        print("    %-11s %s" % (label + ":", ", ".join(pack["words"][pos])))
+
+    for pattern in pack["patterns"]:
+        print("\n  %s   [%s]" % (pattern["name"], pattern["shape"]))
+        seen = set()
+        while len(seen) < howmany // len(pack["patterns"]):
+            picked = []
+            for token in pattern["shape"].split():
+                optional = token.endswith("?")
+                pos = token[:-1] if optional else token
+                if optional and random.random() < 0.4:
+                    continue
+                picked.append(random.choice(pack["words"][pos]))
+            # "a apple" -> "an apple"
+            for i, w in enumerate(picked[:-1]):
+                if w == "a" and picked[i + 1][0] in VOWELS:
+                    picked[i] = "an"
+            s = " ".join(picked)
+            s = s[0].upper() + s[1:] + random.choice(pattern["end"])
+            seen.add(s)
+        for s in sorted(seen):
+            print("    " + s)

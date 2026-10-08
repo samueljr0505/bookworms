@@ -74,11 +74,11 @@ window.BW = window.BW || {};
         el.style.background = posColor(pack, slot.pos);
         el.textContent = slot.word;
       } else {
-        // Never show the word itself - with hand-written sentences every slot is
-        // a specific word, and printing it hands the player the answer. Show
-        // what KIND of word is needed and let them find it on the board.
+        // Show what KIND of word is needed, never a specific word.
         const pos = slot.pos || BW.Grammar.posOfWord(pack, slot.literal);
         el.textContent = posLabel(pack, pos);
+        // a slot you are allowed to skip should not look compulsory
+        if (slot.optional) el.classList.add('optional');
       }
       building.appendChild(el);
     }
@@ -106,7 +106,9 @@ window.BW = window.BW || {};
     if (s.canEnd() && s.tokens.length > 0) {
       wanted.push('a punctuation mark (' + s.endMarks().join(' or ') + ') to end it');
     }
-    $('next-up').innerHTML = 'Find a <b>' + wanted.join('</b> or a <b>') + '</b>';
+    const article = w => (/^[AEIOU]/.test(w) ? 'an' : 'a');
+    $('next-up').innerHTML = 'Find ' +
+      wanted.map(w => article(w) + ' <b>' + w + '</b>').join(' or ');
 
     $('btn-pause').innerHTML = (game.mode === 'paused' ? 'Resume' : 'Pause') + ' <kbd>P</kbd>';
 

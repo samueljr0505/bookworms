@@ -1,267 +1,168 @@
 #!/usr/bin/env python3
-"""Build the topic packs from hand-written sentence templates.
+"""Build the topic packs.
 
-Every sentence the game can produce is written out here by hand. A template is
-a sentence with a few interchangeable choices, and the choices are picked so
-that EVERY combination reads correctly - that is the whole point. There are no
-meaning rules to get wrong, because nothing is inferred: if a sentence can
-appear in the game, a person wrote it.
+The rule that makes this work: within a topic, every word of a kind is
+interchangeable with every other word of that kind. If the game asks for a
+noun, ANY noun in the topic is a correct answer - which is the only honest
+thing to do when the screen says "Noun".
 
-The trade is variety. A topic offers a few hundred sentences rather than
-millions, so players will see repeats. That is the right trade for a classroom:
-a child never meets a sentence an adult has not read first.
+That puts the burden on the word lists rather than on the sentences. A topic's
+nouns all have to be able to do its verbs, and its adjectives all have to be
+able to describe its nouns. So each list is kept narrow and coherent: the
+Animals nouns are all animals that walk about, and because food does not run
+anywhere, the Food topic describes things instead of having them act.
+
+A bad word shows up immediately, because tools/list-sentences.py samples
+across every combination rather than along a few fixed templates.
 
 Run:  python3 tools/build-topics.py
-It writes data/topics/*.json and prints how many sentences each topic can make.
 """
-import itertools
 import json
 import os
-import re
+import random
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 OUT = os.path.join(ROOT, "data", "topics")
 
-# --------------------------------------------------------------- vocabulary
-# Each word is filed under its part of speech once, for colour and for the
-# legend. The same word may appear in several topics.
-POS_OF = {}
-
-
-def pos(name, words):
-    for w in words.split():
-        POS_OF[w] = name
-
-
-pos("determiner", "a an the this that my our your")
-pos("adjective", "big small brown grey fluffy hungry sleepy noisy quick slow "
-                 "warm cold fresh sweet tall old new happy quiet")
-pos("noun", "cook fox cat dog rabbit bird bee horse fish frog duck mouse puppy kitten "
-            "garden pond field barn nest tree branch pool "
-            "teacher student class desk book pencil bag door window bell "
-            "playground library gym lunchbox backpack chair board "
-            "apple bread soup rice cheese carrot banana cookie pizza milk "
-            "water juice plate bowl spoon kitchen table lunch breakfast dinner")
-pos("verb", "made ran jumped slept barked sang flew swam hopped climbed rested "
-            "runs jumps sleeps barks sings flies swims hops climbs rests "
-            "read wrote drew listened waited studied packed opened closed rang "
-            "reads writes draws listens waits studies packs opens closes rings "
-            "ate cooked baked poured washed shared tasted stirred "
-            "eats cooks bakes pours washes shares tastes stirs")
-pos("preposition", "in on under over by near into")
-pos("adverb", "quickly slowly quietly loudly carefully together away outside")
-pos("conjunction", "and but so")
-pos("pronoun", "it they we")
-pos("question", "where what")
-pos("be", "is are was were")
-
+# The five kinds of word a sentence is built from, plus the punctuation that
+# closes it. Real grammatical names, because that is what is being taught.
 FAMILIES = {
-    "determiner":  {"label": "Determiner",  "hint": "a, the, my",                 "color": "#9aa7d7", "role": "other"},
-    "adjective":   {"label": "Adjective",   "hint": "describes a noun: big, red", "color": "#f2a65a", "role": "describing"},
-    "noun":        {"label": "Noun",        "hint": "a person, place, or thing",  "color": "#5ec4a3", "role": "naming"},
-    "pronoun":     {"label": "Pronoun",     "hint": "stands for a noun: it, they", "color": "#8fd694", "role": "naming"},
-    "verb":        {"label": "Verb",        "hint": "an action or a state",       "color": "#e9797a", "role": "action"},
-    "adverb":      {"label": "Adverb",      "hint": "describes a verb: slowly",   "color": "#c79ae0", "role": "other"},
-    "preposition": {"label": "Preposition", "hint": "shows where: under, near",   "color": "#72b6e8", "role": "other"},
-    "conjunction": {"label": "Conjunction", "hint": "joins ideas: and, but, so",  "color": "#e7c35a", "role": "other"},
-    "question":    {"label": "Question Word", "hint": "where, what",              "color": "#7fb0c9", "role": "other"},
+    "determiner": {"label": "Determiner", "hint": "points at a noun: a, the, my",
+                   "color": "#9aa7d7", "role": "other"},
+    "adjective":  {"label": "Adjective", "hint": "describes a noun: big, grey",
+                   "color": "#f2a65a", "role": "describing"},
+    "noun":       {"label": "Noun", "hint": "a person, place, or thing",
+                   "color": "#5ec4a3", "role": "naming"},
+    "verb":       {"label": "Verb", "hint": "what happens: ran, is",
+                   "color": "#e9797a", "role": "action"},
+    "adverb":     {"label": "Adverb", "hint": "how it happened: slowly",
+                   "color": "#c79ae0", "role": "other"},
 }
+# "be" and "linking" are verbs as far as a player is concerned; they are held
+# apart only so a structure can ask for one of them specifically.
+FAMILY_OF = {"be": "verb", "linking": "verb"}
 
-# ------------------------------------------------------------------ topics
-# A template is plain text. {a|b|c} is a choice. Every combination has been
-# read and makes sense - that is the contract. Keep choices in a slot the same
-# kind of thing, or the contract breaks.
-# A sentence is built from five kinds of word and nothing else: determiner,
-# adjective, noun, verb, adverb - then a punctuation mark to close it. That is
-# what a 3rd to 5th grader is taught, and it is what the legend ends up showing.
-# Prepositions, pronouns and question words were dropped: they doubled the
-# length of the legend without making the sentences any better.
 TOPICS = {
     "animals": {
         "name": "Animals",
         "emoji": "\U0001F43E",
-        "templates": [
-            "the {cat|dog|rabbit|duck} {ran|jumped|hopped} {quickly|slowly|quietly}",
-            "a {big|small|brown} {bird|frog|horse} {sang|slept|rested}",
-            "the {hungry|sleepy|noisy} {puppy|kitten|mouse} slept [{quietly|outside}]",
-            "my {cat|dog|rabbit} {is|was} {hungry|sleepy|happy}",
-            "the {grey|fluffy|quick} {rabbit|mouse|fox} hopped [{quickly|away}]",
-            "a {duck|fish|frog} swam [{slowly|quietly}]",
-            "the {dog|puppy} barked {loudly|quietly}",
-            "the {bird|bee} flew [{quickly|away}]",
-            "a {small|brown|fluffy} {puppy|kitten} {jumped|rested}",
-            "the {horse|duck|frog} {is|was} {noisy|quick|slow}",
+        # every noun is an animal that can do every one of these verbs
+        "words": {
+            "determiner": ["a", "the", "my"],
+            "adjective": ["big", "small", "brown", "grey", "fluffy",
+                          "hungry", "sleepy", "quick", "noisy", "happy"],
+            "noun": ["cat", "dog", "rabbit", "duck", "horse",
+                     "mouse", "puppy", "kitten", "fox", "bird"],
+            "verb": ["ran", "jumped", "walked", "played", "ate", "moved", "hid"],
+            "be": ["is", "was"],
+            "adverb": ["quickly", "slowly", "quietly"],
+        },
+        "structures": [
+            ("doing",      "determiner adjective? noun verb adverb?"),
+            ("describing", "determiner adjective? noun be adjective"),
         ],
     },
     "school": {
         "name": "School",
         "emoji": "\U0001F392",
-        "templates": [
-            "the {teacher|student} {read|wrote|drew} {quickly|slowly|carefully}",
-            "a {student|teacher} {opened|closed} the {book|door|window}",
-            "the {class|student} {listened|waited} {quietly|carefully}",
-            "my {book|pencil|bag} {is|was} {new|old|big}",
-            "the bell rang {loudly|quietly}",
-            "a {student|teacher} {packed|opened} the {bag|lunchbox|backpack}",
-            "the {class|student} studied [{quietly|carefully}]",
-            "a {tall|small|new} {desk|chair|board} {is|was} {old|new|big}",
-            "the {student|class} {reads|writes} [{quietly|carefully}]",
-            "my {teacher|class} {is|was} {noisy|quiet|happy}",
+        # people only, so every noun can do every verb
+        "words": {
+            "determiner": ["a", "the", "my"],
+            "adjective": ["new", "old", "tall", "small", "quiet",
+                          "noisy", "happy", "busy", "kind", "clever"],
+            "noun": ["teacher", "student", "class", "boy", "girl",
+                     "friend", "reader", "writer", "helper", "painter"],
+            "verb": ["read", "wrote", "listened", "waited",
+                     "studied", "walked", "worked", "smiled"],
+            "be": ["is", "was"],
+            "adverb": ["quickly", "slowly", "quietly", "carefully"],
+        },
+        "structures": [
+            ("doing",      "determiner adjective? noun verb adverb?"),
+            ("describing", "determiner adjective? noun be adjective"),
         ],
     },
     "food": {
         "name": "Food",
         "emoji": "\U0001F34E",
-        "templates": [
-            "the {cook|teacher|student} {baked|cooked} {bread|soup|rice}",
-            "a {student|teacher} ate the {apple|banana|cookie} [{quickly|slowly}]",
-            "the {soup|rice|milk} {is|was} {warm|cold|fresh}",
-            "the {cook|student} {washed|shared} the {apple|carrot|plate}",
-            "a {small|big|fresh} {apple|carrot|cookie} {is|was} {sweet|fresh|cold}",
-            "the {cook|student} {poured|shared} the {milk|water|juice}",
-            "a {teacher|student} {baked|shared} the {bread|pizza|cookie}",
-            "the {cheese|bread|pizza} {tastes|tasted} {sweet|fresh|warm}",
-            "the {lunch|breakfast|dinner} {is|was} {warm|fresh|sweet}",
-            "a {cook|student} {cooked|tasted} the {soup|rice|pizza} [{slowly|carefully}]",
+        # food does not run about, so this topic describes rather than acts
+        "words": {
+            "determiner": ["a", "the", "my"],
+            "adjective": ["warm", "cold", "fresh", "sweet", "soft",
+                          "big", "small", "sticky", "tasty"],
+            "noun": ["soup", "bread", "rice", "apple", "cookie",
+                     "pizza", "cheese", "carrot", "pancake", "pie"],
+            "linking": ["tastes", "tasted", "looks", "looked",
+                        "smells", "smelled"],
+            "be": ["is", "was"],
+        },
+        "structures": [
+            ("tasting",    "determiner adjective? noun linking adjective"),
+            ("describing", "determiner adjective? noun be adjective"),
         ],
     },
 }
 
-# parts of speech that share one legend row and one colour
-FAMILY_OF = {"be": "verb"}
 
-CHOICE = re.compile(r"\{([^}]*)\}")
-OPTIONAL = re.compile(r"\[([^\]]*)\]")
-
-
-def variants(template):
-    """A template with [an optional ending] stands for both forms."""
-    m = OPTIONAL.search(template)
-    if not m:
-        return [template]
-    without = (template[:m.start()] + template[m.end():])
-    with_it = (template[:m.start()] + m.group(1) + template[m.end():])
-    out = []
-    for v in (without, with_it):
-        out.extend(variants(" ".join(v.split())))
-    return out
-
-
-def expand(template):
-    """Every sentence a template can make."""
-    parts, slots = [], []
-    last = 0
-    for m in CHOICE.finditer(template):
-        parts.append(template[last:m.start()])
-        slots.append(m.group(1).split("|"))
-        last = m.end()
-    parts.append(template[last:])
-
-    out = []
-    for combo in itertools.product(*slots) if slots else [()]:
-        text = ""
-        for i, piece in enumerate(parts):
-            text += piece
-            if i < len(combo):
-                text += combo[i]
-        out.append(" ".join(text.split()))
-    return out
-
-
-def shape_of(template):
-    """Turn a template into the pack's shape syntax, all literals."""
-    out = []
-    for token in template.split():
-        m = CHOICE.fullmatch(token)
-        if m:
-            opts = " | ".join("'%s'" % o for o in m.group(1).split("|"))
-            out.append("( %s )" % opts)
-        else:
-            out.append("'%s'" % token)
-    return " ".join(out)
-
-
-def words_in(templates):
-    used = set()
-    for t in templates:
-        for token in t.split():
-            m = CHOICE.fullmatch(token)
-            used.update(m.group(1).split("|") if m else [token])
-    return used
+def count(words, shape):
+    """How many sentences a structure can make."""
+    n = 1
+    for token in shape.split():
+        optional = token.endswith("?")
+        pos = token[:-1] if optional else token
+        choices = len(words.get(pos, []))
+        n *= choices + 1 if optional else choices
+    return n
 
 
 def build():
     os.makedirs(OUT, exist_ok=True)
-    index, total = [], 0
+    index, grand = [], 0
 
     for tid, topic in TOPICS.items():
-        used = words_in([v for t in topic["templates"] for v in variants(t)])
-        unknown = sorted(w for w in used if w not in POS_OF)
-        if unknown:
-            raise SystemExit("%s: words with no part of speech: %s" % (tid, unknown))
-
-        words = {}
-        for w in sorted(used):
-            words.setdefault(POS_OF[w], []).append(w)
-
-        patterns = []
-        count = 0
-        flat = [v for t in topic["templates"] for v in variants(t)]
-        for i, t in enumerate(flat):
-            n = len(expand(t))
-            count += n
-            patterns.append({
-                "id": "%s-%d" % (tid, i + 1),
-                "name": "Sentence %d" % (i + 1),
-                "end": ["?"] if t.startswith("where ") else [".", "!"],
-                "shape": shape_of(t),
-            })
-
-        # Every sentence, written out. The game validates against this list,
-        # so it never has to work out whether something makes sense - a person
-        # already did, when they wrote the template.
-        sentences = []
-        for i, t in enumerate(flat):
-            end = ["?"] if t.startswith("where ") else [".", "!"]
-            for text in expand(t):
-                sentences.append({"words": text.split(), "end": end})
+        words = topic["words"]
+        total = sum(count(words, shape) for _, shape in topic["structures"])
+        used_pos = sorted(words)
 
         pack = {
             "id": tid,
             "name": topic["name"],
             "emoji": topic["emoji"],
-            "description": "%d sentences, every one written and checked by hand."
-                           % count,
-            "sentenceCount": count,
+            "description": "Any word of the right kind fits, so there is never "
+                           "one secret answer.",
+            "sentenceCount": total,
             "families": {k: v for k, v in FAMILIES.items()
-                         if any(FAMILY_OF.get(POS_OF[w], POS_OF[w]) == k for w in used)},
+                         if any(FAMILY_OF.get(p, p) == k for p in used_pos)},
             "pos": {p: {"label": FAMILIES[FAMILY_OF.get(p, p)]["label"],
                         "hint": FAMILIES[FAMILY_OF.get(p, p)]["hint"],
                         "color": FAMILIES[FAMILY_OF.get(p, p)]["color"],
                         "family": FAMILY_OF.get(p, p)}
-                    for p in words},
+                    for p in used_pos},
             "words": words,
-            "sentences": sentences,
-            "patterns": patterns,
+            "patterns": [{"id": "%s-%s" % (tid, name),
+                          "name": name.capitalize() + " sentence",
+                          "end": [".", "!"],
+                          "shape": shape}
+                         for name, shape in topic["structures"]],
             "punctuation": [
                 {"mark": ".", "name": "period"},
                 {"mark": "!", "name": "exclamation point"},
-                {"mark": "?", "name": "question mark"},
             ],
         }
         with open(os.path.join(OUT, tid + ".json"), "w") as f:
             json.dump(pack, f, indent=2, ensure_ascii=False)
 
         index.append({"id": tid, "name": topic["name"], "emoji": topic["emoji"],
-                      "file": "topics/%s.json" % tid, "sentences": count})
-        total += count
-        print("%-10s %4d sentences  from %d templates  (%d words)"
-              % (topic["name"], count, len(flat), len(used)))
+                      "file": "topics/%s.json" % tid, "sentences": total})
+        grand += total
+        print("%-9s %7d sentences   %2d words across %d kinds"
+              % (topic["name"], total, sum(len(v) for v in words.values()),
+                 len(words)))
 
     with open(os.path.join(ROOT, "data", "topics.json"), "w") as f:
         json.dump({"defaultTopic": index[0]["id"], "topics": index}, f, indent=2)
-    print("%-10s %4d sentences total" % ("ALL", total))
+    print("%-9s %7d sentences in total" % ("ALL", grand))
 
 
 if __name__ == "__main__":
