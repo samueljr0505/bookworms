@@ -88,6 +88,7 @@ canvas {
 .message.show { opacity: 1; }
 .message.good { color: var(--good); }
 .message.bad, .message.warn { color: var(--bad); }
+.message.info { color: var(--muted); }
 
 .buttons { display: flex; gap: 10px; }
 button {
@@ -141,3 +142,72 @@ kbd {
   border-style: dashed;
   opacity: 0.72;
 }
+.chip.optional.next { opacity: 1; }
+
+/* the words no longer fit any shape - finishing will show whether they still work */
+.chip.lost { border-style: dashed; border-color: var(--bad) !important; color: var(--bad); }
+
+.checker-status { margin: 12px 0 0; }
+
+/* ---------- the sentence check, on top of the board ---------- */
+
+.board-wrap { position: relative; }
+
+.report {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(470px, calc(100% - 32px));
+  max-height: calc(100% - 24px); overflow-y: auto;
+  background: #fff; border: 3px solid var(--line); border-radius: 18px;
+  padding: 16px 20px 12px; text-align: center;
+  box-shadow: 0 8px 0 rgba(120, 100, 70, 0.12), 0 18px 40px rgba(60, 45, 20, 0.2);
+  animation: report-in 0.2s ease-out;
+}
+.report[hidden] { display: none; }
+@keyframes report-in { from { opacity: 0; transform: translate(-50%, -46%); } }
+
+.report.correct    { border-color: #9fd3ac; }
+.report.wrong      { border-color: #ecb0a3; }
+.report.unfinished { border-color: #f1d08f; }
+
+.report h2 { margin: 0 0 6px; font-size: 22px; color: var(--ink); }
+.report.correct h2    { color: var(--good); }
+.report.wrong h2      { color: var(--bad); }
+.report.unfinished h2 { color: #a8741f; }
+
+.report-sentence { margin: 0 0 12px; font-size: 22px; font-weight: 800; }
+.report-sentence .oops {
+  color: var(--bad);
+  text-decoration: underline wavy var(--bad); text-underline-offset: 5px;
+}
+.report-sentence .gap { color: var(--muted); }
+
+.report-items {
+  list-style: none; margin: 0 0 10px; padding: 0;
+  display: grid; gap: 3px; text-align: left;
+}
+.report-items li {
+  display: grid; grid-template-columns: 20px 108px 1fr; gap: 6px;
+  align-items: baseline; font-size: 14px;
+  animation: tick-in 0.25s ease-out both;
+  animation-delay: calc(var(--i) * 90ms);
+}
+@keyframes tick-in { from { opacity: 0; transform: translateX(-6px); } }
+.report-items i { font-style: normal; font-weight: 900; text-align: center; }
+.report-items .ok i   { color: var(--good); }
+.report-items .bad i  { color: var(--bad); }
+.report-items .skip i { color: var(--muted); }
+.report-items .wait i {
+  color: var(--muted);
+  animation: wait 0.9s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 120ms);
+}
+@keyframes wait { 50% { opacity: 0.2; } }
+.report-items b { font-weight: 800; }
+.report-items .bad b { color: var(--bad); }
+.report-items span { color: var(--muted); font-size: 13px; }
+
+.report-headline { margin: 0 0 6px; font-size: 16px; font-weight: 800; min-height: 1em; }
+.report-tip { margin: 0 0 6px; font-weight: 800; color: var(--good); }
+.report-after { margin: 0 0 10px; font-size: 14px; font-weight: 700; color: var(--muted); }
+.report-by { margin: 8px 0 0; font-size: 11px; color: var(--muted); }

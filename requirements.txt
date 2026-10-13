@@ -1,0 +1,5 @@
+# Only the sentence judge needs anything installed (tools/judge.py). The game itself
+# runs on plain Python and a browser, and checks sentences with its own rules without it.
+#
+#   pip install -r requirements.txt
+anthropic>=1.13

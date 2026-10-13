@@ -84,6 +84,8 @@ BW.Renderer = class Renderer {
 
     if (state.mode === 'countdown') this.drawCountdown(state, W, H);
     if (state.mode === 'paused') this.drawBanner('Paused', 'press P to keep going', W, H);
+    // the sentence check sits on top of the board (an HTML card, see js/main.js)
+    if (state.mode === 'checking' || state.mode === 'checked') this.drawVeil(W, H);
     if (state.flash) this.drawFlash(state.flash, W, H);
   }
 
@@ -221,6 +223,11 @@ BW.Renderer = class Renderer {
     ctx.fillStyle = '#6b6152';
     ctx.font = 'bold 16px system-ui, sans-serif';
     ctx.fillText(sub, W / 2, H / 2 + 34);
+  }
+
+  drawVeil(W, H) {
+    this.ctx.fillStyle = 'rgba(253, 246, 232, 0.55)';
+    this.ctx.fillRect(0, 0, W, H);
   }
 
   drawFlash(flash, W, H) {

@@ -34,7 +34,21 @@
       <div id="next-up" class="next-up"></div>
     </div>
 
-    <canvas id="board"></canvas>
+    <div class="board-wrap">
+      <canvas id="board"></canvas>
+
+      <!-- the sentence check: shown when punctuation is eaten (js/main.js fills it in) -->
+      <section id="report" class="report" hidden aria-live="polite">
+        <h2 id="report-title"></h2>
+        <p id="report-sentence" class="report-sentence"></p>
+        <ul id="report-items" class="report-items"></ul>
+        <p id="report-headline" class="report-headline"></p>
+        <p id="report-tip" class="report-tip" hidden></p>
+        <p id="report-after" class="report-after"></p>
+        <button id="report-go" type="button">Keep going <kbd>arrow key</kbd></button>
+        <p id="report-by" class="report-by"></p>
+      </section>
+    </div>
 
     <div id="message" class="message"></div>
 
@@ -62,14 +76,17 @@
     <h2>How to play</h2>
     <ul class="help">
       <li>Steer with the <b>arrow keys</b> or <b>W A S D</b>.</li>
-      <li>The strip above the board shows the <b>structure</b> to build. Collect each kind of word in order.</li>
+      <li>The strip above the board is the <b>recipe</b>: the kinds of word to collect, in order.
+          Dashed ones are optional.</li>
       <li>Every word you eat is <b>written along your body</b> - read your worm from its
           tail to its head to see your sentence.</li>
-      <li>Some sentences need a <b>comma</b> in the middle - it is a tile you eat, just like a word.</li>
-      <li><b>Eat a punctuation mark</b> (<b>.</b>, <b>!</b> or <b>?</b> for a question) to end the sentence.</li>
+      <li><b>Eat a punctuation mark</b> (<b>.</b> or <b>!</b>) to end the sentence. That is when
+          it gets <b>checked</b>: capital letter, noun, verb, sounds right, makes sense, end mark.</li>
+      <li>Not quite right? The checker says why, and the words go back on the board.</li>
       <li>Hit a wall or your own body and the words you were carrying
           <b>drop back onto the board</b> - go collect them again.</li>
     </ul>
+    <p id="checker-status" class="small checker-status"></p>
   </aside>
 </main>
 
@@ -77,6 +94,8 @@
 <script src="js/worm-skin.js"></script>
 <script src="js/util.js"></script>
 <script src="js/grammar.js"></script>
+<script src="js/checker.js"></script>
+<script src="js/judge.js"></script>
 <script src="js/worm.js"></script>
 <script src="js/board.js"></script>
 <script src="js/render.js"></script>

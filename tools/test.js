@@ -1,13 +1,16 @@
 /* Headless check of the rules. Run with:  node tools/test.js
-   It plays thousands of random games and makes sure every finished sentence
-   really does follow one of the patterns (Req 4) and ends with punctuation (Req 6). */
+   It plays thousands of random games, checks every sentence the way the game does when
+   punctuation is eaten (Req 4, Req 6), and makes sure the checker's verdicts hold up:
+   nothing that breaks a sentence shape is ever passed by the rules, and every refusal
+   comes with a reason. No browser and no API key needed - the judge is played by a fake. */
 const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
 global.window = global;   // the game files expect a browser-style global
 global.performance = { now: () => Date.now() };
-for (const f of ['js/config.js', 'js/util.js', 'js/grammar.js', 'js/worm.js', 'js/board.js']) {
+for (const f of ['js/config.js', 'js/util.js', 'js/grammar.js', 'js/checker.js', 'js/judge.js',
+                 'js/worm.js', 'js/board.js']) {
   eval(fs.readFileSync(path.join(root, f), 'utf8'));
 }
 const NS = global.window.BW;
@@ -46,21 +49,37 @@ function ends(node, tokens, i) {
   throw new Error('unknown node ' + node.t);
 }
 
-function validate(pattern, tokens, text, mark) {
-  const tree = NS.Grammar.parse(NS.Grammar.shapeOf(pattern), pack.rules);
-  if (!ends(tree, tokens, 0).includes(tokens.length)) {
-    return 'words ' + tokens.map(t => t.word + '/' + t.pos).join(' ') + ' do not fit pattern "' + pattern.id + '"';
+/* Does this sentence fit some shape in the pack, start to finish? */
+function fitsSomeShape(tokens) {
+  return pack.patterns.some(p =>
+    ends(NS.Grammar.parse(NS.Grammar.shapeOf(p), pack.rules), tokens, 0).includes(tokens.length));
+}
+/* ...or could it still grow into one? (This one does lean on the game's own machine.) */
+function startsSomeShape(tokens) {
+  const s = NS.Grammar.newSentence(pack, NS.rng);
+  for (const t of tokens) s.add(t.word, t.pos);
+  return s.onTrack();
+}
+
+/* A sentence the rules passed must really follow a shape, and read properly. */
+function validate(tokens, text, mark) {
+  if (!fitsSomeShape(tokens)) {
+    return 'words ' + tokens.map(t => t.word + '/' + t.pos).join(' ') + ' do not fit any pattern';
   }
   for (const tok of tokens) {
     if (!(pack.words[tok.pos] || []).includes(tok.word)) return '"' + tok.word + '" is not a ' + tok.pos;
   }
-  const allowedMarks = pattern.end || ['.', '!'];
-  if (!allowedMarks.includes(mark)) return '"' + mark + '" does not suit pattern "' + pattern.id + '"';
+  const seen = new Set();
+  for (const tok of tokens) {
+    if (['noun', 'adjective', 'verb', 'linking'].includes(tok.pos)) {
+      if (seen.has(tok.word)) return 'a word was used twice: ' + text;
+      seen.add(tok.word);
+    }
+  }
   if (!/^[A-Z]/.test(text)) return 'not capitalised: ' + text;
   if (!text.endsWith(mark)) return 'missing end punctuation: ' + text;
   if (/ ,/.test(text)) return 'space before a comma: ' + text;
   if (/,(?! )/.test(text)) return 'comma not followed by a space: ' + text;
-  if (/^,|,[.!?]$/.test(text)) return 'comma at the start or end: ' + text;
   if (/\ba [aeiou]/i.test(text)) return '"a" before a vowel: ' + text;
   if (/\ban [^aeiou]/i.test(text)) return '"an" before a consonant: ' + text;
   return null;
@@ -131,115 +150,83 @@ check(w3.hitsSelf(neck.x, neck.y) === true, 'running into the neck should count 
 const tail = w3.cells[w3.cells.length - 1];
 check(w3.hitsSelf(tail.x, tail.y) === false, 'the tail square moves away, so it is safe');
 
-/* Build a sentence from a list of words, stopping at the first word the pattern refuses. */
-function build(patternId, words) {
-  const pattern = pack.patterns.find(p => p.id === patternId);
-  const s = NS.Grammar.newSentence({ ...pack, patterns: [pattern] }, NS.rng);
-  for (const w of words) {
-    const pos = w === ',' ? 'comma' : NS.Grammar.posOfWord(pack, w);
-    if (!s.accept(w, pos)) return { s, refused: w };
-  }
-  return { s, refused: null };
+/* Build a sentence from tile words - free building, exactly as the game does it - then
+   check it the way eating a punctuation mark does. */
+function sentenceOf(words, onPack) {
+  const p = onPack || pack;
+  const s = NS.Grammar.newSentence(p, NS.rng);
+  for (const w of words) s.add(w, w === ',' ? 'comma' : NS.Grammar.posOfWord(p, w));
+  return s;
 }
-function expectText(patternId, words, mark, want) {
-  const { s, refused } = build(patternId, words);
-  check(!refused, patternId + ': "' + refused + '" was refused');
-  check(s.end(mark), patternId + ': could not end with ' + mark);
-  check(s.text() === want, patternId + ': expected "' + want + '", got "' + s.text() + '"');
+function checkOf(words, mark, onPack) {
+  return NS.Checker.check(onPack || pack, sentenceOf(words, onPack), mark || '.');
 }
+const itemOf = (report, id) => report.items.find(i => i.id === id);
+const failed = report => report.items.filter(i => i.ok === false).map(i => i.id).sort().join(',');
 
-/* Sentences each pack must be able to build exactly, and ones it must refuse. */
-const EXAMPLES = {
-  starter() {
-    expectText('opener', ['suddenly', ',', 'the', 'cat', 'roared'], '.', 'Suddenly, the cat roared.');
-    expectText('compound', ['Maya', 'slept', ',', 'but', 'the', 'dragon', 'danced'], '.',
-               'Maya slept, but the dragon danced.');
-    expectText('complex-first', ['when', 'a', 'owl', 'sang', ',', 'we', 'giggled'], '!',
-               'When an owl sang, we giggled!');
-    expectText('list', ['the', 'cat', ',', 'a', 'dog', ',', 'and', 'Leo', 'danced'], '.',
-               'The cat, a dog, and Leo danced.');
-    expectText('describing', ['my', 'robot', 'looked', 'sleepy', 'and', 'grumpy'], '.',
-               'My robot looked sleepy and grumpy.');
-    expectText('doing-to', ['a', 'enormous', ',', 'icy', 'dragon', 'chased', 'Omar'], '!',
-               'An enormous, icy dragon chased Omar!');
-    expectText('yes-no', ['did', 'the', 'frog', 'swim', 'under', 'the', 'bus'], '?', 'Did the frog swim under the bus?');
-    expectText('talking-to', ['Zoe', ',', 'dance', 'quickly'], '!', 'Zoe, dance quickly!');
-
-    check(build('opener', ['suddenly', 'the']).refused === 'the', 'opener should insist on a comma');
-    check(build('simple', [',']).refused === ',', 'a sentence should not start with a comma');
-    check(build('compound', ['I', 'slept', 'but']).refused === 'but', 'a joined sentence needs its comma');
-    check(build('team', ['the', 'cat', 'but']).refused === 'but', 'a team sentence only takes "and"');
-    check(build('doing-to', ['we', 'chased', 'they']).refused === 'they', '"chased they" should be refused');
-    {
-      const { s } = build('yes-no', ['can', 'she', 'hop']);
-      check(!s.end('.') && s.end('?'), 'a question should take "?" and nothing else');
-      const t = build('simple', ['she', 'hopped']).s;
-      check(!t.end('?') && t.end('.'), 'a statement should not take "?"');
-    }
-  },
-
-  words() {
-    // straight out of words.pdf
-    expectText('simple-now', ['the', 'snail', 'crawls', 'slowly'], '.', 'The snail crawls slowly.');
-    expectText('simple-now', ['we', 'swim'], '.', 'We swim.');
-    expectText('doing-to-past', ['the', 'hungry', 'bear', 'ate', 'the', 'berries'], '.', 'The hungry bear ate the berries.');
-    expectText('simple-now', ['the', 'bear', 'eats'], '.', 'The bear eats.');
-    expectText('ing', ['Mom', 'is', 'painting', 'the', 'fence'], '.', 'Mom is painting the fence.');
-    expectText('doing-to-now', ['the', 'girl', 'wears', 'a', 'yellow', 'raincoat'], '.', 'The girl wears a yellow raincoat.');
-    expectText('describing', ['I', 'am', 'happy'], '.', 'I am happy.');
-    expectText('is-a', ['he', 'is', 'a', 'brave', 'firefighter'], '.', 'He is a brave firefighter.');
-    expectText('where-is', ['the', 'cat', 'is', 'on', 'the', 'bed'], '.', 'The cat is on the bed.');
-    expectText('time-first', ['at', 'night', ',', 'the', 'moon', 'glows'], '.', 'At night, the moon glows.');
-    expectText('time-first', ['yesterday', ',', 'we', 'swam'], '.', 'Yesterday, we swam.');
-    expectText('three-verbs', ['she', 'jumps', ',', 'spins', ',', 'and', 'lands'], '.', 'She jumps, spins, and lands.');
-    expectText('team', ['Mom', 'and', 'Dad', 'cook'], '.', 'Mom and Dad cook.');
-    expectText('want-to', ['I', 'want', 'to', 'swim'], '.', 'I want to swim.');
-    expectText('feeling', ['wow', ',', 'the', 'bee', 'flew'], '!', 'Wow, the bee flew!');
-    expectText('what-a', ['what', 'a', 'old', 'dog'], '!', 'What an old dog!');
-    expectText('how-adj', ['how', 'cold'], '!', 'How cold!');
-    expectText('ing', ['the', 'kid', 'was', 'playing'], '.', 'The kid was playing.');
-    expectText('negative', ['the', 'dog', 'does', 'not', 'dig'], '.', 'The dog does not dig.');
-    expectText('negative', ['she', "can't", 'swim'], '.', "She can't swim.");
-    expectText('compound', ['the', 'sun', 'shines', ',', 'and', 'the', 'bird', 'sings'], '.',
-               'The sun shines, and the bird sings.');
-    expectText('complex-first', ['when', 'the', 'bell', 'rings', ',', 'we', 'eat'], '.', 'When the bell rings, we eat.');
-    expectText('there-is', ['there', 'is', 'a', 'frog', 'in', 'the', 'pond'], '.', 'There is a frog in the pond.');
-    expectText('yes-no', ['does', 'the', 'dog', 'chew', 'the', 'bone'], '?', 'Does the dog chew the bone?');
-    expectText('be-question', ['are', 'the', 'kid', 'and', 'Tom', 'happy'], '?', 'Are the kid and Tom happy?');
-    expectText('what-question', ['what', 'do', 'you', 'see'], '?', 'What do you see?');
-    expectText('where-question', ['where', 'is', 'the', 'dog'], '?', 'Where is the dog?');
-    expectText('command', ['please', 'kick', 'the', 'box'], '.', 'Please kick the box.');
-    expectText('dont', ["don't", 'run', 'outside'], '!', "Don't run outside!");
-    expectText('lets', ["let's", 'play'], '!', "Let's play!");
-
-    // agreement: the verb has to match who is doing it
-    check(build('simple-now', ['he', 'swim']).refused === 'swim', '"he swim" should be refused');
-    check(build('simple-now', ['they', 'swims']).refused === 'swims', '"they swims" should be refused');
-    check(build('simple-now', ['I', 'hops']).refused === 'hops', '"I hops" should be refused');
-    check(build('describing', ['I', 'is']).refused === 'is', '"I is" should be refused');
-    check(build('describing', ['we', 'was']).refused === 'was', '"we was" should be refused');
-    check(build('describing', ['the', 'cat', 'are']).refused === 'are', '"the cat are" should be refused');
-    check(build('yes-no', ['does', 'they']).refused === 'they', '"does they" should be refused');
-    check(build('doing-to-past', ['the', 'cat', 'hopped']).refused === 'hopped', '"hopped" cannot take something after it');
-    check(build('simple-past', ['the', 'cat', 'buried']).refused === 'buried', '"buried" needs something after it');
-    check(build('doing-to-now', ['the', 'cat', 'kicks', 'a', 'mud']).refused === 'mud', '"a mud" should be refused');
-    check(build('time-first', ['yesterday', ',', 'we', 'swim']).refused === 'swim', '"Yesterday, we swim" should be refused');
-    check(build('compound', ['I', 'swam', ',', 'but', 'the', 'cat', 'hops']).refused === 'hops',
-          'both halves of a joined sentence should keep the same time');
-  }
+/* What the checker must say about real sentences from each topic: the verdict, which
+   checklist lines fail, and a piece of the reason the child is given. */
+const CASES = {
+  animals: [
+    ['The big dog ran quickly', 'correct', ''],
+    ['My cat hid', 'correct', ''],
+    ['A fluffy rabbit was sleepy', 'correct', ''],
+    ['The big dog', 'unfinished', 'verb', 'What happens? Add a Verb'],
+    ['The', 'unfinished', 'noun,verb', 'Who or what is it about? Add a Noun'],
+    ['The dog is', 'unfinished', '', 'What is the dog like? Add an Adjective'],
+    ['The dog cat ran', 'wrong', 'order', '"dog cat" is two Nouns in a row'],
+    ['dog ran', 'wrong', 'capital,order', 'starts with a Determiner'],
+    ['The dog big', 'wrong', 'order,verb', 'It needs a Verb'],
+    ['The big fluffy dog ran', 'wrong', 'order', 'has room for one'],
+    ['The dog ran quickly slowly', 'wrong', 'order', 'was already a whole sentence'],
+    ['The happy dog is happy', 'wrong', 'sense', '"happy" is used twice'],
+    ['The dog ran The', 'wrong', 'order', 'was already a whole sentence'],
+    ['The dog The cat', 'wrong', 'order,verb', 'It needs a Verb'],
+    ['The dog quickly ran', 'wrong', 'order', 'needed a Verb there'],
+    ['The quickly', 'wrong', 'noun,order,verb', 'It needs a Noun']
+  ],
+  school: [
+    ['The kind teacher smiled', 'correct', ''],
+    ['A old student was busy', 'correct', ''],     // shown as "An old student", see below
+    ['The teacher read carefully quietly', 'wrong', 'order', 'was already a whole sentence'],
+    ['The teacher is', 'unfinished', '', 'What is the teacher like?']
+  ],
+  food: [
+    ['The apple tastes sweet', 'correct', ''],
+    ['The soup tastes', 'unfinished', '', 'What is the soup like? Add an Adjective'],
+    ['The soup sticky', 'wrong', 'order,verb', 'It needs a Verb'],
+    ['The apple tastes big', 'correct', '']        // the rules cannot see this one - see decide()
+  ]
 };
 
+function checkTopicCases() {
+  for (const [words, verdict, fails, says] of CASES[pack.id] || []) {
+    const r = checkOf(words.split(' '));
+    const name = '[' + pack.id + '] "' + words + '"';
+    check(r.verdict === verdict, name + ' should be ' + verdict + ', got ' + r.verdict + ' (' + r.headline + ')');
+    if (verdict !== 'unfinished') check(failed(r) === fails, name + ' should fail [' + fails + '], failed [' + failed(r) + ']');
+    if (verdict === 'unfinished' && fails) {
+      for (const id of fails.split(',')) check(itemOf(r, id).ok === false, name + ' should be missing ' + id);
+    }
+    if (says) check(r.headline.includes(says), name + ' should say "' + says + '", said "' + r.headline + '"');
+    check(r.headline.length > 0, name + ' needs a headline');
+    for (const item of r.items) {
+      check(item.ok === null || item.note.length > 0, name + ': line "' + item.id + '" needs a note');
+    }
+  }
+}
 
 function checkThisPack() {
-  /* --- test 0: the pack itself is sound, and the engine does what the shapes say --- */
+  /* --- test 0: the pack itself is sound --- */
   console.log('Checking the word pack...');
   for (const p of NS.Grammar.checkPack(pack)) check(false, 'pack: ' + p);
 
-  if (EXAMPLES[pack.id]) EXAMPLES[pack.id]();
+  console.log('Checking sentences the checker must get right...');
+  checkTopicCases();
 
-  /* --- test 1: play greedily, always eating a legal tile --- */
+  /* --- test 1: play well - eat only words that keep the sentence on track --- */
   let deadEnds = 0;
-console.log('Playing 2000 sentences with correct picks...');
+  console.log('Playing 2000 sentences with good picks...');
   const samples = [];
   const seenPatterns = new Set();
   for (let n = 0; n < 2000; n++) {
@@ -251,54 +238,69 @@ console.log('Playing 2000 sentences with correct picks...');
     while (!sentence.isComplete() && guard++ < 80) {
       board.disperse(pack, sentence, worm, NS.CONFIG);
       const legal = board.tiles.filter(t =>
-        t.kind === 'punct' ? sentence.canEnd() && sentence.tokens.length > 0 && sentence.endMarks().includes(t.word)
+        t.kind === 'punct' ? sentence.canEnd() && sentence.endMarks().includes(t.word)
                            : sentence.fits(t.word, t.pos));
-      // A pattern can hide a trap deeper than the lookahead sees. The game
-      // recovers by starting a fresh sentence (Game.refill), so a stuck board is
-      // not a defect - but it must stay rare, which is checked at the end.
       if (!legal.length) { deadEnds++; break; }
       const pick = NS.rng.pick(legal);
-      if (pick.kind === 'punct') check(sentence.end(pick.word), 'punctuation was refused');
-      else check(sentence.accept(pick.word, pick.pos), 'legal word "' + pick.word + '" was refused');
+      if (pick.kind === 'punct') {
+        const r = NS.Checker.check(pack, sentence, pick.word);
+        check(r.verdict === 'correct', 'a sentence built from good picks was marked ' + r.verdict + ': ' +
+              r.text + ' (' + r.headline + ')');
+        sentence.end(pick.word);
+      } else {
+        sentence.add(pick.word, pick.pos);
+      }
     }
 
     if (sentence.isComplete()) {
-      const err = validate(sentence.pattern, sentence.tokens, sentence.text(), sentence.punctuation);
+      const err = validate(sentence.tokens, sentence.text(), sentence.punctuation);
       check(!err, err + '  ->  ' + sentence.text());
-      if (!seenPatterns.has(sentence.pattern.id)) { seenPatterns.add(sentence.pattern.id); samples.push(sentence.text()); }
+      const shape = sentence.complete()[0].pattern;
+      if (!seenPatterns.has(shape.id)) { seenPatterns.add(shape.id); samples.push(sentence.text()); }
     }
   }
   for (const p of pack.patterns) check(seenPatterns.has(p.id), 'pattern "' + p.id + '" never finished a sentence');
+  // The board always carries words that keep a sentence on track, so good play never strands.
+  check(deadEnds === 0, 'good play should never run out of moves, got ' + deadEnds + ' dead ends');
 
-  /* Meaning rules can strand a sentence in a way the lookahead cannot see, and
-   the game recovers by starting a fresh one. The rate is about 2-4% today. That
-   is higher than it should be - the fix is fewer, better-tagged words rather
-   than deeper lookahead, which measured worse - so this threshold is a
-   regression guard at the current level, not a statement that 5% is fine. */
-check(deadEnds / 2000 < 0.05,
-      'boards with no legal move should stay under 5%, got ' + deadEnds +
-      ' in 2000 (' + (100 * deadEnds / 2000).toFixed(1) + '%)');
-console.log('  boards the game had to rescue: ' + deadEnds + ' / 2000');
-
-/* --- test 2: mash buttons - eat whatever, legal or not --- */
-  console.log('Playing 500 sentences with random (often wrong) picks...');
+  /* --- test 2: mash buttons - eat whatever, and check whenever a mark is eaten --- */
+  console.log('Playing 2000 sentences with random (often wrong) picks...');
+  const verdicts = { correct: 0, wrong: 0, unfinished: 0 };
   for (let n = 0; n < 2000; n++) {
     const worm = new NS.Worm(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, 4);
     const board = new NS.Board(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, measure);
     const sentence = NS.Grammar.newSentence(pack, NS.rng);
 
-    for (let k = 0; k < 120 && !sentence.isComplete(); k++) {
+    for (let k = 0; k < 40 && !sentence.isComplete(); k++) {
       board.disperse(pack, sentence, worm, NS.CONFIG);
-      if (!board.tiles.length) break;
       const pick = NS.rng.pick(board.tiles);
-      if (pick.kind === 'punct') sentence.end(pick.word);
-      else sentence.accept(pick.word, pick.pos);
-    }
-    if (sentence.isComplete()) {
-      const err = validate(sentence.pattern, sentence.tokens, sentence.text(), sentence.punctuation);
-      check(!err, 'button-mashing produced a bad sentence: ' + err + ' -> ' + sentence.text());
+      if (pick.kind !== 'punct') { sentence.add(pick.word, pick.pos); continue; }
+      if (!sentence.tokens.length) continue;
+
+      const r = NS.Checker.check(pack, sentence, pick.word);
+      verdicts[r.verdict]++;
+      check(r.headline && r.headline.length > 0, 'every check needs a reason: ' + r.text);
+      if (r.verdict === 'correct') {
+        // the rules must never pass a sentence that breaks every shape
+        const err = validate(sentence.tokens, r.text, pick.word);
+        check(!err, 'button-mashing got a bad sentence past the rules: ' + err);
+        sentence.end(pick.word);
+      } else if (r.verdict === 'unfinished') {
+        // nothing is wrong yet: the words must still be able to become a sentence
+        check(startsSomeShape(sentence.tokens) && !fitsSomeShape(sentence.tokens),
+              'an unfinished verdict for words that cannot grow into a sentence: ' + r.text);
+        check(itemOf(r, 'end').ok === null, 'an unfinished sentence has not been ended yet');
+      } else {
+        // a wrong sentence says exactly where, when the shape is the problem
+        if (itemOf(r, 'order').ok === false) {
+          check(r.at >= 0 && r.at < sentence.tokens.length, 'a shape problem should point at a word: ' + r.text);
+        }
+        break;                         // in the game, the words go back on the board
+      }
     }
   }
+  check(verdicts.correct > 0 && verdicts.wrong > 0 && verdicts.unfinished > 0,
+        'random play should meet every kind of verdict, got ' + JSON.stringify(verdicts));
 
   /* --- test 3: tiles never overlap each other or the worm --- */
   console.log('Checking tile placement...');
@@ -324,21 +326,20 @@ console.log('  boards the game had to rescue: ' + deadEnds + ' / 2000');
     }
   }
 
-  /* --- test 5: a wall bonk returns every eaten word to the board (Req 5) --- */
-  console.log('Checking that a wall bonk hands the words back...');
+  /* --- test 5: a crash, or a wrong sentence, returns every eaten word to the board (Req 5) --- */
+  console.log('Checking that lost words go back on the board...');
   for (let n = 0; n < 500; n++) {
     const worm = new NS.Worm(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, 4);
     const board = new NS.Board(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, measure);
     const sentence = NS.Grammar.newSentence(pack, NS.rng);
 
-    // eat a few correct words
+    // eat a few words, fitting or not
     const eaten = [];
     for (let k = 0; k < 3; k++) {
       board.disperse(pack, sentence, worm, NS.CONFIG);
-      const legal = board.tiles.filter(t => t.kind === 'word' && sentence.fits(t.word, t.pos));
-      if (!legal.length) break;
-      const pick = NS.rng.pick(legal);
-      sentence.accept(pick.word, pick.pos);
+      const words = board.tiles.filter(t => t.kind === 'word');
+      const pick = NS.rng.pick(words);
+      sentence.add(pick.word, pick.pos);
       worm.carry(pick.word, pick.pos);
       eaten.push(pick.word);
     }
@@ -350,83 +351,235 @@ console.log('  boards the game had to rescue: ' + deadEnds + ' / 2000');
     check(lost.length === eaten.length, 'reset should hand back every word that was eaten');
     check(fromBody.map(w => w.word).join(' ') === eaten.join(' '),
           'the body should be carrying exactly the words the sentence had');
-    check(sentence.tokens.length === 0 && !sentence.canEnd(), 'reset should clear the sentence');
+    check(sentence.tokens.length === 0 && !sentence.canEnd() && sentence.onTrack(), 'reset should clear the sentence');
     check(sentence.pattern === pattern, 'reset should keep the same pattern to retry');
 
     board.disperse(pack, sentence, worm, NS.CONFIG, lost);
     const onBoard = board.tiles.map(t => t.word);
     for (const w of eaten) check(onBoard.includes(w), 'lost word "' + w + '" is not back on the board');
     const validOnBoard = board.tiles.filter(t => sentence.fits(t.word, t.pos));
-    check(validOnBoard.length > 0, 'no legal move after a bonk');
+    check(validOnBoard.length > 0, 'no word on the board can start the sentence again');
   }
 
-  /* --- test 8: punctuation is always available, and ending early is refused --- */
-  console.log('Checking that ending early is offered but refused...');
+  /* --- test 8: punctuation is always on the board, and suits the sentence once it is done --- */
+  console.log('Checking that ending marks are always there to finish with...');
   for (let n = 0; n < 400; n++) {
     const worm = new NS.Worm(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, 4);
     const board = new NS.Board(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, measure);
     const sentence = NS.Grammar.newSentence(pack, NS.rng);
-    board.disperse(pack, sentence, worm, NS.CONFIG);
+    check(sentence.end('.') === false, 'an empty sentence must not take an ending mark');
 
-    // a player must always be able to *try* to finish, even on an empty sentence
-    const marks = board.tiles.filter(t => t.kind === 'punct');
-    check(marks.length > 0, 'there should always be an ending mark on the board');
-
-    // ...but trying too early must not end anything
-    check(sentence.end(marks[0].word) === false,
-          'an empty sentence must not be endable with "' + marks[0].word + '"');
-    check(sentence.punctuation === null, 'a refused mark must not attach to the sentence');
-
-    // play it properly, trying to end after every single word
     let guard = 0;
-    let rescued = false;
-    while (!sentence.isComplete() && guard++ < 40) {
+    while (guard++ < 40) {
       board.disperse(pack, sentence, worm, NS.CONFIG);
-      const out = board.tiles.filter(t => t.kind === 'punct');
-      check(out.length > 0, 'ending marks should stay on the board mid-sentence');
-
-      // every mark that is NOT a legal ending must be refused
-      for (const m of out) {
-        if (!sentence.endMarks().includes(m.word) || !sentence.canEnd()) {
-          check(sentence.end(m.word) === false,
-                'mark "' + m.word + '" should be refused before the sentence is ready');
-        }
-      }
-
-      // once it really can end, a mark that works must be out there to eat
-      if (sentence.canEnd() && sentence.tokens.length > 0) {
-        const works = out.filter(m => sentence.endMarks().includes(m.word));
-        check(works.length > 0, 'a usable ending mark must be on the board once ready');
-        sentence.end(works[0].word);
+      const marks = board.tiles.filter(t => t.kind === 'punct');
+      check(marks.length > 0, 'there should always be an ending mark on the board');
+      if (sentence.canEnd()) {
+        check(marks.some(m => sentence.endMarks().includes(m.word)),
+              'a mark that suits the sentence must be out once it can end');
         break;
       }
-
       const legal = board.tiles.filter(t => t.kind === 'word' && sentence.fits(t.word, t.pos));
       if (!legal.length) break;
       const pick = NS.rng.pick(legal);
-      sentence.accept(pick.word, pick.pos);
+      sentence.add(pick.word, pick.pos);
     }
-    // Completion is test 1's job. What this test cares about is that every
-    // early ending was refused and that a usable mark appeared once the
-    // sentence was ready - both checked above. A sentence that stalls on a
-    // deep meaning trap is rescued by the game, not a failure here.
   }
 
   console.log('\nSample sentences:');
   samples.forEach(s => console.log('  ' + s));
-
 }
 
-/* Every topic the game offers gets the full run. These checks are about the
-   machinery - a legal move always exists, wrong picks are refused, sentences
-   finish. Whether the sentences make SENSE is settled by a person reading the
-   output of tools/list-sentences.py, which prints all of them. */
-const index = JSON.parse(fs.readFileSync(path.join(root, 'data/topics.json'), 'utf8'));
-for (const entry of index.topics) {
-  pack = JSON.parse(fs.readFileSync(path.join(root, 'data', entry.file), 'utf8'));
-  console.log('\n=== ' + pack.name + ' (' + pack.sentenceCount + ' sentences) ===');
-  checkThisPack();
+/* --- the judge's say: decide() folds a second opinion into the rules' report --- */
+function checkDecide() {
+  console.log('\n=== The judge\'s second opinion ===');
+  const animals = loadTopic('animals');
+  const food = loadTopic('food');
+  const yes = { grammatical: true, makes_sense: true, feedback: 'Lovely describing!', suggestion: '', by: 'ai' };
+
+  // no judge: the rules stand, and "Makes sense" is left for the child to read aloud
+  let r = NS.Checker.decide(checkOf(['The', 'dog', 'ran'], '.', animals), null);
+  check(r.verdict === 'correct' && r.by === 'rules', 'with no judge the rules should decide');
+  check(itemOf(r, 'sense').ok === null, 'with no judge, "Makes sense" is not marked either way');
+
+  // the judge agrees
+  r = NS.Checker.decide(checkOf(['The', 'dog', 'ran'], '.', animals), yes);
+  check(r.verdict === 'correct' && r.by === 'judge' && itemOf(r, 'sense').ok === true, 'judge agreeing should pass');
+  check(r.headline === 'Lovely describing!', 'a passing sentence should show the judge\'s praise');
+
+  // the rules pass it, the judge does not - meaning
+  r = NS.Checker.decide(checkOf(['The', 'apple', 'tastes', 'big'], '.', food),
+    { grammatical: true, makes_sense: false, feedback: 'Big is a size, not a taste.', suggestion: 'The apple tastes sweet.', by: 'ai' });
+  check(r.verdict === 'wrong' && failed(r) === 'sense', '"tastes big" should fail on meaning, failed ' + failed(r));
+  check(r.headline === 'Big is a size, not a taste.', 'the judge\'s reason should be the headline');
+  check(r.suggestion === 'The apple tastes sweet.', 'the judge\'s suggestion should be passed on');
+
+  // the rules pass it, the judge does not - grammar the shapes cannot see
+  r = NS.Checker.decide(checkOf(['A', 'rice', 'is', 'soft'], '.', food),
+    { grammatical: false, makes_sense: true, feedback: 'We do not say "a rice".', suggestion: 'The rice is soft.', by: 'ai' });
+  check(r.verdict === 'wrong' && failed(r) === 'order', '"A rice" should fail on sounding right, failed ' + failed(r));
+  check(r.headline === 'We do not say "a rice".', 'the judge\'s grammar reason should be the headline');
+
+  // the rules turn it down, the judge knows it is good English - rescued
+  r = NS.Checker.decide(checkOf(['The', 'big', 'fluffy', 'dog', 'ran'], '.', animals), yes);
+  check(r.verdict === 'correct' && r.rescued, 'two Adjectives should be rescued by the judge');
+  check(itemOf(r, 'order').ok === true, 'a rescued sentence sounds right');
+
+  // both say no: the rules' reason stays, because it points at the exact word
+  const before = checkOf(['The', 'dog', 'cat', 'ran'], '.', animals);
+  r = NS.Checker.decide(before, { grammatical: false, makes_sense: false, feedback: 'Two nouns.', suggestion: 'The dog ran.', by: 'ai' });
+  check(r.verdict === 'wrong' && r.headline === before.headline, 'when both say no, the rules\' reason should lead');
+  check(itemOf(r, 'sense').note.startsWith('Fix how it sounds first'), 'meaning waits until it sounds right');
+
+  // the game's own rules hold whatever the judge says
+  r = NS.Checker.decide(checkOf(['dog', 'ran'], '.', animals), yes);
+  check(r.verdict === 'wrong' && itemOf(r, 'capital').ok === false, 'no capital letter stays wrong');
+  r = NS.Checker.decide(checkOf(['The', 'happy', 'dog', 'is', 'happy'], '.', animals), yes);
+  check(r.verdict === 'wrong' && itemOf(r, 'sense').ok === false, 'a repeated word stays wrong');
+
+  // a teacher's ruling is credited to the teacher
+  r = NS.Checker.decide(checkOf(['The', 'apple', 'tastes', 'big'], '.', food), { ...yes, by: 'teacher' });
+  check(r.verdict === 'correct' && r.by === 'teacher', 'a teacher\'s answer should be credited to the teacher');
+
+  // nothing to judge in a sentence that is not finished
+  const half = checkOf(['The', 'big'], '.', animals);
+  check(NS.Checker.decide(half, yes) === half, 'an unfinished sentence is not judged');
 }
 
-console.log(failures === 0 ? '\nAll checks passed.' : '\n' + failures + ' CHECK(S) FAILED');
-process.exit(failures === 0 ? 0 : 1);
+/* --- end marks, literal words and pack checks, on a small pack made for the purpose --- */
+function checkSyntheticPack() {
+  console.log('\n=== A made-up pack with questions ===');
+  const fam = (label, role, color) => ({ label, hint: '', color, role });
+  const q = {
+    id: 'test', name: 'Test',
+    families: { determiner: fam('Determiner', 'other'), noun: fam('Noun', 'naming'), verb: fam('Verb', 'action'),
+                adjective: fam('Adjective', 'describing') },
+    pos: { determiner: { family: 'determiner' }, noun: { family: 'noun' }, verb: { family: 'verb' },
+           be: { family: 'verb' }, question: { family: 'determiner' }, adjective: { family: 'adjective' } },
+    words: { determiner: ['The'], noun: ['cat', 'dog'], verb: ['ran'], be: ['Is'], question: ['Did'],
+             adjective: ['big'] },
+    patterns: [
+      { id: 'statement', name: 'Telling sentence', shape: 'determiner noun verb' },
+      { id: 'yes-no', name: 'Asking sentence', end: ['?'], shape: "be determiner noun adjective" }
+    ],
+    punctuation: [{ mark: '.' }, { mark: '!' }, { mark: '?' }]
+  };
+  check(NS.Grammar.checkPack(q).length === 0, 'the made-up pack should be sound: ' + NS.Grammar.checkPack(q).join('; '));
+  let r = checkOf(['Is', 'The', 'cat', 'big'], '?', q);
+  check(r.verdict === 'correct', 'a question ending in "?" should pass, got ' + r.headline);
+  r = checkOf(['Is', 'The', 'cat', 'big'], '.', q);
+  check(r.verdict === 'wrong' && failed(r) === 'end' && r.headline.includes('A question ends with'),
+        'a question ending in "." should fail on its end mark: ' + r.headline);
+  r = checkOf(['The', 'cat', 'ran'], '?', q);
+  check(r.verdict === 'wrong' && failed(r) === 'end', 'a statement ending in "?" should fail on its end mark');
+
+  // a shape that can open with a lower-case tile could never pass the capital-letter check
+  const bad = { ...q, patterns: [{ id: 'lower', name: 'Lower', shape: 'noun verb' }] };
+  check(NS.Grammar.checkPack(bad).some(p => p.includes('no capital letter')),
+        'checkPack should flag a shape that starts with a lower-case word');
+
+  // the strip lists every slot left, optional ones included
+  const opt = { ...q, patterns: [{ id: 'o', name: 'O', shape: 'determiner adjective? noun verb' }] };
+  const s = sentenceOf(['The'], opt);
+  const rest = s.outline().filter(o => o.state !== 'done');
+  check(rest.map(o => o.pos + (o.optional ? '?' : '')).join(' ') === 'adjective? noun verb',
+        'the outline should show optional slots, got ' + rest.map(o => o.pos).join(' '));
+  check(rest[0].state === 'next' && rest[1].state === 'next' && rest[2].state === 'todo',
+        'an optional slot and the slot after it could both come next');
+  check(sentenceOf(['The', 'cat'], opt).outline().filter(o => o.state !== 'done').map(o => o.pos).join() === 'verb',
+        'skipping an optional slot should drop it from the outline');
+}
+
+/* --- the judge, from the game's side: answers come from the file, the session, or the server --- */
+async function checkJudgeClient() {
+  console.log('\n=== Asking the judge ===');
+  const animals = loadTopic('animals');
+  const calls = [];
+  let serverAnswer = { grammatical: true, makes_sense: true, feedback: 'ok', suggestion: '', by: 'ai' };
+  let serverDelay = 0;
+  let judgeOn = true;
+  const respond = (status, body) => ({ ok: status === 200, status, json: async () => body });
+  const fakeFetch = async (url, init) => {
+    calls.push(url + (init && init.body ? ' ' + init.body : ''));
+    if (url === 'data/verdicts.json') {
+      return respond(200, { verdicts: { 'The cat hid': { grammatical: true, makes_sense: true, by: 'teacher', feedback: 'From the file' } } });
+    }
+    if (url === 'api/judge' && !init) return respond(200, { available: judgeOn, model: 'test-model' });
+    if (url === 'api/judge') {
+      if (serverDelay) await new Promise(r => setTimeout(r, serverDelay));
+      return serverAnswer ? respond(200, { verdict: serverAnswer }) : respond(502, { error: 'no' });
+    }
+    return respond(404, {});
+  };
+
+  const st = await NS.Judge.start({ fetch: fakeFetch });
+  check(st.state === 'on' && st.saved === 1, 'the judge should be on with one saved answer: ' + JSON.stringify(st));
+
+  let v = await NS.Judge.ask(animals, sentenceOf(['The', 'cat', 'hid'], animals), 1000);
+  check(v && v.feedback === 'From the file', 'a saved answer should come from the file');
+  check(!calls.some(c => c.startsWith('api/judge {')), 'a saved answer should not ask the server');
+
+  v = await NS.Judge.ask(animals, sentenceOf(['The', 'dog', 'ran'], animals), 1000);
+  check(v && v.feedback === 'ok', 'a new sentence should be asked of the server');
+  const posted = calls.find(c => c.startsWith('api/judge {'));
+  check(posted === 'api/judge {"topic":"animals","words":["The","dog","ran"]}', 'only the topic and words are sent: ' + posted);
+
+  const before = calls.length;
+  await NS.Judge.ask(animals, sentenceOf(['The', 'dog', 'ran'], animals), 1000);
+  check(calls.length === before, 'the same sentence should not be asked twice');
+
+  // too slow: give up on time, but the answer still lands for next time
+  serverDelay = 120;
+  serverAnswer = { grammatical: true, makes_sense: false, feedback: 'slow', suggestion: '', by: 'ai' };
+  v = await NS.Judge.ask(animals, sentenceOf(['My', 'fox', 'ran'], animals), 20);
+  check(v === null, 'an answer that takes too long should be given up on');
+  await new Promise(r => setTimeout(r, 200));
+  v = await NS.Judge.ask(animals, sentenceOf(['My', 'fox', 'ran'], animals), 20);
+  check(v && v.feedback === 'slow', 'a slow answer should still be kept for next time');
+
+  // a server error is nobody's answer, and may be asked again later
+  serverDelay = 0;
+  serverAnswer = null;
+  v = await NS.Judge.ask(animals, sentenceOf(['A', 'duck', 'ran'], animals), 1000);
+  check(v === null, 'a server error should give null');
+  serverAnswer = { grammatical: true, makes_sense: true, feedback: 'second try', suggestion: '', by: 'ai' };
+  v = await NS.Judge.ask(animals, sentenceOf(['A', 'duck', 'ran'], animals), 1000);
+  check(v && v.feedback === 'second try', 'a failed question should be asked again');
+
+  // no judge: no questions at all
+  judgeOn = false;
+  await NS.Judge.start({ fetch: fakeFetch });
+  const n = calls.length;
+  v = await NS.Judge.ask(animals, sentenceOf(['A', 'puppy', 'hid'], animals), 1000);
+  check(v === null && calls.length === n, 'with the judge off nothing should be asked');
+
+  // the browser cannot reach anything: still no error, just the rules
+  await NS.Judge.start({ fetch: async () => { throw new Error('offline'); } });
+  check(NS.Judge.status().state === 'off', 'an unreachable server means no judge');
+  v = await NS.Judge.ask(animals, sentenceOf(['A', 'puppy', 'hid'], animals), 1000);
+  check(v === null, 'with no network the judge should quietly give null');
+}
+
+function loadTopic(id) {
+  const index = JSON.parse(fs.readFileSync(path.join(root, 'data/topics.json'), 'utf8'));
+  const entry = index.topics.find(t => t.id === id);
+  return JSON.parse(fs.readFileSync(path.join(root, 'data', entry.file), 'utf8'));
+}
+
+(async function main() {
+  /* Every topic the game offers gets the full run. Whether its sentences MAKE SENSE is
+     the judge's job (tools/judge.py) - or a person's, reading the output of
+     tools/list-sentences.py. */
+  const index = JSON.parse(fs.readFileSync(path.join(root, 'data/topics.json'), 'utf8'));
+  for (const entry of index.topics) {
+    pack = JSON.parse(fs.readFileSync(path.join(root, 'data', entry.file), 'utf8'));
+    console.log('\n=== ' + pack.name + ' (' + pack.sentenceCount + ' sentences) ===');
+    checkThisPack();
+  }
+  checkDecide();
+  checkSyntheticPack();
+  await checkJudgeClient();
+
+  console.log(failures === 0 ? '\nAll checks passed.' : '\n' + failures + ' CHECK(S) FAILED');
+  process.exit(failures === 0 ? 0 : 1);
+})();

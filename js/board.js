@@ -63,20 +63,16 @@ BW.Board = class Board {
   }
 
   /* Throw a fresh set of words onto the board for the slot the player needs next.
-     Always includes a few correct choices so the game is never unwinnable.
-     `returnWords` are words the player already ate and then lost on a wall bonk -
-     those always go back out so the sentence can be rebuilt. */
+     Any word can be eaten, but the board always carries a few that would keep the
+     sentence on track, alongside others that would not, so finishing is always possible.
+     `returnWords` are words the player already ate and then lost on a wall bonk or a
+     wrong sentence - those always go back out so the sentence can be rebuilt. */
   disperse(pack, sentence, worm, cfg, returnWords) {
     this.clear();
 
-    // In a free-build topic nothing is "wrong" to eat, but the board still has
-    // to make finishing possible - so it always carries some words that would
-    // keep the sentence going, alongside others that would not.
-    const onTrack = sentence.continuations ? sentence.continuations() : null;
     const valid = [];
     const wrong = [];
-    const isValid = item => onTrack ? onTrack.has(item.word)
-                                    : sentence.fits(item.word, item.pos);
+    const isValid = item => sentence.fits(item.word, item.pos);
     for (const pos of Object.keys(pack.words)) {
       for (const word of pack.words[pos]) (isValid({ word, pos }) ? valid : wrong).push({ word, pos });
     }
@@ -95,7 +91,7 @@ BW.Board = class Board {
     returned.forEach(add);
 
     const total = Math.max(cfg.wordsOnBoard, chosen.length + cfg.minValidWords);
-    const wantValid = (onTrack ? cfg.minOnTrackWords : cfg.minValidWords) + BW.rng.int(2);   // a couple of right answers, sometimes three
+    const wantValid = cfg.minValidWords + BW.rng.int(2);   // a couple of right answers, sometimes three
 
     const take = (list, n) => {
       for (const item of BW.rng.shuffle(list)) {
@@ -110,13 +106,13 @@ BW.Board = class Board {
 
     for (const item of BW.rng.shuffle(chosen)) this.place(item.word, item.pos, 'word', worm);
 
-    // Req 6: ending marks are on the board the whole time, so a player can try to
-    // finish whenever they think the sentence is done. Eating one too early does not
-    // end anything - the game says what is still missing instead. Once the sentence
-    // really can end, a mark that actually works is guaranteed to be out there.
+    // Req 6: ending marks are on the board the whole time, so a player can finish - and
+    // have the sentence checked - whenever they think it is done. Eating one too early
+    // does not end anything: the check says what is still missing. Once the sentence
+    // really can end, a mark that suits it is guaranteed to be out there.
     const marks = [];
     const suits = pack.punctuation.filter(p => sentence.endMarks().includes(p.mark));
-    if (sentence.canEnd() && sentence.tokens.length > 0 && suits.length) {
+    if (sentence.canEnd() && suits.length) {
       marks.push(BW.rng.pick(suits));
     }
     for (const m of BW.rng.shuffle(pack.punctuation)) {

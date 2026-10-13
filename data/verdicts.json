@@ -1,0 +1,4 @@
+{
+  "about": "Answers from the sentence judge (tools/judge.py), filed under the sentence they are about. The game reads this file, so every sentence here gets the same answer every time - even with no server and no internet. To overrule the judge, change an answer and set \"by\" to \"teacher\": the judge never overwrites a teacher. To have the judge look at a sentence again, delete its entry.",
+  "verdicts": {}
+}

@@ -14,8 +14,7 @@ BW.CONFIG = {
   speedUpPerSentence: 3,   // shave this many ms off stepMs after each finished sentence
 
   wordsOnBoard: 7,         // how many word tiles float around at once
-  minValidWords: 2,        // always keep at least this many tiles that would be a correct pick
-  minOnTrackWords: 3,      // in a free-build topic, tiles that would keep the sentence going
+  minValidWords: 2,        // always keep at least this many tiles that would keep the sentence on track
 
   // The worm's body spells out the sentence: one letter per body square. So eating a long
   // word makes you a lot longer. Each finished sentence leaves this many squares behind
@@ -32,7 +31,18 @@ BW.CONFIG = {
   wallBehavior: 'reset',       // 'reset' or 'wrap'
   selfCollision: 'reset',      // 'reset' or 'ignore'
 
-  points: { correct: 10, wrong: -5, sentence: 50 },
+  // Req 6: eating a punctuation mark stops the worm and checks the sentence. The check is
+  // held on screen at least this long, so it feels like the sentence is being read.
+  checkMs: 900,
+  // How long to wait for the judge (tools/judge.py) before going with the game's own rules.
+  judgeWaitMs: 7000,
+  // Ask the judge as soon as the words could be a whole sentence, so its answer is usually
+  // back before the worm reaches a punctuation mark. Costs a few extra questions.
+  judgeEarly: true,
+
+  // Points come when a sentence is checked: a bonus for finishing, plus some for every word
+  // in it, so a longer correct sentence is worth more. A wrong sentence costs `wrong`.
+  points: { word: 10, sentence: 50, wrong: -5 },
 
   sound: true
 };

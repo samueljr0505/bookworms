@@ -10,10 +10,12 @@
    - `( ... )` groups things, and `a | b` inside a group means "either a or b"
    - after a part or a group: `?` optional, `*` any number of times, `+` one or more times
 
-   The shape is turned into a little state machine. The player can only ever eat a word that
-   moves the machine forward, and punctuation only appears once the machine is somewhere a
-   sentence may stop - so every finished sentence is grammatically correct by construction
-   (Req 4). The old list form, ["determiner", "adjective?", "noun"], still works too. */
+   Each shape is turned into a little state machine. A sentence runs every shape in the topic
+   side by side while the player eats: any word goes onto the worm, and each machine says
+   whether the words so far could still become a sentence of its shape. The strip, the hints
+   and the checker (js/checker.js) are all built on that. Nothing here decides whether a
+   finished sentence is right - the checker does, when punctuation is eaten (Req 4, Req 6).
+   The old list form, ["determiner", "adjective?", "noun"], still works too. */
 window.BW = window.BW || {};
 
 (function () {
@@ -102,6 +104,22 @@ window.BW = window.BW || {};
     throw new Error('Pattern "' + (pattern.id || '?') + '" needs a "shape"');
   }
 
+  /* A shape that is just a row of parts, some optional - "determiner adjective? noun verb" -
+     can be shown to a player slot by slot. Anything fancier returns null and is shown by
+     its quickest route instead. */
+  function slotsOf(tree) {
+    const items = tree.t === 'seq' ? tree.items : [tree];
+    const out = [];
+    for (const n of items) {
+      const optional = n.t === 'opt';
+      const x = optional ? n.x : n;
+      if (x.t === 'pos') out.push({ pos: x.pos, optional });
+      else if (x.t === 'word') out.push({ word: x.word, optional });
+      else return null;
+    }
+    return out;
+  }
+
   /* ---------- the state machine ---------- */
 
   /* Classic Thompson construction: every node has "eat this" edges and free (empty) edges. */
@@ -164,90 +182,163 @@ window.BW = window.BW || {};
   function matches(m, word, pos) { return m.word ? m.word === word : m.pos === pos; }
   function sameMatcher(a, b) { return a.word === b.word && a.pos === b.pos; }
 
+  /* Move a machine on by one word. An empty set means the word does not fit. */
+  function advance(nfa, states, word, pos) {
+    const next = [];
+    for (const id of states) {
+      for (const e of nfa.nodes[id].edges) if (matches(e.m, word, pos)) next.push(e.to);
+    }
+    return closure(nfa, next);
+  }
+
+  /* Shortest list of things still to eat before a machine can stop - a 0-1 search, where
+     free edges cost nothing and eating a word costs one. */
+  function shortestRest(nfa, states) {
+    const best = new Map();
+    const deque = [];
+    for (const id of states) { best.set(id, []); deque.push(id); }
+    while (deque.length) {
+      const id = deque.shift();
+      const path = best.get(id);
+      if (id === nfa.accept) return path;
+      const n = nfa.nodes[id];
+      for (const to of n.free) {
+        if (!best.has(to) || best.get(to).length > path.length) { best.set(to, path); deque.unshift(to); }
+      }
+      for (const e of n.edges) {
+        const p = path.concat([e.m]);
+        if (!best.has(e.to) || best.get(e.to).length > p.length) { best.set(e.to, p); deque.push(e.to); }
+      }
+    }
+    return [];
+  }
+
   const compiled = new WeakMap();
   function machineFor(pack, pattern) {
     let entry = compiled.get(pattern);
     if (!entry) {
-      entry = compile(parse(shapeOf(pattern), pack.rules));
+      const tree = parse(shapeOf(pattern), pack.rules);
+      entry = compile(tree);
+      entry.slots = slotsOf(tree);
       compiled.set(pattern, entry);
     }
     return entry;
   }
 
+  /* One track per shape in the topic: the shape, its machine, and the states it is in. */
+  function freshTracks(pack) {
+    return pack.patterns.map(pattern => {
+      const nfa = machineFor(pack, pattern);
+      return { pattern, nfa, states: closure(nfa, [nfa.start]) };
+    });
+  }
 
-  /* ---------- meaning, not just shape ----------------------------------
-     A sentence can follow a pattern perfectly and still be nonsense: "the book
-     chased Omar", "she played into dad". The pattern only knows a noun is a noun.
+  /* Every kind of tile the given tracks could take next, as { pos } or { word }. An exact
+     word is dropped when its whole part of speech is already wanted - "a Verb" already
+     covers "is", so the hints do not list it twice. */
+  function wantedBy(pack, tracks) {
+    const out = [];
+    for (const t of tracks) {
+      for (const id of t.states) {
+        for (const e of t.nfa.nodes[id].edges) {
+          if (!out.some(m => sameMatcher(m, e.m))) out.push(e.m);
+        }
+      }
+    }
+    return out.filter(m => !m.word || !out.some(o => o.pos && o.pos === posOfWord(pack, m.word)));
+  }
 
-     These helpers read the pack's "semantics" block: what each naming word IS
-     (person, creature, thing, place, food, stuff, idea) and what each action or
-     where-word ACCEPTS. Everything is driven by the pack - which parts of speech
-     count as naming or action words comes from their family - so a pack can add
-     categories without touching this file. Untagged words stay unconstrained, so
-     a half-tagged pack still plays. */
-
-  /* A family's label is for the player and can be renamed at will. Its ROLE is
-     what the meaning checks key off, so renaming "Naming Word" to "Noun" cannot
-     silently switch those checks off - which is exactly what happened once. */
+  /* A family's label is for the player and can be renamed at will. Its ROLE (naming, action,
+     describing) is what the rules key off, so renaming "Noun" cannot switch them off. */
   function roleOf(pack, pos) {
     const info = pack.pos && pack.pos[pos];
     const fam = info && pack.families && pack.families[info.family];
     return (fam && fam.role) || (info && info.family);
-  }
-  function isHead(pack, pos) { return roleOf(pack, pos) === 'naming'; }
-  function isVerb(pack, pos) { return roleOf(pack, pos) === 'action'; }
-
-  function classesOf(pack, word, pos) {
-    const sem = pack.semantics;
-    if (sem && sem.classes && sem.classes[word]) return sem.classes[word];
-    return null;                        // unknown: do not block it
-  }
-
-  /* Frames are stored per lemma, so hops / hopped / hopping share one entry. */
-  function frameOf(pack, word) {
-    const sem = pack.semantics;
-    if (!sem || !sem.frames) return null;
-    const base = (sem.lemma && sem.lemma[word]) || word;
-    return sem.frames[base] || sem.frames[word] || null;
-  }
-
-  function allowed(need, have) {
-    if (!need || !need.length) return true;
-    if (!have || !have.length) return true;
-    return have.some(c => need.includes(c));
   }
 
   class Sentence {
     /* Verbs that carry no meaning of their own - they prop up a real verb. */
     static SCAFFOLD = ['be', 'helper', 'negative'];
 
-    /* How many words ahead to check before offering one. 1 catches "the book
-       cannot chase"; 2 also catches "our treat will <no verb fits>", where the
-       trap is one word further on. Each extra level costs real time. */
-    static LOOKAHEAD = 2;
-
-
     constructor(pack, pattern) {
       this.pack = pack;
-      this.pattern = pattern;
-      this.nfa = machineFor(pack, pattern);
-      this.ends = pattern.end || DEFAULT_ENDS;
+      this.pattern = pattern;    // the shape on the strip: the recipe the player was handed
       this.reset();
     }
 
-    /* Every kind of tile that would be a correct pick right now, as { pos } or { word }.
-       An exact word is dropped when its whole part of speech is already wanted - "a Does-It
-       Word" already covers "eats", so the hints do not list it twice. */
+    /* Req 5: a wall bonk wipes the sentence and hands the words back. Same recipe, fresh
+       start - the player gets to try it again. */
+    reset() {
+      const lost = (this.tokens || []).slice();
+      this.tokens = [];          // [{ word, pos }] - everything eaten, whether it fits or not
+      this.tracks = freshTracks(this.pack);
+      this.wanted = null;        // what wants() worked out for the current states
+      this.punctuation = null;
+      return lost;
+    }
+
+    /* Free building: every word goes onto the worm. A shape the words no longer fit drops
+       out quietly; whether the sentence is right is decided when it is checked. */
+    add(word, pos) {
+      this.tokens.push({ word, pos });
+      for (const t of this.tracks) t.states = advance(t.nfa, t.states, word, pos);
+      this.wanted = null;
+    }
+
+    /* Guided building, for the tests: add the word only if it keeps the sentence on track. */
+    accept(word, pos) {
+      if (!this.fits(word, pos)) return false;
+      this.add(word, pos);
+      return true;
+    }
+
+    /* The shapes the words so far could still turn into. */
+    live() { return this.tracks.filter(t => t.states.size > 0); }
+
+    onTrack() { return this.live().length > 0; }
+
+    /* The shape to steer the player by: the recipe they were handed while the words still
+       fit it, otherwise whichever other shape the words have turned into. */
+    guide() {
+      const live = this.live();
+      return live.find(t => t.pattern === this.pattern) || live[0] || null;
+    }
+
+    /* The shapes the words already make a whole sentence of, the recipe first. */
+    complete() {
+      return this.tracks
+        .filter(t => t.states.has(t.nfa.accept))
+        .sort((a, b) => (b.pattern === this.pattern) - (a.pattern === this.pattern));
+    }
+
+    /* True once the words stand on their own as a sentence of some shape (Req 6). */
+    canEnd() { return this.tokens.length > 0 && this.complete().length > 0; }
+
+    /* Which ending marks suit this sentence: questions take "?", statements "." or "!". */
+    endMarks() {
+      const t = this.complete()[0] || this.guide();
+      return ((t && t.pattern.end) || DEFAULT_ENDS).slice();
+    }
+
+    isComplete() { return this.punctuation !== null; }
+
+    /* Every kind of tile that would keep the sentence on track right now. */
     wants() {
-      if (this.wanted) return this.wanted;
-      const out = [];
-      for (const id of this.states) {
-        for (const e of this.nfa.nodes[id].edges) {
-          if (!out.some(m => sameMatcher(m, e.m))) out.push(e.m);
-        }
+      if (!this.wanted) {
+        const g = this.guide();
+        this.wanted = wantedBy(this.pack, this.live().sort((a, b) => (b === g) - (a === g)));
       }
-      this.wanted = out.filter(m => !m.word || !out.some(o => o.pos && o.pos === posOfWord(this.pack, m.word)));
       return this.wanted;
+    }
+
+    /* The parts of speech that would keep the sentence on track right now. */
+    allowedPos() {
+      const out = [];
+      for (const m of this.wants()) {
+        const pos = m.pos || posOfWord(this.pack, m.word);
+        if (pos && !out.includes(pos)) out.push(pos);
+      }
+      return out;
     }
 
     /* Content words carry meaning, so saying one twice in a sentence reads as a
@@ -263,243 +354,49 @@ window.BW = window.BW || {};
     isContent(pos) {
       const role = roleOf(this.pack, pos);
       if (role === 'naming' || role === 'describing') return true;
-      return role === 'action' && !['be', 'helper', 'negative'].includes(pos);
+      return role === 'action' && !Sentence.SCAFFOLD.includes(pos);
     }
 
-
-    /* The naming word this sentence is talking about most recently. */
-    lastHead() {
-      for (let i = this.tokens.length - 1; i >= 0; i--) {
-        if (isHead(this.pack, this.tokens[i].pos)) return this.tokens[i];
-      }
-      return null;
-    }
-
-    /* Everything the coming verb is about. "Her cookie and our bear chew" has
-       two subjects and BOTH have to be able to chew - checking only the nearest
-       one lets half the nonsense straight through. Collects the naming words
-       back to the previous verb, which is where this clause began. */
-    subjectHeads() {
-      const heads = [];
-      for (let i = this.tokens.length - 1; i >= 0; i--) {
-        const t = this.tokens[i];
-        // "is", "did", "not" are scaffolding - the real subject is behind them,
-        // so stopping here would miss it ("your snowflake is learning")
-        if (Sentence.SCAFFOLD.includes(t.pos)) continue;
-        if (isVerb(this.pack, t.pos)) break;
-        if (isHead(this.pack, t.pos)) heads.push(t);
-      }
-      return heads;
-    }
-
-    /* The action word this where-phrase would hang off. */
-    lastVerb() {
-      for (let i = this.tokens.length - 1; i >= 0; i--) {
-        if (isVerb(this.pack, this.tokens[i].pos)) return this.tokens[i];
-      }
-      return null;
-    }
-
-    /* A word still waiting for the thing it applies to - a where-word with no
-       noun after it yet, or a doing-to word with nothing done to it yet. */
-    openSlot() {
-      for (let i = this.tokens.length - 1; i >= 0; i--) {
-        const t = this.tokens[i];
-        if (isHead(this.pack, t.pos)) return null;        // already filled
-        const f = frameOf(this.pack, t.word);
-        if (f && f.object) return t;
-      }
-      return null;
-    }
-
-    /* A linking word whose describing word has not arrived yet. */
-    openLinking() {
-      for (let i = this.tokens.length - 1; i >= 0; i--) {
-        const t = this.tokens[i];
-        const f = frameOf(this.pack, t.word);
-        if (f && f.complement) return t;
-        // Step over only what can legitimately sit between a linking verb and
-        // its adjective: "smelled TOO happy", "looked happy AND warm". Skipping
-        // anything else walks back into an earlier clause and applies the wrong
-        // verb's rule to this adjective.
-        if (t.pos === 'adjective' || t.pos === 'conjunction' ||
-            t.pos === 'adverb' || t.word === 'too') continue;
-        return null;
-      }
-      return null;
-    }
-
-    /* Would this word actually mean something here? */
-    makesSense(word, pos) {
-      const pack = this.pack;
-
-      if (isVerb(pack, pos)) {
-        const f = frameOf(pack, word);
-        if (!f || !f.subject) return true;
-        const heads = this.subjectHeads();
-        if (!heads.length) return true;
-        return heads.every(h => allowed(f.subject, classesOf(pack, h.word, h.pos)));
-      }
-
-      if (isHead(pack, pos)) {
-        const open = this.openSlot();
-        if (!open) return true;
-        const f = frameOf(pack, open.word);
-        if (!f || !f.object) return true;
-        return allowed(f.object, classesOf(pack, word, pos));
-      }
-
-      /* A where-phrase has to suit the verb it hangs off: you can run INTO a
-         house, but you cannot buzz onto one. A verb with no "prep" list in the
-         pack is left alone, so this can be filled in gradually. */
-      if (pos === 'preposition') {
-        const verb = this.lastVerb();
-        if (!verb) return true;
-        const f = frameOf(pack, verb.word);
-        if (!f || !f.prep) return true;
-        return f.prep.includes(word);
-      }
-
-      if (pos === 'adjective') {
-        const link = this.openLinking();
-        if (!link) return true;
-        const f = frameOf(pack, link.word);
-        if (!f || !f.complement) return true;
-        return allowed(f.complement, classesOf(pack, word, pos));
-      }
-
-      return true;
-    }
-
-    /* Does this word fit the pattern and make sense, ignoring what comes after? */
-    fitsHere(word, pos) {
-      if (this.repeats(word, pos)) return false;
-      const wanted = this.wants();
-      // A word the pattern names outright - the 'to' in "want to swim", the
-      // 'and' in a list - is there because the pattern author put it there.
-      // Meaning rules must not second-guess it: "want" does not license "to"
-      // as a where-word, but "want to swim" is still correct English.
-      const spelledOut = wanted.some(m => m.word === word);
-      if (!spelledOut && !this.makesSense(word, pos)) return false;
-      return wanted.some(m => matches(m, word, pos));
-    }
-
-    /* Run fn as if this word had been eaten, then put everything back. */
-    tryWith(word, pos, fn) {
-      const states = new Set(this.states);
-      const tokens = this.tokens.slice();
-      const wanted = this.wanted;
-      let result = false;
-      if (this.step(word, pos)) result = fn();
-      this.states = states;
-      this.tokens = tokens;
-      this.wanted = wanted;
-      return result;
-    }
-
-    /* Could the sentence still go anywhere after this word?
-
-       Meaning rules can paint a player into a corner: pick "book" as the subject
-       of a doing-to sentence and no action word can follow, because books do not
-       chase anyone. The shape is legal, the meaning is not, and the player is
-       stranded. So only offer a word if something can legally come after it. */
-    leadsSomewhere(word, pos, depth) {
-      if (depth === undefined) depth = Sentence.LOOKAHEAD;
-      return this.tryWith(word, pos, () => {
-        if (this.canEnd()) return true;
-        // Only look at parts of speech the pattern could actually want next.
-        // Scanning the whole word bank here costs 600+ checks per candidate and
-        // makes a big pack crawl.
-        const need = new Set();
-        for (const m of this.wants()) {
-          if (m.pos) { need.add(m.pos); continue; }
-          // a literal like 'and' - check the actual word, do not just assume it
-          const lp = posOfWord(this.pack, m.word);
-          if (!lp) return true;
-          if (this.fitsHere(m.word, lp) &&
-              (depth <= 1 || this.leadsSomewhere(m.word, lp, depth - 1))) return true;
-        }
-        for (const p of need) {
-          const list = this.pack.words[p];
-          if (!list) continue;
-          for (const w of list) {
-            if (!this.fitsHere(w, p)) continue;
-            if (depth <= 1 || this.leadsSomewhere(w, p, depth - 1)) return true;
-          }
-        }
-        return false;
-      });
-    }
-
-    /* Would this word be a correct pick right now? */
+    /* Would eating this word keep the sentence on track? That is what the hints outline. */
     fits(word, pos) {
-      return this.fitsHere(word, pos) && this.leadsSomewhere(word, pos);
-    }
-
-    /* The parts of speech that would be a correct pick right now. */
-    allowedPos() {
-      const out = [];
-      for (const m of this.wants()) {
-        const pos = m.pos || posOfWord(this.pack, m.word);
-        if (pos && !out.includes(pos)) out.push(pos);
-      }
-      return out;
-    }
-
-    /* True once the sentence stands on its own, so punctuation may finish it (Req 6). */
-    canEnd() { return this.states.has(this.nfa.accept); }
-
-    /* Which ending marks suit this sentence: questions take "?", statements "." or "!". */
-    endMarks() { return this.ends.slice(); }
-
-    isComplete() { return this.punctuation !== null; }
-
-    /* Try to add a word. Returns true if it fit the pattern. */
-    /* Move the sentence on by one word, checking shape and meaning but without
-       looking ahead. Used while exploring; accept() is the real door in. */
-    step(word, pos) {
       if (this.repeats(word, pos)) return false;
-      if (!this.wants().some(m => m.word === word) && !this.makesSense(word, pos)) return false;
-      const next = [];
-      for (const id of this.states) {
-        for (const e of this.nfa.nodes[id].edges) if (matches(e.m, word, pos)) next.push(e.to);
+      return this.live().some(t => advance(t.nfa, t.states, word, pos).size > 0);
+    }
+
+    /* Replay the words from the start and find the first one no shape could take.
+       `at` is its index (-1 when every word fits), `wanted` is what the shapes could have
+       taken there instead, and `finished` says the words before it were already a whole
+       sentence - the player just kept eating. The checker builds its explanation on this. */
+    trace() {
+      let tracks = freshTracks(this.pack);
+      for (let i = 0; i < this.tokens.length; i++) {
+        const { word, pos } = this.tokens[i];
+        const next = tracks
+          .map(t => ({ pattern: t.pattern, nfa: t.nfa, states: advance(t.nfa, t.states, word, pos) }))
+          .filter(t => t.states.size > 0);
+        if (!next.length) {
+          return { at: i, wanted: wantedBy(this.pack, tracks),
+                   finished: i > 0 && tracks.some(t => t.states.has(t.nfa.accept)) };
+        }
+        tracks = next;
       }
-      if (!next.length) return false;
-      this.tokens.push({ word, pos });
-      this.states = closure(this.nfa, next);
-      this.wanted = null;
-      return true;
+      return { at: -1, wanted: wantedBy(this.pack, tracks), finished: false };
     }
 
-    accept(word, pos) {
-      if (!this.fits(word, pos)) return false;
-      return this.step(word, pos);
-    }
-
-    /* Req 5: a wall bonk wipes the sentence and hands the words back.
-       Same pattern, fresh start - the player gets to try it again. */
-    reset() {
-      const lost = (this.tokens || []).slice();
-      this.tokens = [];        // [{ word, pos }]
-      this.states = closure(this.nfa, [this.nfa.start]);
-      this.wanted = null;      // what wants() worked out for the old states
-      this.punctuation = null;
-      return lost;
-    }
-
+    /* Finish the sentence with a mark. Called once the checker has said it is right. */
     end(mark) {
-      if (!this.canEnd() || this.tokens.length === 0) return false;
-      if (!this.ends.includes(mark)) return false;
+      if (this.tokens.length === 0) return false;
       this.punctuation = mark;
       return true;
     }
 
-    /* Build the display string: commas hug the word before them, "a" becomes "an" before a
-       vowel, and the first word gets a capital letter. */
-    text() {
+    /* The words as they read: "a" becomes "an" before a vowel. Capital letters are left
+       exactly as the tiles have them - a sentence that starts with a small letter is
+       something for the checker to point out, not something to quietly fix. */
+    displayWords() {
       const words = this.tokens.map(t => t.word);
-      // "a apple" -> "an apple". Determiners are capitalised in the word lists
-      // because they open the sentence, so "A" has to be handled as well as "a".
+      // Determiners are capitalised in the word lists because they open the sentence,
+      // so "A" has to be handled as well as "a".
       for (let i = 0; i < words.length; i++) {
         if (words[i] !== 'a' && words[i] !== 'A') continue;
         const next = words.slice(i + 1).find(w => w !== ',');
@@ -507,44 +404,48 @@ window.BW = window.BW || {};
           words[i] = words[i] === 'A' ? 'An' : 'an';
         }
       }
-      if (words.length === 0) return '';
+      return words;
+    }
+
+    /* The display string: commas hug the word before them, then the ending mark. With no
+       mark given, the one the sentence was finished with (if any). */
+    text(mark) {
       let s = '';
-      words.forEach((w, i) => { s += (i === 0 || w === ',') ? w : ' ' + w; });
-      s = s[0].toUpperCase() + s.slice(1);
-      return s + (this.punctuation || '');
+      this.displayWords().forEach((w, i) => { s += (i === 0 || w === ',') ? w : ' ' + w; });
+      return s + (mark === undefined ? (this.punctuation || '') : mark);
     }
 
-    /* Shortest list of things still to eat before the sentence can end - a 0-1 search over the
-       machine, where free edges cost nothing and eating a word costs one. */
-    shortestRest() {
-      const best = new Map();
-      const deque = [];
-      for (const id of this.states) { best.set(id, []); deque.push(id); }
-      while (deque.length) {
-        const id = deque.shift();
-        const path = best.get(id);
-        if (id === this.nfa.accept) return path;
-        const n = this.nfa.nodes[id];
-        for (const to of n.free) {
-          if (!best.has(to) || best.get(to).length > path.length) { best.set(to, path); deque.unshift(to); }
-        }
-        for (const e of n.edges) {
-          const p = path.concat([e.m]);
-          if (!best.has(e.to) || best.get(e.to).length > p.length) { best.set(e.to, p); deque.push(e.to); }
-        }
-      }
-      return [];
-    }
-
-    /* A little roadmap for the HUD: the words eaten so far, then the quickest way to finish. */
+    /* A little roadmap for the HUD: the words eaten so far, then what the guide shape
+       still has room for. A shape that is a plain row of slots shows every slot left,
+       optional ones included, so the player can see where an Adjective could still go;
+       a fancier shape shows its quickest way to the end. Off track, just the words. */
     outline() {
       const out = this.tokens.map(t => ({ pos: t.pos, word: t.word, state: 'done' }));
-      if (this.isComplete()) return out;
-      this.shortestRest().forEach((m, i) => {
-        out.push({ pos: m.pos || posOfWord(this.pack, m.word), word: null, literal: m.word || null,
-                   state: i === 0 ? 'next' : 'todo' });
-      });
+      const g = this.guide();
+      if (this.isComplete() || !g) return out;
+
+      const slot = (m, optional) => ({ pos: m.pos || posOfWord(this.pack, m.word), word: null,
+                                       literal: m.word || null, optional });
+      const rest = g.nfa.slots ? this.slotsLeft(g.nfa.slots).map(s => slot(s, s.optional))
+                               : shortestRest(g.nfa, g.states).map(m => slot(m, false));
+      // everything up to and including the first slot that must be filled could come next
+      let next = true;
+      for (const r of rest) {
+        out.push({ ...r, state: next ? 'next' : 'todo' });
+        if (!r.optional) next = false;
+      }
       return out;
+    }
+
+    /* Line the words up against a plain row of slots and return the slots still ahead.
+       Only called while the words fit the shape, so every word finds its slot. */
+    slotsLeft(slots) {
+      let k = 0;
+      for (const t of this.tokens) {
+        while (k < slots.length && !matches(slots[k], t.word, t.pos)) k++;
+        k++;
+      }
+      return slots.slice(Math.min(k, slots.length));
     }
   }
 
@@ -591,25 +492,21 @@ window.BW = window.BW || {};
       for (const m of pattern.end || DEFAULT_ENDS) {
         if (!marks.includes(m)) problems.push('pattern "' + pattern.id + '" ends with "' + m + '", which is not in "punctuation"');
       }
-    }
-    // Every verb form must reach a frame, or the meaning checks quietly stop
-    // applying to it. Scaffolding verbs (be / helper / negative) carry no
-    // meaning of their own, so they are exempt.
-    const SCAFFOLD = ['be', 'helper', 'negative'];
-    const sem = pack.semantics;
-    if (sem && sem.frames) {
-      const lemma = sem.lemma || {};
-      for (const pos of Object.keys(pack.pos)) {
-        if (SCAFFOLD.includes(pos)) continue;
-        const fam = pack.families && pack.families[pack.pos[pos].family];
-        if (!fam || fam.role !== 'action') continue;
-        for (const w of pack.words[pos] || []) {
-          const base = lemma[w] || w;
-          if (!sem.frames[base]) problems.push('no meaning rule for the verb "' + w + '"');
+      // The checker wants a capital letter on the first word, and it only has the tiles to
+      // go on - so a shape that can open with a lower-case tile could never be right.
+      const nfa = compile(tree);
+      for (const id of closure(nfa, [nfa.start])) {
+        for (const e of nfa.nodes[id].edges) {
+          const firsts = e.m.word ? [e.m.word] : (pack.words[e.m.pos] || []);
+          for (const w of firsts) {
+            if (w[0] === w[0].toLowerCase()) {
+              problems.push('pattern "' + pattern.id + '" can start with "' + w +
+                            '", which has no capital letter, so the checker would never pass it');
+            }
+          }
         }
       }
     }
-
     return problems;
   }
 
@@ -620,8 +517,8 @@ window.BW = window.BW || {};
     shapeOf,
     checkPack,
     posOfWord,
+    roleOf,
     newSentence(pack, rng) {
-
       // patterns may carry a "weight" to show up more (or less) often than the rest
       const total = pack.patterns.reduce((sum, p) => sum + (p.weight || 1), 0);
       let r = rng.int(1000000) / 1000000 * total;

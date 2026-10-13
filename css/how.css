@@ -116,6 +116,9 @@ body {
 .slot.noun.done { background: var(--c-noun); }
 .slot.verb.done { background: var(--c-verb); }
 
+/* an extra the sentence can do without - dashed, as in the game */
+.slot.optional { border-style: dashed; opacity: 0.8; }
+
 .slot.next {
   color: var(--ink);
   box-shadow: 0 0 0 4px rgba(79, 138, 91, 0.2);
@@ -183,6 +186,25 @@ body {
 }
 .spell i.worm-head::before { top: 6px; }
 .spell i.worm-head::after  { bottom: 6px; }
+
+/* ---------- the checker's list, as the game shows it ---------- */
+
+.checklist {
+  list-style: none; margin: 14px 0 0; padding: 12px 14px;
+  background: #fff; border: 2px solid var(--line); border-radius: 12px;
+  display: grid; gap: 4px;
+}
+.checklist li {
+  display: grid; grid-template-columns: 22px auto 1fr; gap: 8px; align-items: baseline;
+  font-size: 15px;
+}
+.checklist i { font-style: normal; font-weight: 900; color: var(--green); text-align: center; }
+.checklist span { color: var(--muted); font-size: 14px; }
+
+@media (max-width: 420px) {
+  .checklist li { grid-template-columns: 22px 1fr; }
+  .checklist span { grid-column: 2; }
+}
 
 /* ---------- callouts ---------- */
 

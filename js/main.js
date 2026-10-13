@@ -41,6 +41,8 @@ window.BW = window.BW || {};
     return (fam && fam.color) || (pack.pos[pos] && pack.pos[pos].color) || '#9aa7d7';
   }
 
+  const article = w => (/^[AEIOU]/i.test(w) ? 'an' : 'a');
+
   /* One row per family, not one per part of speech - a short list a child can learn. */
   function renderLegend(pack) {
     const ul = $('legend');
@@ -58,15 +60,22 @@ window.BW = window.BW || {};
   function renderHud(game) {
     const pack = game.pack;
     const s = game.sentence;
+    const guide = s.guide();
 
     $('score').textContent = game.score;
     $('count').textContent = game.finished.length;
 
-    // the sentence so far, with empty slots still to fill
+    // the shape being built: the recipe the player was handed, or the one their words
+    // have turned into instead - any shape the topic knows is a fine sentence
+    const name = guide && guide.pattern.name;
+    $('building-label').textContent = !guide ? 'Your sentence'
+      : guide.pattern === s.pattern ? 'Build ' + article(name) + ' ' + name
+      : 'Now it is ' + article(name) + ' ' + name;
+
+    // the words so far, then the slots the shape still has room for
     const building = $('building');
     building.innerHTML = '';
     for (const slot of s.outline()) {
-      if (slot.state === 'skipped') continue;
       const el = document.createElement('span');
       el.className = 'chip ' + slot.state;
       el.style.borderColor = posColor(pack, slot.pos);
@@ -75,40 +84,41 @@ window.BW = window.BW || {};
         el.textContent = slot.word;
       } else {
         // Show what KIND of word is needed, never a specific word.
-        const pos = slot.pos || BW.Grammar.posOfWord(pack, slot.literal);
-        el.textContent = posLabel(pack, pos);
+        el.textContent = posLabel(pack, slot.pos);
         // a slot you are allowed to skip should not look compulsory
         if (slot.optional) el.classList.add('optional');
       }
       building.appendChild(el);
     }
-    if (!s.punctuation) {
+    if (!guide && s.tokens.length) {
       const el = document.createElement('span');
-      el.className = 'chip todo';
-      el.style.borderColor = '#f5c26b';
-      el.textContent = s.endMarks().join(' ');
-      building.appendChild(el);
-    } else {
-      const el = document.createElement('span');
-      el.className = 'chip done';
-      el.style.background = '#f5c26b';
-      el.style.borderColor = '#f5c26b';
-      el.textContent = s.punctuation;
+      el.className = 'chip lost';
+      el.textContent = '?';
+      el.title = 'These words do not fit one of the recipe shapes';
       building.appendChild(el);
     }
+    // the ending mark is the last piece of every shape
+    const end = document.createElement('span');
+    end.className = 'chip ' + (s.canEnd() ? 'next' : 'todo');
+    end.style.borderColor = '#f5c26b';
+    end.textContent = s.endMarks().join(' ');
+    building.appendChild(end);
 
     // what to hunt for next
-    const wanted = [];
-    for (const m of s.wants()) {
-      const label = posLabel(pack, m.pos || BW.Grammar.posOfWord(pack, m.word));
-      if (!wanted.includes(label)) wanted.push(label);
+    const marks = '<b>' + s.endMarks().join('</b> or <b>') + '</b>';
+    if (guide || !s.tokens.length) {
+      const parts = [];
+      for (const m of s.wants()) {
+        const label = posLabel(pack, m.pos || BW.Grammar.posOfWord(pack, m.word));
+        const part = article(label) + ' <b>' + label + '</b>';
+        if (!parts.includes(part)) parts.push(part);
+      }
+      if (s.canEnd()) parts.push('a punctuation mark (' + marks + ') to finish');
+      $('next-up').innerHTML = 'Find ' + parts.join(' or ');
+    } else {
+      $('next-up').innerHTML = 'That is not one of the recipe shapes. Finish with ' + marks +
+        ' and the checker will tell you if it still works!';
     }
-    if (s.canEnd() && s.tokens.length > 0) {
-      wanted.push('a punctuation mark (' + s.endMarks().join(' or ') + ') to end it');
-    }
-    const article = w => (/^[AEIOU]/.test(w) ? 'an' : 'a');
-    $('next-up').innerHTML = 'Find ' +
-      wanted.map(w => article(w) + ' <b>' + w + '</b>').join(' or ');
 
     $('btn-pause').innerHTML = (game.mode === 'paused' ? 'Resume' : 'Pause') + ' <kbd>P</kbd>';
 
@@ -123,6 +133,88 @@ window.BW = window.BW || {};
         list.appendChild(li);
       });
     }
+  }
+
+  /* ---------- the sentence check card ---------- */
+
+  const CHEERS = ['Great sentence!', 'You did it!', 'Super sentence!', 'Nice work!'];
+  const BY = {
+    rules: 'Checked by the game\'s rules.',
+    judge: 'Checked by the game\'s rules and the AI judge.',
+    teacher: 'Checked by the game\'s rules and your teacher\'s answer key.'
+  };
+  const ICONS = { ok: '✓', bad: '✗', skip: '–', wait: '•' };
+
+  /* Everything in the card is set with textContent - the judge's words come from an AI
+     and are shown as plain text, never as HTML. */
+  function renderReport(game, report) {
+    const card = $('report');
+    if (!report) { card.hidden = true; return; }
+    const checking = report.phase === 'checking';
+    card.hidden = false;
+    card.className = 'report ' + (checking ? 'checking' : report.verdict);
+
+    $('report-title').textContent = checking ? 'Checking your sentence...'
+      : report.verdict === 'correct' ? CHEERS[game.finished.length % CHEERS.length]
+      : report.verdict === 'wrong' ? 'Not quite!'
+      : 'Not finished yet';
+
+    // the sentence, with the word where it went wrong marked
+    const line = $('report-sentence');
+    line.textContent = '';
+    report.words.forEach((w, i) => {
+      if (i > 0 && w !== ',') line.append(' ');
+      const span = document.createElement('span');
+      span.textContent = w;
+      if (!checking && report.verdict === 'wrong' && i === report.at && !report.rescued) span.className = 'oops';
+      line.append(span);
+    });
+    if (report.verdict === 'unfinished') {
+      const gap = document.createElement('span');
+      gap.className = 'gap';
+      gap.textContent = ' ___';
+      line.append(gap);
+    }
+    line.append(report.mark);
+
+    const items = $('report-items');
+    items.textContent = '';
+    report.items.forEach((item, i) => {
+      const state = checking ? 'wait' : item.ok === true ? 'ok' : item.ok === false ? 'bad' : 'skip';
+      const li = document.createElement('li');
+      li.className = state;
+      li.style.setProperty('--i', i);
+      const icon = document.createElement('i');
+      icon.textContent = ICONS[state];
+      const title = document.createElement('b');
+      title.textContent = item.title;
+      const note = document.createElement('span');
+      // the headline says the main problem in full, so it is not repeated in the list
+      note.textContent = checking || item.note === report.headline ? '' : item.note;
+      li.append(icon, title, note);
+      items.append(li);
+    });
+
+    const judging = BW.Judge.status().state === 'on';
+    $('report-headline').textContent = checking ? (judging ? 'The judge is reading it...' : '')
+                                                : report.headline;
+    const tip = $('report-tip');
+    tip.hidden = checking || !report.suggestion;
+    tip.textContent = report.suggestion ? 'Try: ' + report.suggestion : '';
+
+    $('report-after').textContent = checking ? ''
+      : report.verdict === 'correct' ? '+' + report.points + ' points - it is on your list!'
+      : report.verdict === 'wrong' ? 'The words go back on the board. Try again!'
+      : 'Your words are still on the worm. Keep building!';
+    $('report-go').hidden = checking;
+    $('report-by').textContent = checking ? '' : BY[report.by] || '';
+  }
+
+  function renderJudge(status) {
+    $('checker-status').textContent = status.state === 'on'
+      ? 'Sentences are checked by the game\'s rules and an AI judge.'
+      : 'Sentences are checked by the game\'s rules.' +
+        (status.saved ? ' ' + status.saved + ' saved answers from the judge are used too.' : '');
   }
 
   let messageTimer = null;
@@ -175,9 +267,15 @@ window.BW = window.BW || {};
     document.documentElement.style.setProperty('--worm-body', BW.CONFIG.worm.body);
     document.documentElement.style.setProperty('--worm-head', BW.CONFIG.worm.head);
 
-    const game = new BW.Game(pack, $('board'), {
+    // the game does not wait for this - until it answers, the rules check on their own
+    renderJudge(BW.Judge.status());
+    BW.Judge.start().then(renderJudge);
+
+    let game = null;
+    game = new BW.Game(pack, $('board'), {
       onChange: renderHud,
-      onMessage: showMessage
+      onMessage: showMessage,
+      onReport: report => renderReport(game, report)
     });
 
     game.attachInput(window);
@@ -190,6 +288,7 @@ window.BW = window.BW || {};
       game.showHints = !game.showHints;
       $('btn-hints').textContent = 'Hints: ' + (game.showHints ? 'on' : 'off');
     });
+    $('report-go').addEventListener('click', () => { game.carryOn(null); $('report-go').blur(); });
 
     window.BW.game = game;   // handy for poking at in the browser console
   }
