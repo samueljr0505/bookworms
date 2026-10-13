@@ -92,7 +92,7 @@ mark, the sentence is checked against the list a teacher uses for a complete sen
 | Noun | there is a who or what | rules |
 | Verb | something happens | rules |
 | Sounds right | the words are in an order one of the topic's shapes allows | rules, then the judge |
-| Makes sense | the words fit together, and no word is used twice | the judge (a repeated word: rules) |
+| Makes sense | the words fit together: no word used twice, no pair the topic says clash | rules for those, then the judge |
 | End mark | the right mark for that kind of sentence - questions take `?` | rules |
 
 1. **The rules** (`check()` in `js/checker.js`) run first, instantly and with no internet. The
@@ -107,7 +107,7 @@ mark, the sentence is checked against the list a teacher uses for a complete sen
      was already a whole sentence, so "slowly" does not fit after it".
 2. **The judge** (`tools/judge.py`, optional) is then asked the two questions shapes cannot
    answer: does it sound right, and does it make sense? `decide()` folds its answer in. It
-   catches sentences that fit a shape and are still wrong ("The small reader is tall.") and
+   catches sentences the topic's word lists did not foresee ("The quick bird jumped quickly.") and
    rescues good English the shapes do not include ("The big fluffy dog
    ran."). It never overrules capital letters, repeated words or end marks.
 3. **A teacher** can overrule both by editing `data/verdicts.json`.
@@ -281,7 +281,8 @@ Small things added because the game needed them to be playable for 3rd-5th grade
 - **Labels and colours are data.** The kinds of word, their names and colours come from the topic
   file (`families` and `pos` in the JSON), not from code.
 - **A wrong sentence teaches.** The check card names the word and the reason, and the judge, when
-  it is on, suggests a corrected sentence built from the topic's own tiles.
+  it is on, its own correction; with or without it, the rules build a corrected sentence from
+  the topic's tiles ("Try: The dog ran."), changing as little as possible.
 - **The board is always winnable.** Every disperse guarantees at least two words that keep the
   sentence on track, and ending marks to finish with.
 - **No game over.** Crashes and wrong sentences cost progress, never the session.

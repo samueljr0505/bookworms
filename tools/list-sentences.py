@@ -44,8 +44,11 @@ for entry in index["topics"]:
             # The checker refuses a content word that is already in the sentence
             # ("My quick puppy is quick"), so the sample skips those too - or it
             # shows sentences the game would never pass.
-            used = [w for w, pos in picked if pos in content]
+            used = [w for w, pos in picked if pos in content or pos == "adverb"]
             if len(used) != len(set(used)):
+                continue
+            # ...and words the topic says cannot share a sentence ("small" ... "tall")
+            if any(c[0] in used and c[1] in used for c in pack.get("clashes", [])):
                 continue
             words = [w for w, _ in picked]
             # "a apple" -> "an apple"

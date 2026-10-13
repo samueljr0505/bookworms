@@ -184,13 +184,19 @@ const CASES = {
     ['The dog ran The', 'wrong', 'order', 'was already a whole sentence'],
     ['The dog The cat', 'wrong', 'order,verb', 'It needs a Verb'],
     ['The dog quickly ran', 'wrong', 'order', 'needed a Verb there'],
-    ['The quickly', 'wrong', 'noun,order,verb', 'It needs a Noun']
+    ['The quickly', 'wrong', 'noun,order,verb', 'It needs a Noun'],
+    // words the topic says cannot share a sentence
+    ['The quick fox ran slowly', 'wrong', 'sense', '"quick" and "slowly" do not go together'],
+    ['The big mouse is small', 'wrong', 'sense', 'cannot be big and small at once']
   ],
   school: [
     ['The kind teacher smiled', 'correct', ''],
     ['A old student was busy', 'correct', ''],     // shown as "An old student", see below
     ['The teacher read carefully quietly', 'wrong', 'order', 'was already a whole sentence'],
-    ['The teacher is', 'unfinished', '', 'What is the teacher like?']
+    ['The teacher is', 'unfinished', '', 'What is the teacher like?'],
+    ['The small reader is tall', 'wrong', 'sense', '"small" and "tall" do not go together'],
+    ['The student waited quickly', 'wrong', 'sense', 'waiting is not something you can hurry'],
+    ['The old boy smiled', 'wrong', 'sense', 'a boy is young']
   ],
   food: [
     ['The apple tastes sweet', 'correct', ''],
@@ -300,7 +306,16 @@ function checkThisPack() {
               'an unfinished verdict for words that cannot grow into a sentence: ' + r.text);
         check(itemOf(r, 'end').ok === null, 'an unfinished sentence has not been ended yet');
       } else {
-        // a wrong sentence says exactly where, when the shape is the problem
+        // a wrong sentence always comes back with a reason and an example to try
+        check(r.headline !== 'Something is not quite right.', 'a wrong sentence got no specific reason: ' + r.text);
+        check(r.suggestion.length > 0, 'a wrong sentence got no example to try: ' + r.text + ' (' + r.headline + ')');
+        if (r.suggestion) {
+          const words = r.suggestion.slice(0, -1).split(' ').map(w => w === 'An' ? 'A' : w === 'an' ? 'a' : w);
+          const again = NS.Checker.check(pack, sentenceOf(words), r.suggestion.slice(-1));
+          check(again.verdict === 'correct', 'the example "' + r.suggestion + '" for "' + r.text +
+                '" does not pass the rules itself: ' + again.headline);
+        }
+        // and says exactly where, when the shape is the problem
         if (itemOf(r, 'order').ok === false) {
           check(r.at >= 0 && r.at < sentence.tokens.length, 'a shape problem should point at a word: ' + r.text);
         }
@@ -418,11 +433,15 @@ function checkDecide() {
   check(r.headline === 'Lovely describing!', 'a passing sentence should show the judge\'s praise');
 
   // the rules pass it, the judge does not - meaning
-  r = NS.Checker.decide(checkOf(['The', 'small', 'reader', 'is', 'tall'], '.', loadTopic('school')),
-    { grammatical: true, makes_sense: false, feedback: 'Small and tall do not go together.', suggestion: 'The small reader is happy.', by: 'ai' });
-  check(r.verdict === 'wrong' && failed(r) === 'sense', '"small ... tall" should fail on meaning, failed ' + failed(r));
-  check(r.headline === 'Small and tall do not go together.', 'the judge\'s reason should be the headline');
-  check(r.suggestion === 'The small reader is happy.', 'the judge\'s suggestion should be passed on');
+  r = NS.Checker.decide(checkOf(['The', 'kind', 'girl', 'was', 'busy'], '.', loadTopic('school')),
+    { grammatical: true, makes_sense: false, feedback: 'Pretend that makes no sense.', suggestion: 'The kind girl was happy.', by: 'ai' });
+  check(r.verdict === 'wrong' && failed(r) === 'sense', 'a judge meaning no should fail on meaning, failed ' + failed(r));
+  check(r.headline === 'Pretend that makes no sense.', 'the judge\'s reason should be the headline');
+  check(r.suggestion === 'The kind girl was happy.', 'the judge\'s suggestion should be passed on');
+
+  // a rescued sentence needs no corrected example
+  r = NS.Checker.decide(checkOf(['The', 'big', 'fluffy', 'dog', 'ran'], '.', animals), yes);
+  check(r.suggestion === '', 'a sentence the judge rescued should not come with a correction');
 
   // the rules pass it, the judge does not - grammar the shapes cannot see
   r = NS.Checker.decide(checkOf(['A', 'pie', 'was', 'soft'], '.', food),

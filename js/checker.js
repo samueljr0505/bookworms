@@ -16,8 +16,8 @@
    Two things do the checking. check() is the game's own rules: it compares the words with
    the topic's sentence shapes (js/grammar.js). That is instant, works with no internet,
    and is never wrong about a shape it knows. But rules only know shapes. They cannot tell
-   "The small reader is happy." from "The small reader is tall." - both are Determiner
-   Adjective Noun Verb Adjective - and they turn down good English the recipe never taught, like "The big
+   "The hungry bird jumped quickly." from "The quick bird jumped quickly." - the second says
+   the same thing twice - unless the topic lists that pair as a clash, and they turn down good English the recipe never taught, like "The big
    brown dog ran." So decide() folds in a second opinion from the judge (js/judge.js) when
    there is one, and the judge gets the last word on "sounds right" and "makes sense".
 
@@ -64,13 +64,80 @@ window.BW = window.BW || {};
     return orList(out);
   }
 
-  /* A content word used a second time - "The happy dog is happy." */
+  /* A content word used a second time - "The happy dog is happy." - with where it was. */
   function repeatedWord(sentence) {
     const seen = new Set();
-    for (const t of sentence.tokens) {
+    for (let i = 0; i < sentence.tokens.length; i++) {
+      const t = sentence.tokens[i];
       if (!sentence.isContent(t.pos)) continue;
-      if (seen.has(t.word)) return t.word;
+      if (seen.has(t.word)) return { word: t.word, at: i };
       seen.add(t.word);
+    }
+    return null;
+  }
+
+  /* Two words the topic says cannot share a sentence - "The small reader is tall." */
+  function clashIn(pack, sentence) {
+    const toks = sentence.tokens;
+    for (let i = 1; i < toks.length; i++) {
+      for (let j = 0; j < i; j++) {
+        for (const c of pack.clashes || []) {
+          if ((c[0] === toks[j].word && c[1] === toks[i].word) ||
+              (c[1] === toks[j].word && c[0] === toks[i].word)) {
+            return { first: toks[j].word, second: toks[i].word, why: c[2] || '', at: i };
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  /* Would these words pass the rules as they stand? */
+  function passes(pack, tokens) {
+    if (!tokens.length || tokens[0].word[0] === tokens[0].word[0].toLowerCase()) return null;
+    const s = BW.Grammar.newSentence(pack, BW.rng);
+    for (const t of tokens) s.add(t.word, t.pos);
+    return s.canEnd() && !repeatedWord(s) && !clashIn(pack, s) ? s : null;
+  }
+
+  /* A corrected sentence to try, built from the topic's own tiles, so a wrong sentence always
+     comes back with an example and not only a reason. It changes as little as it can at the
+     first word that went wrong: add a word there, swap that word, or drop it - and if the
+     words were already a whole sentence before it, just stop there. When there is more than
+     one mistake, it keeps the words before the first one and finishes the sentence the
+     shortest way it can. */
+  function suggest(pack, sentence, mark, at, finished) {
+    const toks = sentence.tokens;
+    const tiles = [];
+    for (const pos of Object.keys(pack.words)) for (const word of pack.words[pos]) tiles.push({ word, pos });
+    const tries = [];
+    if (finished) tries.push(toks.slice(0, at));
+    // "A rice": nothing wrong with "rice" - it is the word before it that has to change
+    const note = toks[at] && pack.pos[toks[at].pos] && pack.pos[toks[at].pos].note;
+    if (note && at > 0) for (const t of tiles) tries.push([...toks.slice(0, at - 1), t, ...toks.slice(at)]);
+    for (const t of tiles) tries.push([...toks.slice(0, at), t, ...toks.slice(at)]);
+    for (const t of tiles) tries.push([...toks.slice(0, at), t, ...toks.slice(at + 1)]);
+    tries.push([...toks.slice(0, at), ...toks.slice(at + 1)]);
+    let fixed = null;
+    for (const t of tries) if ((fixed = passes(pack, t))) break;
+    for (let depth = 0; !fixed && depth <= 5; depth++) fixed = finishOff(pack, toks.slice(0, at), depth);
+    if (!fixed) return '';
+    return fixed.text(fixed.endMarks().includes(mark) ? mark : fixed.endMarks()[0]);
+  }
+
+  /* Add at most `depth` words to these so they pass the rules; null if that cannot be done. */
+  function finishOff(pack, tokens, depth) {
+    const done = passes(pack, tokens);
+    if (done || depth === 0) return done;
+    const s = BW.Grammar.newSentence(pack, BW.rng);
+    for (const t of tokens) s.add(t.word, t.pos);
+    for (const m of s.wants()) {
+      const pos = m.pos || BW.Grammar.posOfWord(pack, m.word);
+      for (const w of m.word ? [m.word] : (pack.words[m.pos] || [])) {
+        if (!s.fits(w, pos)) continue;
+        const found = finishOff(pack, [...tokens, { word: w, pos }], depth - 1);
+        if (found) return found;
+      }
     }
     return null;
   }
@@ -197,8 +264,12 @@ window.BW = window.BW || {};
     // A word said twice is the game's own rule. Whether the rest makes sense needs a judge -
     // or, with no judge about, a child reading it out loud.
     const twice = repeatedWord(sentence);
+    const clash = clashIn(pack, sentence);
     items.sense = twice
-      ? say(false, '"' + twice + '" is used twice. Use a different word the second time.')
+      ? say(false, '"' + twice.word + '" is used twice. Use a different word the second time.')
+      : clash
+      ? say(false, '"' + clash.first + '" and "' + clash.second + '" do not go together' +
+                   (clash.why ? ': ' + clash.why + '.' : '.'))
       : say(null, 'Read it out loud: does it make sense?');
 
     if (unfinished) {
@@ -219,7 +290,7 @@ window.BW = window.BW || {};
       sense: 'Makes sense',
       end: 'End mark'
     };
-    return finish({
+    const report = finish({
       text: sentence.text(mark),
       words,
       mark,
@@ -233,6 +304,14 @@ window.BW = window.BW || {};
       suggestion: '',
       praise: ''
     });
+    if (report.verdict === 'wrong') {
+      // fix the first thing that went wrong: the word that broke the shape, else the word
+      // said twice, else the word that clashes; a wrong end mark just needs the right one
+      const problems = [trace.at, twice ? twice.at : -1, clash ? clash.at : -1].filter(i => i >= 0);
+      const at = problems.length ? Math.min(...problems) : sentence.tokens.length;
+      report.suggestion = suggest(pack, sentence, mark, at, trace.finished && at === trace.at);
+    }
+    return report;
   }
 
   /* Fold the judge's answer into a report from check(). `verdict` is what the judge - or a
@@ -266,8 +345,9 @@ window.BW = window.BW || {};
                  : verdict.grammatical ? (feedback || 'The words do not fit together.')
                  : 'Fix how it sounds first, then check what it means.';
     }
+    // the judge's corrected sentence when it gave one, otherwise the rules' own
     const suggestion = String(verdict.suggestion || '').trim();
-    out.suggestion = suggestion && suggestion !== report.text ? suggestion : '';
+    if (suggestion && suggestion !== report.text) out.suggestion = suggestion;
     out.praise = feedback;
     return finish(out);
   }
@@ -277,6 +357,7 @@ window.BW = window.BW || {};
     const ok = id => !get(id) || get(id).ok !== false;
     if (r.unfinished && ok('capital') && ok('sense')) r.verdict = 'unfinished';
     else r.verdict = r.items.every(i => i.ok !== false) ? 'correct' : 'wrong';
+    if (r.verdict !== 'wrong') r.suggestion = '';
     r.headline = headline(r, get);
     return r;
   }

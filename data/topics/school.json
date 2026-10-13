@@ -95,7 +95,7 @@
     "noun": [
       "teacher",
       "student",
-      "class",
+      "classmate",
       "boy",
       "girl",
       "friend",
@@ -125,6 +125,68 @@
       "carefully"
     ]
   },
+  "clashes": [
+    [
+      "tall",
+      "small",
+      "someone cannot be tall and small at once"
+    ],
+    [
+      "old",
+      "new",
+      "old and new mean opposite things"
+    ],
+    [
+      "old",
+      "boy",
+      "a boy is young, not old"
+    ],
+    [
+      "old",
+      "girl",
+      "a girl is young, not old"
+    ],
+    [
+      "quiet",
+      "noisy",
+      "quiet and noisy mean opposite things"
+    ],
+    [
+      "noisy",
+      "quietly",
+      "noisy and quiet mean opposite things"
+    ],
+    [
+      "listened",
+      "quickly",
+      "listening is not something you hurry"
+    ],
+    [
+      "listened",
+      "slowly",
+      "you listen carefully or quietly, not slowly"
+    ],
+    [
+      "waited",
+      "quickly",
+      "waiting is not something you can hurry"
+    ],
+    [
+      "waited",
+      "slowly",
+      "you wait quietly, not slowly"
+    ],
+    [
+      "waited",
+      "carefully",
+      "you wait quietly, not carefully"
+    ],
+    [
+      "smiled",
+      "carefully",
+      "a smile is not something you do carefully"
+    ]
+  ],
   "patterns": [
     {
       "id": "school-doing",

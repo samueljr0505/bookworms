@@ -357,9 +357,20 @@ window.BW = window.BW || {};
       return role === 'action' && !Sentence.SCAFFOLD.includes(pos);
     }
 
+    /* A word the topic says cannot share a sentence with one already in it - "tall" after
+       "small", "quickly" after "waited". The pack lists them as [word, word, reason]. */
+    clashWith(word) {
+      for (const c of this.pack.clashes || []) {
+        const i = c.indexOf(word);
+        if (i !== 0 && i !== 1) continue;
+        if (this.tokens.some(t => t.word === c[1 - i])) return { other: c[1 - i], why: c[2] || '' };
+      }
+      return null;
+    }
+
     /* Would eating this word keep the sentence on track? That is what the hints outline. */
     fits(word, pos) {
-      if (this.repeats(word, pos)) return false;
+      if (this.repeats(word, pos) || this.clashWith(word)) return false;
       return this.live().some(t => advance(t.nfa, t.states, word, pos).size > 0);
     }
 
@@ -472,6 +483,11 @@ window.BW = window.BW || {};
       for (const w of pack.words[pos]) {
         if (owner[w]) problems.push('"' + w + '" is listed as both ' + owner[w] + ' and ' + pos);
         owner[w] = pos;
+      }
+    }
+    for (const c of pack.clashes || []) {
+      for (const w of c.slice(0, 2)) {
+        if (!owner[w]) problems.push('clash "' + c[0] + '" / "' + c[1] + '" names "' + w + '", which is not in any word list');
       }
     }
     const marks = (pack.punctuation || []).map(p => p.mark);

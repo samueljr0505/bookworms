@@ -123,6 +123,38 @@
       "quietly"
     ]
   },
+  "clashes": [
+    [
+      "big",
+      "small",
+      "something cannot be big and small at once"
+    ],
+    [
+      "brown",
+      "grey",
+      "an animal cannot be two colours at once"
+    ],
+    [
+      "quick",
+      "slowly",
+      "quick and slow mean opposite things"
+    ],
+    [
+      "sleepy",
+      "quick",
+      "a sleepy animal is not quick"
+    ],
+    [
+      "noisy",
+      "quietly",
+      "noisy and quiet mean opposite things"
+    ],
+    [
+      "sleepy",
+      "noisy",
+      "a sleepy animal is not noisy"
+    ]
+  ],
   "patterns": [
     {
       "id": "animals-doing",

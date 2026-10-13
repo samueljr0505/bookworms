@@ -20,6 +20,11 @@ bread, cheese and soup - which cannot be counted - never take "A". The checker
 (js/checker.js) explains a word that is the right kind but does not fit:
 ""big" does not go with "tasted"".
 
+And some pairs of words just cannot share a sentence, whatever the shape:
+"The small reader is tall", "The quick fox ran slowly", "The student waited
+quickly". Each topic lists those as "clashes" - two words and the reason - and
+the checker turns one down with that reason.
+
 A bad word shows up immediately, because tools/list-sentences.py samples
 across every combination rather than along a few fixed templates.
 
@@ -77,6 +82,14 @@ TOPICS = {
             "be": ["is", "was"],
             "adverb": ["quickly", "slowly", "quietly"],
         },
+        "clashes": [
+            ["big", "small", "something cannot be big and small at once"],
+            ["brown", "grey", "an animal cannot be two colours at once"],
+            ["quick", "slowly", "quick and slow mean opposite things"],
+            ["sleepy", "quick", "a sleepy animal is not quick"],
+            ["noisy", "quietly", "noisy and quiet mean opposite things"],
+            ["sleepy", "noisy", "a sleepy animal is not noisy"],
+        ],
         "structures": [
             ("doing",      "determiner adjective? noun verb adverb?"),
             ("describing", "determiner adjective? noun be adjective"),
@@ -90,13 +103,27 @@ TOPICS = {
             "determiner": ["A", "The", "My"],
             "adjective": ["new", "old", "tall", "small", "quiet",
                           "noisy", "happy", "busy", "kind", "clever"],
-            "noun": ["teacher", "student", "class", "boy", "girl",
+            "noun": ["teacher", "student", "classmate", "boy", "girl",
                      "friend", "reader", "writer", "helper", "painter"],
             "verb": ["read", "wrote", "listened", "waited",
                      "studied", "walked", "worked", "smiled"],
             "be": ["is", "was"],
             "adverb": ["quickly", "slowly", "quietly", "carefully"],
         },
+        "clashes": [
+            ["tall", "small", "someone cannot be tall and small at once"],
+            ["old", "new", "old and new mean opposite things"],
+            ["old", "boy", "a boy is young, not old"],
+            ["old", "girl", "a girl is young, not old"],
+            ["quiet", "noisy", "quiet and noisy mean opposite things"],
+            ["noisy", "quietly", "noisy and quiet mean opposite things"],
+            ["listened", "quickly", "listening is not something you hurry"],
+            ["listened", "slowly", "you listen carefully or quietly, not slowly"],
+            ["waited", "quickly", "waiting is not something you can hurry"],
+            ["waited", "slowly", "you wait quietly, not slowly"],
+            ["waited", "carefully", "you wait quietly, not carefully"],
+            ["smiled", "carefully", "a smile is not something you do carefully"],
+        ],
         "structures": [
             ("doing",      "determiner adjective? noun verb adverb?"),
             ("describing", "determiner adjective? noun be adjective"),
@@ -129,6 +156,10 @@ TOPICS = {
             "tasteWord": "'sweet' | 'fresh' | 'warm' | 'cold'",
             "smellWord": "'sweet' | 'fresh' | 'tasty'",
         },
+        "clashes": [
+            ["warm", "cold", "something cannot be warm and cold at once"],
+            ["big", "small", "something cannot be big and small at once"],
+        ],
         "structures": [
             ("tasting",    "<start> taste <tasteWord>"),
             ("smelling",   "<start> smell <smellWord>"),
@@ -167,6 +198,7 @@ def build():
                     for p in used_pos},
             "words": words,
             **({"rules": rules} if rules else {}),
+            **({"clashes": topic["clashes"]} if topic.get("clashes") else {}),
             "patterns": [{"id": "%s-%s" % (tid, name),
                           "name": name.capitalize() + " sentence",
                           "end": [".", "!"],

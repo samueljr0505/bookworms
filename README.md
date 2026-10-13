@@ -75,20 +75,32 @@ things do the checking.
 **1. The game's rules (`js/checker.js`)** - always on, instant, no internet. They compare the words
 with the topic's sentence shapes, so they know for certain when a noun or verb is missing, when a
 word is in the wrong place ("An Adjective goes before the Noun it describes"), when a word is used
-twice, and when the sentence was already finished before the last word. But shapes are all they
-know, so they get two kinds of sentence wrong:
+twice, and when the sentence was already finished before the last word. Each topic also says
+which words fit where and which words cannot share a sentence, so the rules catch nonsense too:
 
-- **Wrong sentences they pass.** "The small reader is tall." is Determiner Adjective Noun Verb
-  Adjective, a perfectly good shape, but a reader cannot be small and tall at once. The word lists
-  are built to keep these rare - in Food, "tastes" and "smells" only take taste and smell words, so
-  "The cookie tasted big." is caught by the rules - but no word list can rule out every one.
+- "The cookie tasted big." - *"big" does not go with "tasted". Adjectives that do: "sweet",
+  "fresh", "warm" or "cold".*
+- "A rice is soft." - *"rice" is not something you can count, so it goes with "The" or "My".*
+- "The small reader is tall." - *"small" and "tall" do not go together: someone cannot be tall and
+  small at once.*
+
+**Every wrong sentence gets feedback**: the reason, pinned to the word, and a corrected sentence to
+try, built from the topic's own tiles and changing as little as possible ("The dog cat ran." -
+*Try: The dog ran.*). `tools/test.js` checks this for thousands of random sentences, and checks
+that every suggested sentence passes the rules itself.
+
+But the rules only know what the topic told them, so they can still get two kinds of sentence
+wrong:
+
+- **Wrong sentences they pass.** "The quick bird jumped quickly." says the same thing twice, and no
+  word list can rule out every odd sentence.
 - **Right sentences they fail.** "The big fluffy dog ran." is fine English, but the recipe only had
   room for one Adjective.
 
 **2. The judge (`tools/judge.py`)** - optional. An AI (Claude) reads the words the way a careful
 teacher would and answers two questions: does it sound right, and does it make sense? It gets the
 last word on those two, so it catches the first kind of mistake and rescues the second. It always
-gives a reason a child can read, and a corrected sentence built from the topic's own words.
+gives a reason a child can read, and its own corrected sentence.
 Capital letters, repeated words and end marks stay the rules' call.
 
 Without the judge the game works exactly the same, using its rules only. "Makes sense" is then
@@ -113,7 +125,7 @@ left for the child to check by reading the sentence out loud.
 Try one sentence from the command line first:
 
 ```bash
-python3 tools/judge.py school The small reader is tall
+python3 tools/judge.py animals The quick bird jumped quickly
 ```
 
 ### What it costs
@@ -143,20 +155,21 @@ tries. Things that keep it down:
   child who writes it gets that answer and reason:
 
   ```json
-  "The small reader is tall": {
+  "The quick bird jumped quickly": {
     "grammatical": true, "makes_sense": false, "by": "teacher",
-    "feedback": "Can someone be small and tall at the same time? Pick one!",
-    "suggestion": "The small reader is happy."
+    "feedback": "Quick and quickly say the same thing twice. Try a different Adjective!",
+    "suggestion": "The hungry bird jumped quickly."
   }
   ```
 
   The same file is where the judge saves its answers, so a teacher can read through what it decided
   and overrule any of it. The judge never overwrites an entry marked `"by": "teacher"`.
-- **Tighter word lists.** A shape can say which words fit where, and the checker then explains a
-  word of the right kind that does not fit (""big" does not go with "tasted""). Food does this:
-  "tastes" and "smells" only take taste and smell words, and rice, bread, cheese and soup never
-  take "A" or a size word. See the Food topic in `tools/build-topics.py`, and check the result with
-  `python3 tools/list-sentences.py food`.
+- **Tighter word lists.** In `tools/build-topics.py` a topic can say which words fit where (in
+  Food, "tastes" only takes taste words and rice never takes "A") and list `clashes`: pairs of
+  words that cannot share a sentence, with the reason the child is told -
+  `["waited", "quickly", "waiting is not something you can hurry"]`. Run
+  `python3 tools/build-topics.py`, then read a sample with `python3 tools/list-sentences.py school`
+  and add a clash for anything that reads wrong.
 
 ### What is sent to the AI
 
