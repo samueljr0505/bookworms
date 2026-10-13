@@ -4,8 +4,8 @@
 The game checks every sentence itself the moment punctuation is eaten (js/checker.js):
 a capital letter, a Noun, a Verb, and words in an order one of the topic's sentence
 shapes allows. Those rules are instant and never wrong about a shape they know - but
-shapes are all they know. They cannot tell "The apple tastes sweet." from "The apple
-tastes big.", because both are Determiner Noun Verb Adjective. And they turn down good
+shapes are all they know. They cannot tell "The small reader is happy." from "The small
+reader is tall.", because both are Determiner Adjective Noun Verb Adjective. And they turn down good
 English the recipe never taught, like "The big brown dog ran."
 
 So the game asks this judge two questions about the words: does it sound right, and
@@ -31,7 +31,7 @@ Without them the game still works - it checks with its own rules alone.
 
 Ask about one sentence from the command line (type the words as the tiles show them):
 
-    python3 tools/judge.py food The apple tastes big
+    python3 tools/judge.py school The small reader is tall
 """
 import json
 import os

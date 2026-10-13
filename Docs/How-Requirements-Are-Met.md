@@ -107,8 +107,8 @@ mark, the sentence is checked against the list a teacher uses for a complete sen
      was already a whole sentence, so "slowly" does not fit after it".
 2. **The judge** (`tools/judge.py`, optional) is then asked the two questions shapes cannot
    answer: does it sound right, and does it make sense? `decide()` folds its answer in. It
-   catches sentences that fit a shape and are still wrong ("The apple tastes big.",
-   "A rice is soft.") and rescues good English the shapes do not include ("The big fluffy dog
+   catches sentences that fit a shape and are still wrong ("The small reader is tall.") and
+   rescues good English the shapes do not include ("The big fluffy dog
    ran."). It never overrules capital letters, repeated words or end marks.
 3. **A teacher** can overrule both by editing `data/verdicts.json`.
 

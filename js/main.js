@@ -107,12 +107,16 @@ window.BW = window.BW || {};
     // what to hunt for next
     const marks = '<b>' + s.endMarks().join('</b> or <b>') + '</b>';
     if (guide || !s.tokens.length) {
-      const parts = [];
+      // group what is wanted by kind; a kind where only certain words fit says so
+      // ("an Adjective that goes with tasted"), since not every Adjective will do
+      const kinds = new Map();
       for (const m of s.wants()) {
         const label = posLabel(pack, m.pos || BW.Grammar.posOfWord(pack, m.word));
-        const part = article(label) + ' <b>' + label + '</b>';
-        if (!parts.includes(part)) parts.push(part);
+        kinds.set(label, (kinds.get(label) !== false) && !!m.word);
       }
+      const last = s.tokens.length ? s.tokens[s.tokens.length - 1].word : null;
+      const parts = [...kinds].map(([label, onlySome]) => article(label) + ' <b>' + label + '</b>' +
+        (onlySome && last ? ' that goes with "' + last + '"' : ''));
       if (s.canEnd()) parts.push('a punctuation mark (' + marks + ') to finish');
       $('next-up').innerHTML = 'Find ' + parts.join(' or ');
     } else {

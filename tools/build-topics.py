@@ -12,6 +12,14 @@ able to describe its nouns. So each list is kept narrow and coherent: the
 Animals nouns are all animals that walk about, and because food does not run
 anywhere, the Food topic describes things instead of having them act.
 
+Where a word only fits SOME of its kind, the shape says so instead of the
+word list. "The cookie tasted big" is a perfectly good Determiner Noun Verb
+Adjective - but big is a size, not a taste. So in the Food topic "tastes" is
+followed only by taste words, spelled out in the topic's "rules", and rice,
+bread, cheese and soup - which cannot be counted - never take "A". The checker
+(js/checker.js) explains a word that is the right kind but does not fit:
+""big" does not go with "tasted"".
+
 A bad word shows up immediately, because tools/list-sentences.py samples
 across every combination rather than along a few fixed templates.
 
@@ -19,7 +27,8 @@ Run:  python3 tools/build-topics.py
 """
 import json
 import os
-import random
+
+import shapes
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -39,9 +48,19 @@ FAMILIES = {
     "adverb":     {"label": "Adverb", "hint": "how it happened: slowly",
                    "color": "#c79ae0", "role": "other"},
 }
-# "be" and "linking" are verbs as far as a player is concerned; they are held
-# apart only so a structure can ask for one of them specifically.
-FAMILY_OF = {"be": "verb", "linking": "verb"}
+# Held apart only so a structure can ask for one of them specifically; to a
+# player they are just Verbs, or just Nouns.
+FAMILY_OF = {"be": "verb", "linking": "verb", "taste": "verb", "smell": "verb",
+             "look": "verb", "mass": "noun"}
+
+# Said by the checker when a word of the right kind still does not fit, because of
+# something about that word itself. {word} is the word.
+# A note only applies when one of the `after` words comes earlier in the sentence.
+NOTES = {
+    "mass": {"after": ["A"],
+             "text": '"{word}" is not something you can count, so it goes with "The" '
+                     'or "My", not "A".'},
+}
 
 TOPICS = {
     "animals": {
@@ -91,29 +110,33 @@ TOPICS = {
             "determiner": ["A", "The", "My"],
             "adjective": ["warm", "cold", "fresh", "sweet", "soft",
                           "big", "small", "sticky", "tasty"],
-            "noun": ["soup", "bread", "rice", "apple", "cookie",
-                     "pizza", "cheese", "carrot", "pancake", "pie"],
-            "linking": ["tastes", "tasted", "looks", "looked",
-                        "smells", "smelled"],
+            # things you can count: "an apple", "a pie"
+            "noun": ["apple", "cookie", "pizza", "carrot", "pancake", "pie"],
+            # things you cannot: "the rice", never "a rice"
+            "mass": ["soup", "bread", "rice", "cheese"],
+            "taste": ["tastes", "tasted"],
+            "smell": ["smells", "smelled"],
+            "look": ["looks", "looked"],
             "be": ["is", "was"],
         },
+        "rules": {
+            "count": "determiner adjective? noun",
+            # rice, soup, bread and cheese: "The" or "My", never "A", and not a size
+            "stuff": "( 'The' | 'My' ) <stuffWord>? mass",
+            "start": "<count> | <stuff>",
+            "stuffWord": "'warm' | 'cold' | 'fresh' | 'sweet' | 'soft' | 'sticky' | 'tasty'",
+            # a size or a feel is not a taste or a smell - "tasted big" never fits
+            "tasteWord": "'sweet' | 'fresh' | 'warm' | 'cold'",
+            "smellWord": "'sweet' | 'fresh' | 'tasty'",
+        },
         "structures": [
-            ("tasting",    "determiner adjective? noun linking adjective"),
-            ("describing", "determiner adjective? noun be adjective"),
+            ("tasting",    "<start> taste <tasteWord>"),
+            ("smelling",   "<start> smell <smellWord>"),
+            ("looking",    "<count> look adjective | <stuff> look <stuffWord>"),
+            ("describing", "<count> be adjective | <stuff> be <stuffWord>"),
         ],
     },
 }
-
-
-def count(words, shape):
-    """How many sentences a structure can make."""
-    n = 1
-    for token in shape.split():
-        optional = token.endswith("?")
-        pos = token[:-1] if optional else token
-        choices = len(words.get(pos, []))
-        n *= choices + 1 if optional else choices
-    return n
 
 
 def build():
@@ -122,7 +145,9 @@ def build():
 
     for tid, topic in TOPICS.items():
         words = topic["words"]
-        total = sum(count(words, shape) for _, shape in topic["structures"])
+        rules = topic.get("rules", {})
+        total = sum(shapes.count(shapes.parse(shape, rules), words)
+                    for _, shape in topic["structures"])
         used_pos = sorted(words)
 
         pack = {
@@ -137,9 +162,11 @@ def build():
             "pos": {p: {"label": FAMILIES[FAMILY_OF.get(p, p)]["label"],
                         "hint": FAMILIES[FAMILY_OF.get(p, p)]["hint"],
                         "color": FAMILIES[FAMILY_OF.get(p, p)]["color"],
-                        "family": FAMILY_OF.get(p, p)}
+                        "family": FAMILY_OF.get(p, p),
+                        **({"note": NOTES[p]} if p in NOTES else {})}
                     for p in used_pos},
             "words": words,
+            **({"rules": rules} if rules else {}),
             "patterns": [{"id": "%s-%s" % (tid, name),
                           "name": name.capitalize() + " sentence",
                           "end": [".", "!"],

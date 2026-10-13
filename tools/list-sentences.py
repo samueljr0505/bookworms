@@ -11,6 +11,8 @@ Run:  python3 tools/list-sentences.py [topic] [howmany]
 """
 import json, os, random, sys
 
+import shapes
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 index = json.load(open(os.path.join(ROOT, "data", "topics.json")))
 wanted = [a for a in sys.argv[1:] if not a.isdigit()] or [t["id"] for t in index["topics"]]
@@ -28,34 +30,28 @@ for entry in index["topics"]:
         label = pack["pos"][pos]["label"]
         print("    %-11s %s" % (label + ":", ", ".join(pack["words"][pos])))
 
+    kind_of = {w: pos for pos, ws in pack["words"].items() for w in ws}
+    content = {pos for pos, info in pack["pos"].items()
+               if info["family"] in ("noun", "adjective", "verb") and pos != "be"}
     for pattern in pack["patterns"]:
         print("\n  %s   [%s]" % (pattern["name"], pattern["shape"]))
-        seen = set()
-        while len(seen) < howmany // len(pack["patterns"]):
-            picked = []
-            # The game refuses a content word that is already in the sentence
-            # ("My quick puppy is quick"), so the sample has to as well - or it
-            # shows sentences the game would never let anyone build.
-            content = {"noun", "adjective", "verb", "linking"}
-            used = set()
-            for token in pattern["shape"].split():
-                optional = token.endswith("?")
-                pos = token[:-1] if optional else token
-                if optional and random.random() < 0.4:
-                    continue
-                choices = pack["words"][pos]
-                if pos in content:
-                    choices = [w for w in choices if w not in used] or choices
-                word = random.choice(choices)
-                if pos in content:
-                    used.add(word)
-                picked.append(word)
+        tree = shapes.parse(pattern["shape"], pack.get("rules"))
+        seen, tries = set(), 0
+        while len(seen) < howmany // len(pack["patterns"]) and tries < 5000:
+            tries += 1
+            # words spelled out in a shape ('sweet') still belong to a kind
+            picked = [(w, pos or kind_of[w]) for w, pos in shapes.sample(tree, pack["words"])]
+            # The checker refuses a content word that is already in the sentence
+            # ("My quick puppy is quick"), so the sample skips those too - or it
+            # shows sentences the game would never pass.
+            used = [w for w, pos in picked if pos in content]
+            if len(used) != len(set(used)):
+                continue
+            words = [w for w, _ in picked]
             # "a apple" -> "an apple"
-            for i, w in enumerate(picked[:-1]):
-                if w == "a" and picked[i + 1][0] in VOWELS:
-                    picked[i] = "an"
-            s = " ".join(picked)
-            s = s[0].upper() + s[1:] + random.choice(pattern["end"])
-            seen.add(s)
+            for i, w in enumerate(words[:-1]):
+                if w in ("a", "A") and words[i + 1][0].lower() in VOWELS:
+                    words[i] = "An" if w == "A" else "an"
+            seen.add(" ".join(words) + random.choice(pattern["end"]))
         for s in sorted(seen):
             print("    " + s)

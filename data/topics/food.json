@@ -3,7 +3,7 @@
   "name": "Food",
   "emoji": "🍎",
   "description": "Any word of the right kind fits, so there is never one secret answer.",
-  "sentenceCount": 21600,
+  "sentenceCount": 11688,
   "families": {
     "determiner": {
       "label": "Determiner",
@@ -49,17 +49,41 @@
       "color": "#9aa7d7",
       "family": "determiner"
     },
-    "linking": {
+    "look": {
       "label": "Verb",
       "hint": "what happens: ran, is",
       "color": "#e9797a",
       "family": "verb"
+    },
+    "mass": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun",
+      "note": {
+        "after": [
+          "A"
+        ],
+        "text": "\"{word}\" is not something you can count, so it goes with \"The\" or \"My\", not \"A\"."
+      }
     },
     "noun": {
       "label": "Noun",
       "hint": "a person, place, or thing",
       "color": "#5ec4a3",
       "family": "noun"
+    },
+    "smell": {
+      "label": "Verb",
+      "hint": "what happens: ran, is",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "taste": {
+      "label": "Verb",
+      "hint": "what happens: ran, is",
+      "color": "#e9797a",
+      "family": "verb"
     }
   },
   "words": {
@@ -80,29 +104,43 @@
       "tasty"
     ],
     "noun": [
-      "soup",
-      "bread",
-      "rice",
       "apple",
       "cookie",
       "pizza",
-      "cheese",
       "carrot",
       "pancake",
       "pie"
     ],
-    "linking": [
+    "mass": [
+      "soup",
+      "bread",
+      "rice",
+      "cheese"
+    ],
+    "taste": [
       "tastes",
-      "tasted",
-      "looks",
-      "looked",
+      "tasted"
+    ],
+    "smell": [
       "smells",
       "smelled"
+    ],
+    "look": [
+      "looks",
+      "looked"
     ],
     "be": [
       "is",
       "was"
     ]
+  },
+  "rules": {
+    "count": "determiner adjective? noun",
+    "stuff": "( 'The' | 'My' ) <stuffWord>? mass",
+    "start": "<count> | <stuff>",
+    "stuffWord": "'warm' | 'cold' | 'fresh' | 'sweet' | 'soft' | 'sticky' | 'tasty'",
+    "tasteWord": "'sweet' | 'fresh' | 'warm' | 'cold'",
+    "smellWord": "'sweet' | 'fresh' | 'tasty'"
   },
   "patterns": [
     {
@@ -112,7 +150,25 @@
         ".",
         "!"
       ],
-      "shape": "determiner adjective? noun linking adjective"
+      "shape": "<start> taste <tasteWord>"
+    },
+    {
+      "id": "food-smelling",
+      "name": "Smelling sentence",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<start> smell <smellWord>"
+    },
+    {
+      "id": "food-looking",
+      "name": "Looking sentence",
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<count> look adjective | <stuff> look <stuffWord>"
     },
     {
       "id": "food-describing",
@@ -121,7 +177,7 @@
         ".",
         "!"
       ],
-      "shape": "determiner adjective? noun be adjective"
+      "shape": "<count> be adjective | <stuff> be <stuffWord>"
     }
   ],
   "punctuation": [

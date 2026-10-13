@@ -53,8 +53,8 @@ what each test proves.
   sentence shape the topic knows, it switches to that one.
 - **Every word you eat goes onto the worm**, whether it fits the recipe or not. Nothing is marked
   until the sentence is finished.
-- Words that would keep the sentence on track have a dashed white outline. Turn that off with the
-  **Hints** button once the class is ready.
+- Hints start off. Turn them on with the **Hints** button and words that would keep the sentence
+  on track get a dashed white outline.
 - **Eat a punctuation mark to end the sentence, and it gets checked.** The worm stops while the
   checker reads it, then shows a checklist with a reason for anything that failed. Press an arrow
   key to carry on.
@@ -78,8 +78,10 @@ word is in the wrong place ("An Adjective goes before the Noun it describes"), w
 twice, and when the sentence was already finished before the last word. But shapes are all they
 know, so they get two kinds of sentence wrong:
 
-- **Wrong sentences they pass.** "The apple tastes big." is Determiner Noun Verb Adjective, a
-  perfectly good shape, but big is not a taste. "A rice is soft." has a good shape too.
+- **Wrong sentences they pass.** "The small reader is tall." is Determiner Adjective Noun Verb
+  Adjective, a perfectly good shape, but a reader cannot be small and tall at once. The word lists
+  are built to keep these rare - in Food, "tastes" and "smells" only take taste and smell words, so
+  "The cookie tasted big." is caught by the rules - but no word list can rule out every one.
 - **Right sentences they fail.** "The big fluffy dog ran." is fine English, but the recipe only had
   room for one Adjective.
 
@@ -111,7 +113,7 @@ left for the child to check by reading the sentence out loud.
 Try one sentence from the command line first:
 
 ```bash
-python3 tools/judge.py food The apple tastes big
+python3 tools/judge.py school The small reader is tall
 ```
 
 ### What it costs
@@ -141,18 +143,20 @@ tries. Things that keep it down:
   child who writes it gets that answer and reason:
 
   ```json
-  "The apple tastes big": {
+  "The small reader is tall": {
     "grammatical": true, "makes_sense": false, "by": "teacher",
-    "feedback": "Big is a size, not a taste. What does an apple taste like?",
-    "suggestion": "The apple tastes sweet."
+    "feedback": "Can someone be small and tall at the same time? Pick one!",
+    "suggestion": "The small reader is happy."
   }
   ```
 
   The same file is where the judge saves its answers, so a teacher can read through what it decided
   and overrule any of it. The judge never overwrites an entry marked `"by": "teacher"`.
-- **Tighter word lists.** Most of the nonsense comes from the Food topic letting every adjective
-  follow every one of tastes, smells and looks. Giving each of those verbs its own adjectives in
-  `tools/build-topics.py` stops those sentences being built in the first place.
+- **Tighter word lists.** A shape can say which words fit where, and the checker then explains a
+  word of the right kind that does not fit (""big" does not go with "tasted""). Food does this:
+  "tastes" and "smells" only take taste and smell words, and rice, bread, cheese and soup never
+  take "A" or a size word. See the Food topic in `tools/build-topics.py`, and check the result with
+  `python3 tools/list-sentences.py food`.
 
 ### What is sent to the AI
 

@@ -70,8 +70,9 @@ function validate(tokens, text, mark) {
     if (!(pack.words[tok.pos] || []).includes(tok.word)) return '"' + tok.word + '" is not a ' + tok.pos;
   }
   const seen = new Set();
+  const judge = NS.Grammar.newSentence(pack, NS.rng);
   for (const tok of tokens) {
-    if (['noun', 'adjective', 'verb', 'linking'].includes(tok.pos)) {
+    if (judge.isContent(tok.pos)) {
       if (seen.has(tok.word)) return 'a word was used twice: ' + text;
       seen.add(tok.word);
     }
@@ -193,9 +194,17 @@ const CASES = {
   ],
   food: [
     ['The apple tastes sweet', 'correct', ''],
+    ['The rice looks sticky', 'correct', ''],
+    ['A pie was big', 'correct', ''],
     ['The soup tastes', 'unfinished', '', 'What is the soup like? Add an Adjective'],
     ['The soup sticky', 'wrong', 'order,verb', 'It needs a Verb'],
-    ['The apple tastes big', 'correct', '']        // the rules cannot see this one - see decide()
+    // the right kind of word, but not one that fits: a size is not a taste
+    ['The cookie tasted big', 'wrong', 'order', '"big" does not go with "tasted". Adjectives that do: "sweet"'],
+    ['The bread smelled soft', 'wrong', 'order', '"soft" does not go with "smelled"'],
+    ['The rice is big', 'wrong', 'order', '"big" does not go with "is"'],
+    // rice is not something you count
+    ['A rice is soft', 'wrong', 'order', '"rice" is not something you can count'],
+    ['A warm bread tasted fresh', 'wrong', 'order', '"bread" is not something you can count']
   ]
 };
 
@@ -299,8 +308,9 @@ function checkThisPack() {
       }
     }
   }
-  check(verdicts.correct > 0 && verdicts.wrong > 0 && verdicts.unfinished > 0,
-        'random play should meet every kind of verdict, got ' + JSON.stringify(verdicts));
+  // (a correct sentence by pure chance is rare in a strict topic - test 1 covers those)
+  check(verdicts.wrong > 0 && verdicts.unfinished > 0,
+        'random play should meet wrong and unfinished verdicts, got ' + JSON.stringify(verdicts));
 
   /* --- test 3: tiles never overlap each other or the worm --- */
   console.log('Checking tile placement...');
@@ -408,17 +418,17 @@ function checkDecide() {
   check(r.headline === 'Lovely describing!', 'a passing sentence should show the judge\'s praise');
 
   // the rules pass it, the judge does not - meaning
-  r = NS.Checker.decide(checkOf(['The', 'apple', 'tastes', 'big'], '.', food),
-    { grammatical: true, makes_sense: false, feedback: 'Big is a size, not a taste.', suggestion: 'The apple tastes sweet.', by: 'ai' });
-  check(r.verdict === 'wrong' && failed(r) === 'sense', '"tastes big" should fail on meaning, failed ' + failed(r));
-  check(r.headline === 'Big is a size, not a taste.', 'the judge\'s reason should be the headline');
-  check(r.suggestion === 'The apple tastes sweet.', 'the judge\'s suggestion should be passed on');
+  r = NS.Checker.decide(checkOf(['The', 'small', 'reader', 'is', 'tall'], '.', loadTopic('school')),
+    { grammatical: true, makes_sense: false, feedback: 'Small and tall do not go together.', suggestion: 'The small reader is happy.', by: 'ai' });
+  check(r.verdict === 'wrong' && failed(r) === 'sense', '"small ... tall" should fail on meaning, failed ' + failed(r));
+  check(r.headline === 'Small and tall do not go together.', 'the judge\'s reason should be the headline');
+  check(r.suggestion === 'The small reader is happy.', 'the judge\'s suggestion should be passed on');
 
   // the rules pass it, the judge does not - grammar the shapes cannot see
-  r = NS.Checker.decide(checkOf(['A', 'rice', 'is', 'soft'], '.', food),
-    { grammatical: false, makes_sense: true, feedback: 'We do not say "a rice".', suggestion: 'The rice is soft.', by: 'ai' });
-  check(r.verdict === 'wrong' && failed(r) === 'order', '"A rice" should fail on sounding right, failed ' + failed(r));
-  check(r.headline === 'We do not say "a rice".', 'the judge\'s grammar reason should be the headline');
+  r = NS.Checker.decide(checkOf(['A', 'pie', 'was', 'soft'], '.', food),
+    { grammatical: false, makes_sense: true, feedback: 'Pretend that is wrong.', suggestion: 'The pie was soft.', by: 'ai' });
+  check(r.verdict === 'wrong' && failed(r) === 'order', 'a judge grammar no should fail on sounding right, failed ' + failed(r));
+  check(r.headline === 'Pretend that is wrong.', 'the judge\'s grammar reason should be the headline');
 
   // the rules turn it down, the judge knows it is good English - rescued
   r = NS.Checker.decide(checkOf(['The', 'big', 'fluffy', 'dog', 'ran'], '.', animals), yes);
@@ -438,7 +448,7 @@ function checkDecide() {
   check(r.verdict === 'wrong' && itemOf(r, 'sense').ok === false, 'a repeated word stays wrong');
 
   // a teacher's ruling is credited to the teacher
-  r = NS.Checker.decide(checkOf(['The', 'apple', 'tastes', 'big'], '.', food), { ...yes, by: 'teacher' });
+  r = NS.Checker.decide(checkOf(['The', 'apple', 'tastes', 'sweet'], '.', food), { ...yes, by: 'teacher' });
   check(r.verdict === 'correct' && r.by === 'teacher', 'a teacher\'s answer should be credited to the teacher');
 
   // nothing to judge in a sentence that is not finished

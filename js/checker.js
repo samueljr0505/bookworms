@@ -16,8 +16,8 @@
    Two things do the checking. check() is the game's own rules: it compares the words with
    the topic's sentence shapes (js/grammar.js). That is instant, works with no internet,
    and is never wrong about a shape it knows. But rules only know shapes. They cannot tell
-   "The apple tastes sweet." from "The apple tastes big." - both are Determiner Noun Verb
-   Adjective - and they turn down good English the recipe never taught, like "The big
+   "The small reader is happy." from "The small reader is tall." - both are Determiner
+   Adjective Noun Verb Adjective - and they turn down good English the recipe never taught, like "The big
    brown dog ran." So decide() folds in a second opinion from the judge (js/judge.js) when
    there is one, and the judge gets the last word on "sounds right" and "makes sense".
 
@@ -108,6 +108,25 @@ window.BW = window.BW || {};
         default:           return pair + '.';
       }
     }
+    // The right kind of word, but not one that fits here: "The cookie tasted big" - big is
+    // an Adjective, just not a taste. Saying "it needed an Adjective" would be no help.
+    const sameKind = trace.wanted.filter(m =>
+      family({ pos: m.pos || BW.Grammar.posOfWord(pack, m.word) }) === family(cur));
+    if (sameKind.length) {
+      const note = pack.pos[cur.pos] && pack.pos[cur.pos].note;
+      if (note && words.slice(0, i).some(w => note.after.includes(w))) {
+        return note.text.replace(/\{word\}/g, words[i]);
+      }
+      const fits = [];
+      for (const m of sameKind) {
+        for (const w of m.word ? [m.word] : (pack.words[m.pos] || [])) {
+          if (!fits.includes(w) && !sentence.repeats(w, m.pos || cur.pos)) fits.push(w);
+        }
+      }
+      const kind = labelOf(pack, cur.pos);
+      return word + ' does not go with "' + words[i - 1] + '". ' + cap(kind) + 's that do: ' +
+             orList(fits.slice(0, 4).map(w => '"' + w + '"')) + '.';
+    }
     if (/^[A-Z]/.test(words[i]) && roleOf(pack, cur.pos) !== 'naming') {
       return word + ' has a capital letter because it starts a sentence, so it does not ' +
              'fit in the middle of one.';
@@ -121,10 +140,15 @@ window.BW = window.BW || {};
     const rest = sentence.outline().filter(s => s.state !== 'done');
     const need = rest.find(s => !s.optional) || rest[0];
     if (!need) return '';
-    if (need.literal) return 'Add the word "' + need.literal + '" next.';
-    const label = labelOf(pack, need.pos);
+    const role = roleOf(pack, need.pos);
+    if (need.literal && role !== 'naming' && role !== 'action' && role !== 'describing') {
+      return 'Add the word "' + need.literal + '" next.';
+    }
+    // a slot only certain words fit - "tastes" takes taste words, not every Adjective
+    const last = sentence.tokens[sentence.tokens.length - 1];
+    const label = labelOf(pack, need.pos) + (need.literal && last ? ' that goes with "' + last.word + '"' : '');
     const noun = sentence.tokens.slice().reverse().find(t => roleOf(pack, t.pos) === 'naming');
-    switch (roleOf(pack, need.pos)) {
+    switch (role) {
       case 'naming':     return 'Who or what is it about? Add ' + an(label) + '.';
       case 'action':     return 'What happens? Add ' + an(label) + '.';
       case 'describing': return 'What is ' + (noun ? 'the ' + noun.word : 'it') + ' like? Add ' + an(label) + '.';
@@ -230,7 +254,7 @@ window.BW = window.BW || {};
       order.note = 'It is not one of the recipe shapes, but it is a real sentence!';
       out.rescued = true;
     } else if (!verdict.grammatical && order.ok !== false) {
-      // a shape the rules allow, with something else wrong in it - "A rice is soft."
+      // a shape the rules allow, with something else wrong in it
       order.ok = false;
       order.note = feedback || 'Something about the words does not sound right.';
     }
