@@ -166,14 +166,23 @@ BW.WormArt = (function () {
     const eyes = [[-s * 0.17 + lean, -s * 0.08], [s * 0.17 + lean, -s * 0.08]];
     const blink = (now + (opts.blinkOffset || 0)) % 4300 < 130;
 
+    // where the pupils point: the way the worm is going, unless it is watching something
+    // (opts.look, a direction no longer than 1 - see followPointer below)
+    const look = opts.look || { x: dir.x * 0.8, y: dir.y * 0.8 };
     for (const [ex, ey] of eyes) {
+      if (opts.happy) {
+        // being petted: happy squinting eyes, ^ ^
+        ctx.strokeStyle = '#1b2430'; ctx.lineWidth = s * 0.055; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(ex, ey + s * 0.04, s * 0.09, 1.15 * Math.PI, 1.85 * Math.PI); ctx.stroke();
+        continue;
+      }
       ctx.fillStyle = '#fff';
       ctx.beginPath();
       ctx.ellipse(ex, ey, s * 0.13, blink ? s * 0.025 : s * 0.14, 0, 0, TAU);
       ctx.fill();
       if (!blink) {
         ctx.fillStyle = '#1b2430';
-        circle(ctx, ex + dir.x * s * 0.05, ey + dir.y * s * 0.05, s * 0.065);
+        circle(ctx, ex + look.x * s * 0.065, ey + look.y * s * 0.07, s * 0.065);
         ctx.fill();
       }
     }
@@ -606,7 +615,42 @@ BW.WormArt = (function () {
     }
     words(ctx, written, s, font);
     const h = pos(0);
-    head(ctx, h.x, h.y, s, { x: 1, y: 0 }, skin, now, { neck: pos(1), blinkOffset: m.blinkOffset });
+    const watch = opts.followPointer ? watching(m, canvas, h, s, dt) : {};
+    head(ctx, h.x, h.y, s, { x: 1, y: 0 }, skin, now,
+         { neck: pos(1), blinkOffset: m.blinkOffset, look: watch.look, happy: watch.happy });
+  }
+
+  /* ---------- eyes that follow the mouse ---------- */
+
+  // where the mouse (or a finger) is on the page, or null once it has left the window
+  let pointer = null;
+  let listening = false;
+  function listen() {
+    if (listening) return;
+    listening = true;
+    window.addEventListener('pointermove', e => { pointer = { x: e.clientX, y: e.clientY }; }, { passive: true });
+    document.addEventListener('pointerleave', () => { pointer = null; });
+    window.addEventListener('blur', () => { pointer = null; });
+  }
+
+  /* Which way the eyes of preview `m` look, with its head at (h.x, h.y) on the canvas: towards
+     the pointer, a little less the closer it is, easing there rather than snapping so the eyes
+     seem to follow rather than twitch. A pointer right on the head is a pat on the head. */
+  function watching(m, canvas, h, s, dt) {
+    listen();
+    const box = canvas.getBoundingClientRect();
+    let target = { x: 0.8, y: 0 }, happy = false;      // nobody about: look ahead
+    if (pointer) {
+      const dx = pointer.x - (box.left + h.x), dy = pointer.y - (box.top + h.y);
+      const dist = Math.hypot(dx, dy);
+      happy = dist < s * 0.6;
+      const reach = Math.min(1, dist / (s * 1.5));
+      target = dist ? { x: dx / dist * reach, y: dy / dist * reach } : { x: 0, y: 0 };
+    }
+    const ease = Math.min(1, dt / 80);
+    m.look = m.look || { x: 0.8, y: 0 };
+    m.look = { x: m.look.x + (target.x - m.look.x) * ease, y: m.look.y + (target.y - m.look.y) * ease };
+    return { look: m.look, happy };
   }
 
   return { mix, roundRect, segment, words, head, hat, glasses, neckwear, Particles, mount, CONFETTI };
