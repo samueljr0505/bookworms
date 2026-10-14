@@ -21,6 +21,7 @@ BW.Game = class Game {
     this.sentence = BW.Grammar.newSentence(this.pack, BW.rng);
     this.finished = [];
     this.score = 0;
+    this.streak = 0;            // correct sentences in a row
     this.stepMs = this.cfg.stepMs;
     this.acc = 0;
     this.last = performance.now();
@@ -125,6 +126,8 @@ BW.Game = class Game {
       pack: this.pack,
       mode: this.mode,
       countdownMs: this.countdownMs,
+      // how far through the current step the worm is, so it can be drawn gliding
+      progress: this.worm.moving ? Math.min(1, this.acc / this.stepMs) : 1,
       flash: this.flash,
       showHints: this.showHints,
       isTileValid: tile => this.isTileValid(tile)
@@ -165,6 +168,10 @@ BW.Game = class Game {
     }
 
     this.worm.step(next);
+    if (this.renderer.skin.trail && this.renderer.skin.trail !== 'none') {
+      const tail = this.renderer.tailPoint(this.worm);
+      this.renderer.fx.trail(this.renderer.skin.trail, tail.x, tail.y);
+    }
 
     // Req 2: the head landing on any square of a tile selects that exact word.
     const tile = this.board.tileAt(next.x, next.y);
@@ -180,6 +187,8 @@ BW.Game = class Game {
     this.worm.moving = false;
     this.worm.pendingDir = null;
     this.renderer.bump();
+    const h = this.worm.head();
+    this.renderer.burst('dust', h.x, h.y, 10, { speed: 60, life: 600, size: 5 });
     BW.Sound.bonk();
     this.flash = { kind: 'bad', life: 0.9 };
 
@@ -223,8 +232,13 @@ BW.Game = class Game {
     // thought before anyone marks it.
     this.sentence.add(tile.word, tile.pos);
     this.worm.carry(tile.word, tile.pos);      // the word becomes part of the body
+    this.worm.gulpAt = performance.now();
     BW.Sound.eat();
     const label = this.label(tile.pos);
+    const color = this.renderer.posColor(this.pack, tile.pos);
+    const h = this.worm.head();
+    this.renderer.burst('crumb', h.x, h.y, 12, { color, speed: 70, life: 500, size: 6 });
+    this.renderer.popup(label + '!', h.x, h.y, BW.WormArt.mix(color, 0, 0.35));
     this.say('"' + tile.word + '" - ' + (/^[AEIOU]/.test(label) ? 'an ' : 'a ') + label + '.', 'info');
 
     // The words could already be a whole sentence: ask the judge now, so its answer is
@@ -293,10 +307,22 @@ BW.Game = class Game {
     const words = this.sentence.tokens.length;
     this.sentence.end(mark);
     this.finished.push(this.sentence.text());
-    const points = this.cfg.points.sentence + this.cfg.points.word * words;
+    const pts = this.cfg.points;
+    this.streak++;
+    const bonus = pts.streak * (Math.min(this.streak, pts.maxStreak) - 1);
+    const points = pts.sentence + pts.word * words + bonus;
     this.score += points;
     this.flash = { kind: 'good', life: 1 };
     BW.Sound.sentence();
+
+    // party time
+    const { cols, rows } = this.cfg.grid;
+    for (let k = 0; k < 4; k++) {
+      this.renderer.burst('confetti', cols * (0.2 + 0.2 * k), rows * 0.55, 22, { speed: 150, life: 1600, size: 8 });
+    }
+    const h = this.worm.head();
+    this.renderer.popup('+' + points, h.x, h.y, '#3f8f5f', true);
+    if (this.hooks.onEarn) this.hooks.onEarn(points);
 
     // the finished sentence leaves the body, apart from one trophy square
     this.worm.dropCarried();
@@ -305,7 +331,7 @@ BW.Game = class Game {
     this.stepMs = Math.max(this.cfg.minStepMs, this.stepMs - this.cfg.speedUpPerSentence);
     this.sentence = BW.Grammar.newSentence(this.pack, BW.rng);
     this.refill();
-    this.show({ ...report, points });
+    this.show({ ...report, points, bonus, streak: this.streak });
   }
 
   /* A sentence that is not right cannot be mended - a worm only eats forwards. So, as after
@@ -313,6 +339,7 @@ BW.Game = class Game {
      the same recipe again with the reason in front of them. */
   wrongSentence(report) {
     this.score = Math.max(0, this.score + this.cfg.points.wrong);
+    this.streak = 0;
     this.flash = { kind: 'bad', life: 0.7 };
     BW.Sound.wrong();
     const lost = this.sentence.reset();
@@ -336,6 +363,7 @@ BW.Game = class Game {
     if (this.hooks.onReport) this.hooks.onReport(null);
     this.mode = 'playing';
     this.acc = 0;
+    this.worm.prev = null;      // start gliding from where the worm stopped
     if (dir) this.worm.turn(dir[0], dir[1]);
     else this.worm.moving = true;
     this.notify();

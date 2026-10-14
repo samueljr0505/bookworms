@@ -1,0 +1,51 @@
+{
+  "_comment": "Everything a worm can wear. Each item's id is also how js/worm-art.js draws it, so a new item needs a drawing there too. Prices are in points: one finished five-word sentence is worth about 100.",
+  "slots": [
+    { "id": "color",   "name": "Colors",   "emoji": "🎨" },
+    { "id": "hat",     "name": "Hats",     "emoji": "🎩" },
+    { "id": "glasses", "name": "Glasses",  "emoji": "🕶️" },
+    { "id": "neck",    "name": "Neckwear", "emoji": "🎀" },
+    { "id": "pattern", "name": "Patterns", "emoji": "🌈" },
+    { "id": "trail",   "name": "Trails",   "emoji": "✨" }
+  ],
+  "items": [
+    { "slot": "hat", "id": "none",    "name": "No hat" },
+    { "slot": "hat", "id": "party",   "name": "Party Hat",   "price": 100 },
+    { "slot": "hat", "id": "flower",  "name": "Flower",      "price": 150 },
+    { "slot": "hat", "id": "cap",     "name": "Baseball Cap", "price": 200 },
+    { "slot": "hat", "id": "bow",     "name": "Big Bow",     "price": 250 },
+    { "slot": "hat", "id": "beanie",  "name": "Beanie",      "price": 300 },
+    { "slot": "hat", "id": "tophat",  "name": "Top Hat",     "price": 450 },
+    { "slot": "hat", "id": "viking",  "name": "Viking Helmet", "price": 600 },
+    { "slot": "hat", "id": "crown",   "name": "Crown",       "price": 800 },
+    { "slot": "hat", "id": "wizard",  "name": "Wizard Hat",  "price": 1000 },
+
+    { "slot": "glasses", "id": "none",    "name": "No glasses" },
+    { "slot": "glasses", "id": "round",   "name": "Reading Glasses", "price": 120 },
+    { "slot": "glasses", "id": "threed",  "name": "3-D Glasses",  "price": 200 },
+    { "slot": "glasses", "id": "sun",     "name": "Sunglasses",   "price": 250 },
+    { "slot": "glasses", "id": "monocle", "name": "Monocle",      "price": 300 },
+    { "slot": "glasses", "id": "heart",   "name": "Heart Glasses", "price": 350 },
+    { "slot": "glasses", "id": "star",    "name": "Star Glasses", "price": 450 },
+
+    { "slot": "neck", "id": "none",    "name": "Nothing" },
+    { "slot": "neck", "id": "bowtie",  "name": "Bow Tie",  "price": 150 },
+    { "slot": "neck", "id": "bandana", "name": "Bandana",  "price": 200 },
+    { "slot": "neck", "id": "scarf",   "name": "Scarf",    "price": 220 },
+    { "slot": "neck", "id": "medal",   "name": "Gold Medal", "price": 500 },
+
+    { "slot": "pattern", "id": "plain",   "name": "Plain" },
+    { "slot": "pattern", "id": "stripes", "name": "Stripes", "price": 120 },
+    { "slot": "pattern", "id": "spots",   "name": "Spots",   "price": 180 },
+    { "slot": "pattern", "id": "rainbow", "name": "Rainbow", "price": 500 },
+    { "slot": "pattern", "id": "gold",    "name": "Shiny Gold", "price": 700 },
+    { "slot": "pattern", "id": "galaxy",  "name": "Galaxy",  "price": 1000 },
+
+    { "slot": "trail", "id": "none",     "name": "No trail" },
+    { "slot": "trail", "id": "sparkle",  "name": "Sparkles", "price": 250 },
+    { "slot": "trail", "id": "bubble",   "name": "Bubbles",  "price": 250 },
+    { "slot": "trail", "id": "heart",    "name": "Hearts",   "price": 350 },
+    { "slot": "trail", "id": "note",     "name": "Music Notes", "price": 400 },
+    { "slot": "trail", "id": "confetti", "name": "Confetti", "price": 600 }
+  ]
+}

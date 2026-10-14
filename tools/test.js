@@ -10,7 +10,7 @@ const root = path.join(__dirname, '..');
 global.window = global;   // the game files expect a browser-style global
 global.performance = { now: () => Date.now() };
 for (const f of ['js/config.js', 'js/util.js', 'js/grammar.js', 'js/checker.js', 'js/judge.js',
-                 'js/worm.js', 'js/board.js']) {
+                 'js/worm.js', 'js/board.js', 'js/closet.js', 'js/worm-skin.js']) {
   eval(fs.readFileSync(path.join(root, f), 'utf8'));
 }
 const NS = global.window.BW;
@@ -627,6 +627,75 @@ function loadTopic(id) {
   return JSON.parse(fs.readFileSync(path.join(root, 'data', entry.file), 'utf8'));
 }
 
+/* The shop's closet: points only go up by playing, only go down by buying, things cost what
+   they say, and nothing is bought twice or worn before it is owned. */
+function checkCloset() {
+  console.log('\n=== The shop ===');
+  const store = { data: {}, getItem(k) { return this.data[k] ?? null; }, setItem(k, v) { this.data[k] = v; } };
+  const shop = JSON.parse(fs.readFileSync(path.join(root, 'data/shop.json'), 'utf8'));
+  const worms = JSON.parse(fs.readFileSync(path.join(root, 'data/worms.json'), 'utf8'));
+  const items = NS.colorItems(worms).concat(shop.items);
+  const crown = items.find(i => i.slot === 'hat' && i.id === 'crown');
+  const party = items.find(i => i.slot === 'hat' && i.id === 'party');
+
+  const c = new NS.Closet(store);
+  check(c.bank === 0, 'a new closet starts with no points');
+  check(c.wearing('hat') === 'none', 'a new worm wears no hat');
+  check(c.nextGoal(items) === party, 'the first thing to save up for is the cheapest');
+
+  check(!c.equip(crown), 'a crown cannot be worn before it is bought');
+  let r = c.buy(crown);
+  check(!r.ok && r.reason === 'short' && r.need === crown.price, 'cannot buy what you cannot afford');
+
+  c.earn(-50);
+  c.earn(NaN);
+  check(c.bank === 0, 'a wrong sentence never takes away saved points');
+  c.earn(crown.price + 30);
+  r = c.buy(crown);
+  check(r.ok && c.bank === 30, 'buying costs exactly the price');
+  check(c.buy(crown).reason === 'owned' && c.bank === 30, 'nothing is bought twice');
+  check(c.equip(crown) && c.wearing('hat') === 'crown', 'what you own, you can wear');
+  check(c.state.lifetime === crown.price + 30, 'lifetime points never go down');
+
+  const again = new NS.Closet(store);
+  check(again.bank === 30 && again.owns(crown) && again.wearing('hat') === 'crown',
+        'the closet is still there next time');
+
+  // another tab (the shop) spends points while the game is open: neither undoes the other
+  const otherTab = new NS.Closet(store);
+  otherTab.earn(party.price);
+  otherTab.buy(party);
+  c.earn(10);
+  check(c.bank === 40 && c.owns(party), 'two tabs never undo each other');
+
+  const blocked = new NS.Closet({ getItem() { throw new Error('blocked'); }, setItem() { throw new Error('blocked'); } });
+  blocked.earn(5);
+  check(blocked.bank === 0 || blocked.bank === 5, 'blocked storage does not crash the closet');
+
+  // every item has something to draw, a name and a sensible price; one free item per slot
+  for (const slotInfo of shop.slots) {
+    const inSlot = items.filter(i => i.slot === slotInfo.id);
+    check(inSlot.length > 1, slotInfo.id + ' has things to buy');
+    check(inSlot.some(i => !i.price), slotInfo.id + ' has something free to start with');
+  }
+  const seen = new Set();
+  for (const i of items) {
+    check(i.name && i.id, 'every item has an id and a name');
+    check(!seen.has(i.slot + ':' + i.id), 'item ids are unique: ' + i.slot + ':' + i.id);
+    seen.add(i.slot + ':' + i.id);
+    check(!i.price || (Number.isInteger(i.price) && i.price > 0), i.id + ' has a whole-number price');
+  }
+
+  // a colour from the shop is only picked once it is owned
+  const royal = worms.worms.find(w => w.id === 'royal');
+  NS.closet = new NS.Closet({ data: {}, getItem() { return null; }, setItem() {} });
+  check(NS.chooseWorm(worms, 'royal').id === worms.defaultWorm, 'an unbought colour falls back to the default');
+  NS.closet.earn(royal.price);
+  NS.closet.buy({ slot: 'color', id: 'royal', price: royal.price });
+  check(NS.chooseWorm(worms, 'royal').id === 'royal', 'a bought colour can be picked');
+  console.log('  closet checks done');
+}
+
 (async function main() {
   /* Every topic the game offers gets the full run. Whether its sentences MAKE SENSE is
      the judge's job (tools/judge.py) - or a person's, reading the output of
@@ -639,6 +708,7 @@ function loadTopic(id) {
   }
   checkDecide();
   checkSyntheticPack();
+  checkCloset();
   await checkJudgeClient();
 
   console.log(failures === 0 ? '\nAll checks passed.' : '\n' + failures + ' CHECK(S) FAILED');

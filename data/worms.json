@@ -8,6 +8,13 @@
     { "id": "grape",   "name": "Grape",          "body": "#b18fe0", "head": "#7d5cae" },
     { "id": "tangerine", "name": "Tangerine",    "body": "#f2a05a", "head": "#c46f2c" },
     { "id": "mint",    "name": "Minty",          "body": "#7fd4c1", "head": "#42a18a" },
-    { "id": "midnight", "name": "Midnight",      "body": "#7c86b8", "head": "#4a5382" }
+    { "id": "midnight", "name": "Midnight",      "body": "#7c86b8", "head": "#4a5382" },
+
+    { "id": "cotton",  "name": "Cotton Candy",   "body": "#f7b8e0", "head": "#8fb8f2", "price": 150 },
+    { "id": "lava",    "name": "Lava",           "body": "#f2765a", "head": "#b8321f", "price": 200 },
+    { "id": "frost",   "name": "Frost",          "body": "#cfeefa", "head": "#6fb2d6", "price": 250 },
+    { "id": "jungle",  "name": "Jungle",         "body": "#9fd65a", "head": "#3f7a2c", "price": 250 },
+    { "id": "shadow",  "name": "Shadow",         "body": "#6b6878", "head": "#2e2c38", "price": 350 },
+    { "id": "royal",   "name": "Royal",          "body": "#8d6fe0", "head": "#d9a521", "price": 500 }
   ]
 }

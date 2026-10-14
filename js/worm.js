@@ -13,6 +13,7 @@ BW.Worm = class Worm {
     this.startLength = startLength || 4;
     this.carried = [];     // the words of the sentence, in the order they were eaten
     this.moving = false;   // stays still during the countdown and after a wall bonk
+    this.prev = null;      // where each square was before the last step - only for drawing the glide
   }
 
   head() { return this.cells[0]; }
@@ -25,6 +26,7 @@ BW.Worm = class Worm {
     if (reversing) {
       if (this.moving) return false;
       this.cells.reverse();
+      this.prev = null;
       this.dir = { x: dx, y: dy };
     }
     this.pendingDir = { x: dx, y: dy };
@@ -41,6 +43,7 @@ BW.Worm = class Worm {
 
   step(to) {
     if (this.pendingDir) { this.dir = this.pendingDir; this.pendingDir = null; }
+    this.prev = this.cells.map(c => ({ x: c.x, y: c.y }));
     this.cells.unshift({ x: to.x, y: to.y });
     if (this.grow > 0) this.grow--;
     else this.cells.pop();
@@ -77,6 +80,7 @@ BW.Worm = class Worm {
     for (let i = 0; i < this.startLength; i++) this.cells.push({ x: x - i, y });
     this.dir = { x: 1, y: 0 };
     this.pendingDir = null;
+    this.prev = null;
     this.grow = 0;
     this.moving = false;
   }

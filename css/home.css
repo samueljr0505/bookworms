@@ -17,7 +17,11 @@
 body {
   margin: 0;
   padding: 0;
-  background: #f4ecdb;
+  background-color: #f4ecdb;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(242, 166, 90, 0.10) 0 6px, transparent 7px),
+    radial-gradient(circle at 70% 70%, rgba(94, 196, 163, 0.10) 0 5px, transparent 6px);
+  background-size: 140px 140px, 180px 180px;
   color: var(--ink);
   font-family: "Nunito", ui-rounded, "Trebuchet MS", system-ui, sans-serif;
 }
@@ -45,60 +49,44 @@ body {
   font-size: 17px;
 }
 
+/* ---------- the points bank ---------- */
+
+.hero { position: relative; }
+.bank {
+  position: absolute; right: 0; top: -22px;
+  display: inline-flex; align-items: center; gap: 7px;
+  text-decoration: none; color: var(--ink);
+  background: #fff; border: 3px solid #f3d27a; border-radius: 16px;
+  padding: 5px 13px; box-shadow: 0 4px 0 #e6c15f; transition: transform 0.12s;
+}
+.bank:hover { transform: translateY(-2px); }
+.bank-star { font-size: 22px; }
+.bank b { display: block; font-size: 19px; line-height: 1; text-align: left; }
+.bank small { display: block; font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+
 /* ---------- the wiggling worm ---------- */
 
 .preview {
-  margin: 30px 0 10px;
+  margin: 22px 0 10px;
+  padding: 6px 0 16px;
+  background: radial-gradient(ellipse at 50% 72%, rgba(94, 160, 90, 0.16) 0 34%, transparent 35%);
 }
-.worm {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  height: 90px;
-}
-.worm .seg {
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  background: var(--worm-body);
-  animation: wiggle 1.6s ease-in-out infinite;
-  transition: background 0.25s;
-}
-.worm .seg.head {
-  width: 36px;
-  height: 36px;
-  border-radius: 13px;
-  background: var(--worm-head);
-  position: relative;
-}
-/* two eyes, looking forward */
-.worm .seg.head::before,
-.worm .seg.head::after {
-  content: "";
-  position: absolute;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #fff;
-  top: 8px;
-  box-shadow: inset -2px 1px 0 0 #1b2430;
-}
-.worm .seg.head::before { right: 6px; }
-.worm .seg.head::after  { right: 19px; }
-
-@keyframes wiggle {
-  0%, 100% { transform: translateY(-9px); }
-  50%      { transform: translateY(9px); }
-}
+.worm { display: block; width: 100%; height: 150px; }
 
 .worm-name {
   margin: 0;
-  font-weight: 800;
-  font-size: 18px;
+  font-weight: 900;
+  font-size: 20px;
   color: var(--worm-head);
   transition: color 0.25s;
 }
+.shop-link {
+  display: inline-block; margin-top: 10px;
+  font-weight: 800; font-size: 15px; text-decoration: none; color: #7a5200;
+  background: #fff3c9; border: 2px solid #f3d27a; border-radius: 999px; padding: 6px 16px;
+  transition: transform 0.12s;
+}
+.shop-link:hover { transform: translateY(-2px); background: #ffeaa6; }
 
 /* ---------- colour picker ---------- */
 
@@ -195,9 +183,19 @@ h2 {
 }
 .soon-list li { padding: 4px 0; opacity: 0.75; }
 
-@media (max-width: 420px) {
-  .worm .seg { width: 24px; height: 24px; }
-  .worm .seg.head { width: 30px; height: 30px; }
+@media (max-width: 520px) {
+  .bank { position: static; margin-bottom: 14px; }
+  .worm { height: 110px; }
+}
+
+/* the last swatch: a link to the colours you can still buy */
+.swatch.more {
+  display: grid; place-items: center; text-decoration: none;
+  border: 3px dashed #d7c7a3; padding: 0;
+}
+.swatch.more i {
+  display: grid; place-items: center; background: none;
+  font-style: normal; font-weight: 900; color: var(--muted); font-size: 16px;
 }
 
 /* ---------- topic picker ---------- */

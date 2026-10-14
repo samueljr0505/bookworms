@@ -1,0 +1,146 @@
+/* The worm shop. Big, bright cards - a shop window for a 3rd grader. */
+
+:root {
+  --paper: #fdf6e8;
+  --ink: #2c2a26;
+  --muted: #7b7263;
+  --line: #e3d7be;
+  --green: #4f8a5b;
+  --gold: #f2b631;
+  --shadow: 0 5px 0 #e0d2b4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Nunito", ui-rounded, "Trebuchet MS", system-ui, sans-serif;
+  background-color: #f4ecdb;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(242, 166, 90, 0.10) 0 6px, transparent 7px),
+    radial-gradient(circle at 70% 70%, rgba(94, 196, 163, 0.10) 0 5px, transparent 6px);
+  background-size: 140px 140px, 180px 180px;
+}
+
+.shop { max-width: 920px; margin: 0 auto; padding: 22px 16px 70px; }
+
+/* ---------- header ---------- */
+
+.shop-top { display: flex; align-items: center; gap: 14px; }
+.shop-top h1 {
+  flex: 1; margin: 0; text-align: center;
+  font-size: clamp(32px, 7vw, 50px); letter-spacing: -1.4px;
+  color: var(--green); text-shadow: 0 3px 0 #e0d2b4;
+}
+.back {
+  font-size: 14px; font-weight: 800; color: var(--muted); text-decoration: none;
+  padding: 7px 13px; border-radius: 12px; border: 2px solid var(--line); background: #fff;
+  box-shadow: 0 3px 0 var(--line);
+}
+.back:hover { color: var(--ink); border-color: var(--green); }
+
+.bank {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #fff; border: 3px solid #f3d27a; border-radius: 16px;
+  padding: 7px 14px; box-shadow: 0 4px 0 #e6c15f;
+}
+.bank-star { font-size: 26px; }
+.bank b { display: block; font-size: 22px; line-height: 1; }
+.bank small { display: block; font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+
+/* ---------- the dressing room ---------- */
+
+.stage {
+  margin: 22px 0 18px; padding: 8px 16px 16px; text-align: center;
+  background:
+    radial-gradient(ellipse at 50% 85%, rgba(94, 160, 90, 0.18) 0 38%, transparent 39%),
+    linear-gradient(#fffaf0, #fff);
+  border: 3px solid var(--line); border-radius: 24px; box-shadow: var(--shadow);
+}
+.stage-worm { display: block; width: 100%; height: 190px; }
+.stage-name { margin: 0; font-size: 24px; font-weight: 900; }
+.stage-note { margin: 2px 0 0; font-size: 15px; font-weight: 700; color: var(--muted); }
+
+/* ---------- tabs ---------- */
+
+.slots { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px; }
+.slot {
+  font: inherit; font-weight: 800; font-size: 15px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 14px;
+  border: 3px solid var(--line); background: #fff; color: var(--ink);
+  box-shadow: 0 3px 0 var(--line); transition: transform 0.12s;
+}
+.slot:hover { transform: translateY(-2px); }
+.slot[aria-selected="true"] { border-color: var(--green); background: #eef7ef; box-shadow: 0 3px 0 #9fc9a6; }
+.slot-emoji { font-size: 18px; }
+
+/* ---------- item cards ---------- */
+
+.items {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+.item {
+  background: #fff; border: 3px solid var(--line); border-radius: 20px;
+  padding: 8px 10px 12px; text-align: center; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.item:hover { transform: translateY(-3px); }
+.item.trying { border-color: #8fb8f2; }
+.item.worn { border-color: var(--green); background: #f3faf4; }
+.item.locked .item-worm { opacity: 0.8; }
+
+.item-look {
+  width: 100%; padding: 0; border: none; background: none; cursor: pointer;
+  border-radius: 14px;
+}
+.item-look:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+.item-worm { display: block; width: 100%; height: 92px; }
+.item-name { font-size: 15px; }
+
+.item-action {
+  font: inherit; font-weight: 900; font-size: 15px; cursor: pointer;
+  min-width: 110px; padding: 7px 14px; border-radius: 12px;
+  border: 2px solid var(--line); background: #fff; color: var(--ink);
+  box-shadow: 0 3px 0 var(--line); transition: transform 0.1s, box-shadow 0.1s;
+}
+.item-action:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+.item-action.buy { background: var(--gold); border-color: #e0a21f; color: #5a3d00; box-shadow: 0 3px 0 #c98f12; }
+.item-action.confirm {
+  background: #ff7a59; border-color: #e85c3a; color: #fff; box-shadow: 0 3px 0 #c44a2c;
+  animation: nudge 0.5s ease-in-out infinite alternate;
+}
+@keyframes nudge { to { transform: scale(1.06); } }
+.item-action.wear { background: var(--green); border-color: var(--green); color: #fff; box-shadow: 0 3px 0 #3c6b46; }
+.item-action.short { color: var(--muted); background: #faf5ea; }
+.item-action:disabled { cursor: default; color: var(--green); background: #f3faf4; border-color: #b9dcbf; box-shadow: none; }
+.item-need { font-size: 12px; font-weight: 700; color: var(--muted); margin-top: -2px; }
+
+.shop-error { text-align: center; color: #c0563f; font-weight: 700; }
+.shop-error code { background: #efe6d2; padding: 1px 6px; border-radius: 5px; }
+
+/* ---------- how to earn ---------- */
+
+.earn {
+  margin-top: 34px; padding: 20px 24px; text-align: center;
+  background: #fff; border: 3px dashed var(--line); border-radius: 20px;
+}
+.earn h2 { margin: 0 0 6px; font-size: 18px; }
+.earn p { margin: 0 auto 16px; max-width: 560px; color: var(--muted); font-weight: 700; }
+.play {
+  display: inline-block; font-size: 20px; font-weight: 900; text-decoration: none;
+  color: #fff; background: var(--green); padding: 11px 32px; border-radius: 14px;
+  box-shadow: 0 5px 0 #3c6b46; transition: transform 0.1s;
+}
+.play:hover { transform: translateY(-2px); }
+
+@media (max-width: 560px) {
+  .shop-top { flex-wrap: wrap; }
+  .shop-top h1 { order: -1; flex-basis: 100%; }
+  .items { grid-template-columns: repeat(2, 1fr); }
+  .stage-worm { height: 150px; }
+}

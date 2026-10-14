@@ -64,6 +64,8 @@ window.BW = window.BW || {};
 
     $('score').textContent = game.score;
     $('count').textContent = game.finished.length;
+    $('streak').textContent = game.streak;
+    $('streak-box').classList.toggle('hot', game.streak >= 2);
 
     // the shape being built: the recipe the player was handed, or the one their words
     // have turned into instead - any shape the topic knows is a fine sentence
@@ -217,8 +219,13 @@ window.BW = window.BW || {};
     tip.hidden = checking || !report.suggestion;
     tip.textContent = report.suggestion ? 'Try: ' + report.suggestion : '';
 
+    const streak = $('report-streak');
+    streak.hidden = checking || !(report.verdict === 'correct' && report.streak >= 2);
+    if (!streak.hidden) {
+      streak.textContent = '🔥 ' + report.streak + ' in a row! +' + report.bonus + ' streak bonus';
+    }
     $('report-after').textContent = checking ? ''
-      : report.verdict === 'correct' ? '+' + report.points + ' points - it is on your list!'
+      : report.verdict === 'correct' ? '+' + report.points + ' points - it is on your list, and saved for the shop!'
       : report.verdict === 'wrong' ? 'The words go back on the board. Try again!'
       : 'Your words are still on the worm. Keep building!';
     $('report-go').hidden = checking;
@@ -241,17 +248,67 @@ window.BW = window.BW || {};
     messageTimer = setTimeout(() => { el.className = 'message'; }, 2600);
   }
 
-  /* The worm picked on the home page. If this fails the game still runs,
-     it just uses the default green. */
-  async function loadWorm() {
+  /* The worm picked on the home page, and the shop's list of things to save up for.
+     If these fail the game still runs, with the default green worm and no goal. */
+  async function loadWardrobe() {
+    const get = file => fetch(file).then(r => {
+      if (!r.ok) throw new Error(file + ': HTTP ' + r.status);
+      return r.json();
+    });
+    let worm = BW.DEFAULT_WORM, items = [];
     try {
-      const data = await fetch('data/worms.json').then(r => {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      });
-      return BW.chooseWorm(data);
+      const worms = await get('data/worms.json');
+      worm = BW.chooseWorm(worms);
+      items = BW.colorItems(worms);
+      const shop = await get('data/shop.json');
+      items = items.concat(shop.items);
     } catch (err) {
-      return { id: 'garden', name: 'Garden Green', body: '#6eb478', head: '#4f8a5b' };
+      console.warn('Could not load the worm closet:', err);
+    }
+    return { worm, items };
+  }
+
+  /* ---------- the points bank and the thing being saved up for ---------- */
+
+  let shopItems = [];
+  let goal = null;
+
+  function renderBank(bump) {
+    $('bank-points').textContent = BW.closet.bank.toLocaleString();
+    if (bump) {
+      const bank = $('bank');
+      bank.classList.remove('bump');
+      void bank.offsetWidth;            // restart the animation
+      bank.classList.add('bump');
+    }
+    goal = BW.closet.nextGoal(shopItems.filter(i => i.price));
+    const box = $('goal');
+    box.hidden = !goal;
+    if (!goal) return;
+    const ready = BW.closet.bank >= goal.price;
+    box.classList.toggle('ready', ready);
+    $('goal-label').textContent = ready ? 'You can buy it now!' : 'Saving up for';
+    $('goal-name').textContent = goal.name;
+    $('goal-fill').style.width = Math.min(100, 100 * BW.closet.bank / goal.price) + '%';
+    $('goal-left').textContent = ready ? 'Visit the shop when you are ready'
+      : (goal.price - BW.closet.bank) + ' more points';
+  }
+
+  /* What the goal worm wears: everything it has on now, plus the thing being saved up for. */
+  function goalSkin(base) {
+    if (!goal) return base;
+    if (goal.slot === 'color') return { ...base, body: goal.body, head: goal.head };
+    return { ...base, [goal.slot]: goal.id };
+  }
+
+  function earned(points) {
+    const before = goal && BW.closet.bank < goal.price ? goal : null;
+    BW.closet.earn(points);
+    setTimeout(() => BW.Sound.coin(), 450);
+    renderBank(true);
+    if (before && BW.closet.bank >= before.price) {
+      setTimeout(() => showMessage('🎉 You have enough points for the ' + before.name +
+                                   '! Visit the shop to get it.', 'good'), 300);
     }
   }
 
@@ -277,10 +334,15 @@ window.BW = window.BW || {};
     if (heading) heading.textContent = pack.emoji + ' ' + pack.name +
       ' - eat the words in the right order and build a sentence.';
 
-    BW.CONFIG.worm = await loadWorm();
-    // tint the little worm in the page heading to match
+    const wardrobe = await loadWardrobe();
+    shopItems = wardrobe.items;
+    BW.CONFIG.worm = wardrobe.worm;
+    BW.CONFIG.skin = BW.skinFor(wardrobe.worm);
     document.documentElement.style.setProperty('--worm-body', BW.CONFIG.worm.body);
     document.documentElement.style.setProperty('--worm-head', BW.CONFIG.worm.head);
+    BW.WormArt.mount($('brand-worm'), () => BW.CONFIG.skin, { segments: 3 });
+    BW.WormArt.mount($('goal-worm'), () => goalSkin(BW.CONFIG.skin), { segments: 3 });
+    renderBank(false);
 
     // the game does not wait for this - until it answers, the rules check on their own
     renderJudge(BW.Judge.status());
@@ -290,6 +352,7 @@ window.BW = window.BW || {};
     game = new BW.Game(pack, $('board'), {
       onChange: renderHud,
       onMessage: showMessage,
+      onEarn: earned,
       onReport: report => renderReport(game, report)
     });
 

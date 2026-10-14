@@ -50,6 +50,8 @@ BW.Sound = (function () {
     sentence() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.09, 0.2, 'triangle')); },
     bonk()    { tone(110, 0, 0.16, 'square', 0.09); },
     tick()    { tone(440, 0, 0.09, 'sine', 0.07); },
-    go()      { tone(523, 0, 0.1, 'triangle'); tone(784, 0.1, 0.2, 'triangle'); }
+    go()      { tone(523, 0, 0.1, 'triangle'); tone(784, 0.1, 0.2, 'triangle'); },
+    coin()    { tone(988, 0, 0.07, 'square', 0.05); tone(1319, 0.07, 0.18, 'square', 0.05); },
+    buy()     { [784, 988, 1175, 1568].forEach((f, i) => tone(f, i * 0.06, 0.14, 'triangle', 0.09)); }
   };
 })();

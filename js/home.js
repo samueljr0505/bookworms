@@ -1,13 +1,13 @@
 /* The home page: pick a worm, remember the choice, then go and play.
    The colours live in data/worms.json, so adding a new worm needs no code.
-   The choosing / remembering itself lives in js/worm-skin.js, shared with the game. */
+   The choosing / remembering itself lives in js/worm-skin.js, shared with the game.
+   Colours with a price are bought in the shop (shop.html) before they show up here. */
 window.BW = window.BW || {};
 
 (function () {
   const $ = id => document.getElementById(id);
-  const SEGMENTS = 7;
-
   let chosenWorm = null;
+  let skin = BW.skinFor(BW.DEFAULT_WORM);
   let chosenTopic = null;
 
   /* Both choices ride in the link as well as in storage, so they survive a
@@ -20,21 +20,15 @@ window.BW = window.BW || {};
   }
 
   function buildWorm() {
-    const worm = $('worm-preview');
-    worm.innerHTML = '';
-    // tail first, head last, each segment a beat behind the one before it
-    for (let i = 0; i < SEGMENTS; i++) {
-      const seg = document.createElement('div');
-      seg.className = 'seg' + (i === SEGMENTS - 1 ? ' head' : '');
-      seg.style.animationDelay = (i * 0.09) + 's';
-      worm.appendChild(seg);
-    }
+    BW.WormArt.mount($('worm-preview'), () => skin, { segments: 7 });
+    $('bank-points').textContent = BW.closet.bank.toLocaleString();
   }
 
   function applyWorm(worm) {
     document.documentElement.style.setProperty('--worm-body', worm.body);
     document.documentElement.style.setProperty('--worm-head', worm.head);
     $('worm-name').textContent = worm.name;
+    skin = BW.skinFor(worm);
     chosenWorm = worm.id;
     updatePlayLink();
   }
@@ -42,7 +36,9 @@ window.BW = window.BW || {};
   function buildSwatches(data, current) {
     const list = $('swatches');
     list.innerHTML = '';
-    for (const worm of data.worms) {
+    // only the colours you own; the rest wait in the shop
+    const owned = BW.colorItems(data).filter(w => BW.closet.owns(w));
+    for (const worm of owned) {
       const li = document.createElement('li');
       const button = document.createElement('button');
       button.className = 'swatch';
@@ -56,11 +52,18 @@ window.BW = window.BW || {};
       button.addEventListener('click', () => {
         applyWorm(worm);
         BW.saveWorm(worm.id);
-        list.querySelectorAll('.swatch')
+        list.querySelectorAll('.swatch:not(.more)')
             .forEach(b => b.setAttribute('aria-checked', String(b === button)));
       });
 
       li.appendChild(button);
+      list.appendChild(li);
+    }
+    const locked = data.worms.length - owned.length;
+    if (locked > 0) {
+      const li = document.createElement('li');
+      li.innerHTML = '<a class="swatch more" href="shop.html?slot=color" title="More colors in the shop">' +
+                     '<i>+' + locked + '</i></a>';
       list.appendChild(li);
     }
   }

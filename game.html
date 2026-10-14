@@ -10,8 +10,16 @@
 <body>
 
 <header class="topbar">
-  <h1><span class="worm-dot"></span>Bookworms</h1>
+  <a class="brand" href="index.html" title="Back to the home page">
+    <canvas id="brand-worm" class="brand-worm" aria-hidden="true"></canvas>
+    <span>Bookworms</span>
+  </a>
   <p class="tagline">Steer the worm. Eat words in the right order. Build a sentence.</p>
+  <a id="bank" class="bank" href="shop.html" title="Spend your points in the shop">
+    <span class="bank-star">⭐</span>
+    <span><b id="bank-points">0</b><small>to spend</small></span>
+    <span class="bank-go">Shop</span>
+  </a>
 </header>
 
 <div id="loading" class="card notice">Loading word packs&hellip;</div>
@@ -46,7 +54,8 @@
         <p id="report-headline" class="report-headline"></p>
         <p id="report-tip" class="report-tip" hidden></p>
         <p id="report-after" class="report-after"></p>
-        <button id="report-go" type="button">Keep going <kbd>arrow key</kbd></button>
+        <p id="report-streak" class="report-streak" hidden></p>
+        <button id="report-go" class="primary" type="button">Keep going <kbd>arrow key</kbd></button>
         <p id="report-by" class="report-by"></p>
       </section>
     </div>
@@ -54,7 +63,8 @@
     <div id="message" class="message"></div>
 
     <div class="buttons">
-      <a class="btn-link" href="index.html">&larr; Change worm</a>
+      <a class="btn-link" href="index.html">&larr; Home</a>
+      <a class="btn-link" href="shop.html">🛍️ Shop</a>
       <a class="btn-link" href="how-to-play.html">How to play</a>
       <button id="btn-new">New game <kbd>R</kbd></button>
       <button id="btn-pause">Pause <kbd>P</kbd></button>
@@ -66,7 +76,18 @@
     <div class="scores">
       <div class="stat"><span id="score">0</span><label>points</label></div>
       <div class="stat"><span id="count">0</span><label>sentences</label></div>
+      <div class="stat streak" id="streak-box"><span id="streak">0</span><label>🔥 in a row</label></div>
     </div>
+
+    <a id="goal" class="goal" href="shop.html" hidden>
+      <canvas id="goal-worm" class="goal-worm" aria-hidden="true"></canvas>
+      <span class="goal-text">
+        <small id="goal-label">Saving up for</small>
+        <b id="goal-name"></b>
+        <span class="goal-bar"><i id="goal-fill"></i></span>
+        <small id="goal-left"></small>
+      </span>
+    </a>
 
     <h2>Word colors</h2>
     <ul id="legend" class="legend"></ul>
@@ -74,27 +95,33 @@
     <h2>Sentences you wrote</h2>
     <ol id="finished" class="finished"><li class="empty">None yet - go get a word!</li></ol>
 
-    <h2>How to play</h2>
-    <ul class="help">
-      <li>Steer with the <b>arrow keys</b> or <b>W A S D</b>.</li>
-      <li>A sentence is built from <b>blocks</b>: a <b>Subject</b> and a <b>Verb</b>, then an
-          <b>Object</b> or <b>Modifiers</b> if you like. The strip shows the blocks and the
-          kind of word to find next.</li>
-      <li><b>The</b> starts a sentence; <b>the</b> goes in the middle.</li>
-      <li>Every word you eat is <b>written along your body</b> - read your worm from its
-          tail to its head to see your sentence.</li>
-      <li><b>Eat a punctuation mark</b> (<b>.</b> or <b>!</b>) to end the sentence. That is when
-          it gets <b>checked</b>: capital letter, noun, verb, sounds right, makes sense, end mark.</li>
-      <li>Not quite right? The checker says why, and the words go back on the board.</li>
-      <li>Hit a wall or your own body and the words you were carrying
-          <b>drop back onto the board</b> - go collect them again.</li>
-    </ul>
+    <details class="help-box">
+      <summary>How to play</summary>
+      <ul class="help">
+        <li>Steer with the <b>arrow keys</b> or <b>W A S D</b>.</li>
+        <li>A sentence is built from <b>blocks</b>: a <b>Subject</b> and a <b>Verb</b>, then an
+            <b>Object</b> or <b>Modifiers</b> if you like. The strip shows the blocks and the
+            kind of word to find next.</li>
+        <li><b>The</b> starts a sentence; <b>the</b> goes in the middle.</li>
+        <li>Every word you eat is <b>written along your body</b> - read your worm from its
+            tail to its head to see your sentence.</li>
+        <li><b>Eat a punctuation mark</b> (<b>.</b> or <b>!</b>) to end the sentence. That is when
+            it gets <b>checked</b>: capital letter, noun, verb, sounds right, makes sense, end mark.</li>
+        <li>Not quite right? The checker says why, and the words go back on the board.</li>
+        <li>Hit a wall or your own body and the words you were carrying
+            <b>drop back onto the board</b> - go collect them again.</li>
+        <li>Every correct sentence earns <b>points to spend in the shop</b> on hats, glasses
+            and more. Get several right <b>in a row</b> for a streak bonus!</li>
+      </ul>
+    </details>
     <p id="checker-status" class="small checker-status"></p>
   </aside>
 </main>
 
 <script src="js/config.js"></script>
+<script src="js/closet.js"></script>
 <script src="js/worm-skin.js"></script>
+<script src="js/worm-art.js"></script>
 <script src="js/util.js"></script>
 <script src="js/grammar.js"></script>
 <script src="js/checker.js"></script>

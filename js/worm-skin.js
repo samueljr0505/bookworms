@@ -31,7 +31,10 @@ BW.urlWorm = function () {
    choice, then whatever the file says is the default. */
 BW.chooseWorm = function (data, id) {
   const wanted = id || BW.urlWorm() || BW.savedWorm() || data.defaultWorm;
-  return data.worms.find(w => w.id === wanted) || data.worms[0] || BW.DEFAULT_WORM;
+  // a shop colour only counts once it has been bought (see js/closet.js)
+  const owned = w => !w.price || !BW.closet || BW.closet.owns({ slot: 'color', id: w.id, price: w.price });
+  return data.worms.find(w => w.id === wanted && owned(w)) ||
+         data.worms.find(w => w.id === data.defaultWorm) || data.worms[0] || BW.DEFAULT_WORM;
 };
 
 /* ---------- which topic the player picked ---------- */

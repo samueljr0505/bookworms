@@ -42,7 +42,10 @@ BW.CONFIG = {
 
   // Points come when a sentence is checked: a bonus for finishing, plus some for every word
   // in it, so a longer correct sentence is worth more. A wrong sentence costs `wrong`.
-  points: { word: 10, sentence: 50, wrong: -5 },
+  // Correct sentences in a row earn `streak` extra for each one after the first, up to
+  // `maxStreak` in a row. Points from correct sentences are also saved up to spend in the
+  // shop (js/closet.js); a wrong sentence never takes away saved points.
+  points: { word: 10, sentence: 50, wrong: -5, streak: 15, maxStreak: 5 },
 
   sound: true
 };

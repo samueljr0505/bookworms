@@ -18,23 +18,25 @@ BW.Renderer = class Renderer {
 
     this.shake = 0;
 
-    // the worm the player picked on the home page (see js/home.js)
-    const worm = cfg.worm || { body: '#6eb478', head: '#4f8a5b' };
-    this.wormBody = worm.body;
-    this.wormHead = worm.head;
+    // the worm the player picked on the home page and dressed up in the shop
+    // (see js/closet.js) - drawn by js/worm-art.js
+    const worm = cfg.worm || BW.DEFAULT_WORM;
+    this.skin = cfg.skin || { body: worm.body, head: worm.head };
+
+    this.fx = new BW.WormArt.Particles();   // crumbs, confetti and the worm's trail
+    this.popups = [];                       // words that float up off the board
+    this.lastDraw = performance.now();
   }
 
-  /* Body squares fade towards white along the worm, so the tail looks lighter
-     than the neck whatever colour was chosen. */
-  bodyShade(t) {
-    return this.mix(this.wormBody, 255, t * 0.34);
+  /* A burst of particles on a board square. */
+  burst(kind, x, y, n, opts) {
+    this.fx.emit(kind, (x + 0.5) * this.cell, (y + 0.5) * this.cell, n, opts);
   }
 
-  mix(hex, towards, amount) {
-    const n = parseInt(hex.slice(1), 16);
-    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
-    const m = c => Math.round(c + (towards - c) * amount);
-    return `rgb(${m(r)}, ${m(g)}, ${m(b)})`;
+  /* A word that floats up from a board square and fades: "Noun!", "+120" */
+  popup(text, x, y, color, big) {
+    this.popups.push({ text, x: (x + 0.5) * this.cell, y: (y + 0.5) * this.cell,
+                       color, big: !!big, born: performance.now() });
   }
 
   measureCells(text) {
@@ -67,18 +69,23 @@ BW.Renderer = class Renderer {
       this.shake = Math.max(0, this.shake - 0.06);
     }
 
-    // background + grid
+    const now = performance.now();
+    const dt = Math.min(100, now - this.lastDraw);
+    this.lastDraw = now;
+
+    // background: a soft checkerboard, like a garden lawn drawn on paper
     ctx.fillStyle = '#fdf6e8';
     ctx.fillRect(-10, -10, W + 20, H + 20);
-    ctx.strokeStyle = 'rgba(120, 100, 70, 0.07)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let x = 0; x <= cols; x++) { ctx.moveTo(x * cell + 0.5, 0); ctx.lineTo(x * cell + 0.5, H); }
-    for (let y = 0; y <= rows; y++) { ctx.moveTo(0, y * cell + 0.5); ctx.lineTo(W, y * cell + 0.5); }
-    ctx.stroke();
+    ctx.fillStyle = 'rgba(140, 190, 120, 0.08)';
+    for (let y = 0; y < rows; y++) {
+      for (let x = (y % 2); x < cols; x += 2) ctx.fillRect(x * cell, y * cell, cell, cell);
+    }
 
     this.drawTiles(state);
+    this.fx.update(dt);
+    this.fx.draw(ctx);
     this.drawWorm(state);
+    this.drawPopups(now);
 
     ctx.restore();
 
@@ -99,9 +106,10 @@ BW.Renderer = class Renderer {
       const w = t.w * cell, h = cell;
       const age = Math.min(1, (now - t.born) / 220);       // little pop-in
       const scale = 0.7 + 0.3 * age;
+      const bob = Math.sin(now / 520 + t.x * 0.9 + t.y * 1.3) * 1.2;   // tiles float gently
 
       ctx.save();
-      ctx.translate(x + w / 2, y + h / 2);
+      ctx.translate(x + w / 2, y + h / 2 + bob);
       ctx.scale(scale, scale);
       ctx.globalAlpha = age;
 
@@ -138,53 +146,74 @@ BW.Renderer = class Renderer {
 
   /* The worm's body is the sentence. Each word the worm has eaten is written into the
      squares behind the head, one letter per square, coloured by its part of speech - so
-     reading the worm from its tail up to its head spells out what you have built so far. */
+     reading the worm from its tail up to its head spells out what you have built so far.
+
+     The rules move the worm a whole square at a time, but it is drawn gliding between
+     squares (`state.progress` of the way through the current step), which reads as a
+     living worm rather than a row of jumping blocks. */
   drawWorm(state) {
     const ctx = this.ctx;
     const cell = this.cell;
     const worm = state.worm;
     const cells = worm.cells;
+    const prev = worm.prev;
+    const p = state.progress;
     const labels = worm.bodyLabels();
+    const now = performance.now();
 
-    for (let i = cells.length - 1; i >= 0; i--) {
+    const at = i => {
       const c = cells[i];
-      const label = labels[i];
-      const t = i / Math.max(1, cells.length - 1);
-      const pad = i === 0 ? 1 : (label ? 1.5 : 2 + t * 1.5);
-
-      ctx.fillStyle = label ? this.posColor(state.pack, label.pos)
-                            : (i === 0 ? this.wormHead : this.bodyShade(t));
-      this.roundRect(c.x * cell + pad, c.y * cell + pad,
-                     cell - pad * 2, cell - pad * 2, i === 0 ? 8 : 6);
-      ctx.fill();
-
-      if (label) {
-        ctx.fillStyle = '#20242e';
-        ctx.font = this.font;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(label.char, c.x * cell + cell / 2, c.y * cell + cell / 2 + 1);
+      const o = prev && prev[i];
+      // no glide for a new tail square, or across the board when walls wrap
+      if (!o || Math.abs(o.x - c.x) + Math.abs(o.y - c.y) !== 1) {
+        return { x: (c.x + 0.5) * cell, y: (c.y + 0.5) * cell };
       }
+      return { x: (o.x + (c.x - o.x) * p + 0.5) * cell, y: (o.y + (c.y - o.y) * p + 0.5) * cell };
+    };
+
+    for (let i = cells.length - 1; i >= 1; i--) {
+      const label = labels[i];
+      const pos = at(i);
+      BW.WormArt.segment(ctx, pos.x, pos.y, cell, i, cells.length, this.skin, now,
+                         label ? label.char : null,
+                         label ? this.posColor(state.pack, label.pos) : null, this.font);
     }
 
-    // eyes on the head, looking the way it is going
-    const h = worm.head();
-    const d = worm.dir;
-    const cx = h.x * cell + cell / 2, cy = h.y * cell + cell / 2;
-    const fx = d.x * 4, fy = d.y * 4;
-    const px = -d.y * 4, py = d.x * 4;
-    ctx.fillStyle = '#fff';
-    [[px, py], [-px, -py]].forEach(([ox, oy]) => {
-      ctx.beginPath();
-      ctx.arc(cx + fx + ox, cy + fy + oy, 3.2, 0, Math.PI * 2);
-      ctx.fill();
+    const h = at(0);
+    const gulp = Math.max(0, 1 - (now - (worm.gulpAt || 0)) / 240);
+    BW.WormArt.head(ctx, h.x, h.y, cell, worm.dir, this.skin, now, {
+      neck: cells.length > 1 ? at(1) : null,
+      scale: 1 + 0.3 * Math.sin(gulp * Math.PI)
     });
-    ctx.fillStyle = '#1b2430';
-    [[px, py], [-px, -py]].forEach(([ox, oy]) => {
-      ctx.beginPath();
-      ctx.arc(cx + fx * 1.3 + ox, cy + fy * 1.3 + oy, 1.6, 0, Math.PI * 2);
-      ctx.fill();
-    });
+  }
+
+  /* The tail end in pixels - where a trail comes out. */
+  tailPoint(worm) {
+    const c = worm.cells[worm.cells.length - 1];
+    return { x: (c.x + 0.5) * this.cell, y: (c.y + 0.5) * this.cell };
+  }
+
+  drawPopups(now) {
+    const ctx = this.ctx;
+    this.popups = this.popups.filter(pp => now - pp.born < 1100);
+    for (const pp of this.popups) {
+      const t = (now - pp.born) / 1100;
+      ctx.save();
+      ctx.globalAlpha = 1 - t * t;
+      ctx.translate(pp.x, pp.y - 14 - t * 34);
+      const pop = Math.min(1, t * 6);
+      ctx.scale(0.6 + 0.4 * pop, 0.6 + 0.4 * pop);
+      ctx.font = (pp.big ? '900 26px ' : '900 15px ') + 'ui-rounded, "Nunito", system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineWidth = 4;
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#fff';
+      ctx.strokeText(pp.text, 0, 0);
+      ctx.fillStyle = pp.color || '#3f6b4a';
+      ctx.fillText(pp.text, 0, 0);
+      ctx.restore();
+    }
   }
 
   drawCountdown(state, W, H) {
@@ -240,13 +269,6 @@ BW.Renderer = class Renderer {
   }
 
   roundRect(x, y, w, h, r) {
-    const ctx = this.ctx;
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
+    BW.WormArt.roundRect(this.ctx, x, y, w, h, r);
   }
 };

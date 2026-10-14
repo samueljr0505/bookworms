@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bookworms - Worm Shop</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%8D%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/shop.css" />
+</head>
+<body>
+
+<main class="shop">
+
+  <header class="shop-top">
+    <a class="back" href="index.html">&larr; Home</a>
+    <h1>Worm Shop</h1>
+    <div class="bank" id="bank">
+      <span class="bank-star">⭐</span>
+      <span><b id="bank-points">0</b><small>points to spend</small></span>
+    </div>
+  </header>
+
+  <!-- the dressing room: your worm, wearing whatever you are trying on -->
+  <section class="stage" aria-label="Your worm">
+    <canvas id="stage-worm" class="stage-worm" aria-hidden="true"></canvas>
+    <p id="stage-name" class="stage-name">Your worm</p>
+    <p id="stage-note" class="stage-note">Tap anything below to try it on.</p>
+  </section>
+
+  <nav id="slots" class="slots" role="tablist" aria-label="What to shop for"></nav>
+
+  <ul id="items" class="items"></ul>
+
+  <p id="shop-error" class="shop-error" hidden>
+    The shop could not load. Start the server with <code>./serve.sh</code> and reload this page.
+  </p>
+
+  <section class="earn">
+    <h2>How do I get points?</h2>
+    <p>Every <b>correct sentence</b> you build in the game earns points: <b>50</b> for the
+       sentence and <b>10</b> for each word in it. Get several right <b>in a row</b> for a
+       streak bonus! Your points stay saved, even after a wrong sentence.</p>
+    <a id="play" class="play" href="game.html">Play and earn points</a>
+  </section>
+
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/closet.js"></script>
+<script src="js/worm-skin.js"></script>
+<script src="js/worm-art.js"></script>
+<script src="js/util.js"></script>
+<script src="js/shop.js"></script>
+</body>
+</html>

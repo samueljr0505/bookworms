@@ -68,6 +68,33 @@ what each test proves.
     to try again. A wrong sentence costs a few points.
 - After a crash the game holds still for a moment so you can see what you hit, *then* the words
   scatter. Steering is locked during that pause, so you cannot drive into the same wall twice.
+- Correct sentences **in a row** earn a streak bonus, shown with a 🔥 in the sidebar.
+
+## The worm shop
+
+Every correct sentence's points are also **saved up** (the ⭐ in the top corner) to spend in the
+shop, `shop.html`, on things for the worm to wear:
+
+| Slot | What there is |
+| --- | --- |
+| Colors | the eight original colours are free; six more (Cotton Candy, Lava, Royal...) are bought |
+| Hats | party hat, flower, cap, bow, beanie, top hat, viking helmet, crown, wizard hat |
+| Glasses | reading glasses, 3-D, sunglasses, monocle, heart and star glasses |
+| Neckwear | bow tie, bandana, scarf, gold medal |
+| Patterns | stripes, spots, rainbow, shiny gold, galaxy |
+| Trails | sparkles, bubbles, hearts, music notes, confetti puffing out behind the worm |
+
+- Tap anything to **try it on** in the dressing room before buying. Buying takes two taps, so
+  nothing is bought by accident, and the worm puts it on straight away.
+- Saved points only go up by playing and down by buying - a wrong sentence costs points in the
+  game's score, never in the shop. Prices run from 100 to 1000; a five-word sentence is about 100.
+- The game's sidebar shows the cheapest thing not bought yet, with the worm already wearing it,
+  and says when you can afford it.
+- The words written on the body always keep their part-of-speech colours. Patterns show on the
+  head, on the plain squares, and as a rim around each letter.
+- Everything is saved in the browser (`localStorage`), so it belongs to that browser on that
+  computer. To give a player points for testing, run this in the browser console:
+  `BW.closet.earn(500)`.
 
 ## The sentence checker
 
@@ -185,6 +212,7 @@ is playing. The API key stays in the terminal running `serve.sh` and is never se
 bookworms/
   index.html            the home page: pick your worm and a topic, then play
   game.html             the game itself
+  shop.html             the worm shop: spend points on hats, glasses, colours and more
   how-to-play.html      how to play, for the players
   serve.sh              starts the local web server
   requirements.txt      the one Python package the (optional) judge needs
@@ -195,14 +223,19 @@ bookworms/
   css/home.css          styling for the home page
   css/style.css         styling for the game
   css/how.css           styling for the how-to-play page
+  css/shop.css          styling for the shop
   data/
     topics.json         the topics offered on the home page
     topics/*.json       THE WORDS AND SENTENCE SHAPES, one file per topic (from tools/build-topics.py)
     verdicts.json       the judge's saved answers, and the teacher's answer key
-    worms.json          the worm colours offered on the home page
+    worms.json          the worm colours - the ones with a price are bought in the shop
+    shop.json           everything else the shop sells, and what it costs
   js/
     home.js             the home page: worm and topic pickers
-    worm-skin.js        which worm and topic were picked (shared by both pages)
+    shop.js             the shop page: trying on, buying, wearing
+    closet.js           saved points, what has been bought, what is being worn
+    worm-skin.js        which worm and topic were picked (shared by every page)
+    worm-art.js         draws the worm and everything it wears, plus particles (shared by every page)
     config.js           tweakable numbers: speed, board size, rules, points
     util.js             random-number helpers and the sound effects
     grammar.js          sentence-shape language: which shapes the words fit, what could come next
@@ -210,7 +243,7 @@ bookworms/
     judge.js            asks the judge: saved answers first, then the server
     worm.js             the worm: its squares, turning, growing, shrinking
     board.js            word tiles: choosing them and finding space for them
-    render.js           everything drawn on the canvas
+    render.js           the game board: tiles, the gliding worm, pop-ups and confetti
     game.js             the game loop and all the rules
     main.js             loads the JSON, starts the game, updates the panels and the check card
   tools/
@@ -292,9 +325,18 @@ Add an entry to `data/worms.json` and it appears on the home page immediately:
 { "id": "coral", "name": "Coral", "body": "#f2857a", "head": "#c9524a" }
 ```
 
-`body` colours the worm's plain squares (lightening towards the tail) and `head` colours its
-head. The squares carrying letters keep their part-of-speech colours, so the worm colour shows
-on the head and on any body squares that are not spelling anything yet.
+Give it a `"price"` and it is sold in the shop instead, and only shows on the home page once
+bought. `body` colours the worm's plain squares (lightening towards the tail) and `head` colours
+its head. The squares carrying letters keep their part-of-speech colours, with the worm colour
+as a rim around them.
+
+### Add something to the shop
+
+Add an entry to `data/shop.json` - `slot`, `id`, `name` and `price` - then draw it in
+`js/worm-art.js`: hats in `hat()`, glasses in `glasses()`, neckwear in `neckwear()`, patterns in
+`bodyFill()` / `patternMarks()`, trails as a particle kind in `Particles`. Each drawing is sized as
+a fraction of one body square, so it works on the board and in the shop alike. `node tools/test.js`
+checks that every slot has a free starting item and every price is sensible.
 
 ### Change how it feels
 
