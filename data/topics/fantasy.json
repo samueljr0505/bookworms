@@ -616,6 +616,292 @@
       "you are in a river, not inside it"
     ]
   ],
+  "meaning": {
+    "tags": {
+      "flyer": [
+        "dragon"
+      ],
+      "hands": [
+        "knight",
+        "wizard",
+        "princess",
+        "giant",
+        "elf",
+        "troll"
+      ],
+      "walker": [
+        "knight",
+        "wizard",
+        "princess",
+        "giant",
+        "elf",
+        "troll"
+      ]
+    },
+    "size": {
+      "elf": 2,
+      "princess": 3,
+      "knight": 3,
+      "wizard": 3,
+      "troll": 4,
+      "unicorn": 4,
+      "giant": 5,
+      "dragon": 5,
+      "sword": 0,
+      "map": 0,
+      "crown": 0,
+      "potion": 0,
+      "shield": 0,
+      "treasure": 1,
+      "wand": 0
+    },
+    "holds": {
+      "tower": 4
+    },
+    "verbs": {
+      "flew": {
+        "who": [
+          "flyer"
+        ],
+        "why": "only a dragon has wings to fly"
+      },
+      "marched": {
+        "who": [
+          "walker"
+        ],
+        "why": "marching is for people on two feet"
+      },
+      "carried": {
+        "bigger": -1,
+        "base": "carry"
+      },
+      "followed": {
+        "what": [
+          "being",
+          "map"
+        ],
+        "why": "you follow someone, or a map"
+      },
+      "chased": {
+        "what": [
+          "being"
+        ],
+        "why": "you chase someone who runs away"
+      },
+      "held": {
+        "who": [
+          "hands"
+        ],
+        "why": "that creature has no hands to hold it"
+      },
+      "waved": {
+        "who": [
+          "hands"
+        ],
+        "why": "that creature has no hands to wave it"
+      },
+      "threw": {
+        "who": [
+          "hands"
+        ],
+        "why": "that creature has no hands to throw it"
+      }
+    },
+    "adjectives": {
+      "tiny": {
+        "what": [
+          "!giant",
+          "!dragon",
+          "!troll",
+          "!place"
+        ],
+        "why": "that is never tiny"
+      },
+      "big": {
+        "what": [
+          "!elf"
+        ],
+        "why": "elves are small"
+      },
+      "golden": {
+        "what": [
+          "thing",
+          "castle",
+          "tower",
+          "dragon",
+          "unicorn"
+        ],
+        "why": "that is not made of gold"
+      }
+    },
+    "canBe": {
+      "*": [],
+      "elf": [
+        "knight",
+        "wizard",
+        "princess"
+      ],
+      "giant": [
+        "knight",
+        "wizard"
+      ],
+      "troll": [
+        "knight",
+        "wizard"
+      ],
+      "princess": [
+        "knight",
+        "wizard"
+      ]
+    }
+  },
+  "silly": {
+    "sentenceCount": 1013640225860,
+    "rules": {
+      "adj": "adjective | mood | quality",
+      "anyNoun": "noun | thing | place",
+      "one": "determiner <adj>? <anyNoun>",
+      "anything": "<one>",
+      "subjectOne": "<anything> | 'He' | 'She' | 'I'",
+      "subjectMany": "'They' | 'We'",
+      "subject": "<subjectOne> | <subjectMany>",
+      "someone": "<anything> | objectPronoun",
+      "to": "motionPrep <someone>",
+      "at": "placePrep <someone>",
+      "where": "<to> | <at>"
+    },
+    "patterns": [
+      {
+        "id": "fantasy-silly-moving",
+        "name": "Action sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb move <where>? | move <where>? adverb? )"
+      },
+      {
+        "id": "fantasy-silly-staying",
+        "name": "Action sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb stay <at>? | stay <at>? adverb? )"
+      },
+      {
+        "id": "fantasy-silly-take",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb take <someone> <where>? | take <someone> <where>? adverb? )"
+      },
+      {
+        "id": "fantasy-silly-push",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb push <someone> <where>? | push <someone> <where>? adverb? )"
+      },
+      {
+        "id": "fantasy-silly-see",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb see <someone> <at>? | see <someone> <at>? adverb? )"
+      },
+      {
+        "id": "fantasy-silly-use",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb use <someone> <at>? | use <someone> <at>? adverb? )"
+      },
+      {
+        "id": "fantasy-silly-giving",
+        "name": "Giving sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Object?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> adverb? give ( <someone> <someone> | <someone> ( 'to' <someone> )? )"
+      },
+      {
+        "id": "fantasy-silly-describing",
+        "name": "Describing sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Complement"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subjectOne> 'was' ( <adj> <at>? | 'a' <adj>? <anyNoun> <at>? | <at> ) | <subjectMany> 'were' ( <adj> <at>? | <at> )"
+      }
+    ],
+    "clashes": [
+      [
+        "I",
+        "me",
+        "say \"myself\" for that - or pick someone else"
+      ],
+      [
+        "We",
+        "us",
+        "say \"ourselves\" for that - or pick someone else"
+      ]
+    ]
+  },
   "punctuation": [
     {
       "mark": ".",

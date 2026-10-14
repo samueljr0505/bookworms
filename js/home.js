@@ -9,6 +9,8 @@ window.BW = window.BW || {};
   let chosenWorm = null;
   let skin = BW.skinFor(BW.DEFAULT_WORM);
   let chosenTopic = null;
+  let chosenMode = BW.chooseMode();
+  let topicIndex = null;
 
   /* Both choices ride in the link as well as in storage, so they survive a
      private window, blocked site data, or the game opening on another port. */
@@ -16,6 +18,7 @@ window.BW = window.BW || {};
     const bits = [];
     if (chosenWorm) bits.push('worm=' + encodeURIComponent(chosenWorm));
     if (chosenTopic) bits.push('topic=' + encodeURIComponent(chosenTopic));
+    bits.push('mode=' + chosenMode);
     $('play').href = 'game.html' + (bits.length ? '?' + bits.join('&') : '');
   }
 
@@ -86,8 +89,10 @@ window.BW = window.BW || {};
       button.type = 'button';
       button.setAttribute('role', 'radio');
       button.setAttribute('aria-checked', String(topic.id === current.id));
+      // Silly mode lets every word go anywhere its kind goes, so it has far more sentences
+      const count = chosenMode === 'silly' && topic.sillySentences ? topic.sillySentences : topic.sentences;
       button.innerHTML = '<span>' + (topic.emoji || '') + '</span><span>' + topic.name +
-                         '<small>' + howMany(topic.sentences) + ' sentences</small></span>';
+                         '<small>' + howMany(count) + ' sentences</small></span>';
       button.addEventListener('click', () => {
         BW.saveTopic(topic.id);
         chosenTopic = topic.id;
@@ -100,8 +105,24 @@ window.BW = window.BW || {};
     }
   }
 
+  /* Real or Silly: whether a sentence has to make sense, or only sound right. */
+  function buildModes() {
+    const buttons = document.querySelectorAll('#modes [data-mode]');
+    const show = () => buttons.forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === chosenMode)));
+    buttons.forEach(b => b.addEventListener('click', () => {
+      chosenMode = b.dataset.mode;
+      BW.saveMode(chosenMode);
+      show();
+      updatePlayLink();
+      if (topicIndex) buildTopics(topicIndex, { id: chosenTopic });
+    }));
+    show();
+  }
+
   async function boot() {
     buildWorm();
+    buildModes();
+    updatePlayLink();
     try {
       const data = await fetch('data/worms.json').then(r => {
         if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -116,6 +137,7 @@ window.BW = window.BW || {};
         return r.json();
       });
       const topic = BW.chooseTopic(index);
+      topicIndex = index;
       chosenTopic = topic.id;
       updatePlayLink();
       buildTopics(index, topic);

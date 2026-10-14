@@ -9,7 +9,7 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 global.window = global;   // the game files expect a browser-style global
 global.performance = { now: () => Date.now() };
-for (const f of ['js/config.js', 'js/util.js', 'js/grammar.js', 'js/checker.js', 'js/judge.js',
+for (const f of ['js/config.js', 'js/util.js', 'js/grammar.js', 'js/sense.js', 'js/checker.js', 'js/judge.js',
                  'js/worm.js', 'js/board.js', 'js/closet.js', 'js/worm-skin.js']) {
   eval(fs.readFileSync(path.join(root, f), 'utf8'));
 }
@@ -196,6 +196,16 @@ const CASES = {
     ['The quick fox ran slowly', 'wrong', 'sense', '"quick" and "slowly" do not go together'],
     ['The big mouse was small', 'wrong', 'sense', 'cannot be big and small at once'],
     ['I watched me', 'wrong', 'sense', 'myself'],
+    // Real mode: sentences that sound right but could not happen (js/sense.js)
+    ['The mouse carried the horse', 'wrong', 'sense', 'a horse is too big for a mouse to carry'],
+    ['The cat carried the kitten', 'correct', ''],
+    ['The horse hid in the nest', 'wrong', 'sense', 'too big to fit in a nest'],
+    ['The horse hid under the tree', 'correct', ''],
+    ['The duck chewed the bone', 'wrong', 'sense', 'cannot chew'],
+    ['The cat was a dog', 'wrong', 'sense', 'a cat cannot be a dog'],
+    ['He was a dog', 'correct', ''],
+    ['The dog found the bone in the hole', 'correct', ''],
+    ['The dog dropped the ball into the hole', 'correct', ''],
     ['The quickly', 'wrong', 'order,subject,verb', 'It needs a subject']
   ],
   school: [
@@ -208,7 +218,10 @@ const CASES = {
     ['The small reader was tall', 'wrong', 'sense', '"small" and "tall" do not go together'],
     ['The student waited quickly', 'wrong', 'sense', 'waiting is not something you can hurry'],
     ['The old boy smiled', 'wrong', 'sense', 'a boy is young'],
-    ['The girl read the pencil', 'wrong', 'sense', 'you cannot read it']
+    ['The girl read the pencil', 'wrong', 'sense', 'you cannot read it'],
+    ['The boy was a teacher', 'wrong', 'sense', 'a boy cannot be a teacher'],
+    ['The girl was a reader', 'correct', ''],
+    ['The tall pencil was red', 'wrong', 'sense', 'tall describes a person']
   ],
   food: [
     ['The apple tastes sweet', 'correct', ''],
@@ -224,7 +237,11 @@ const CASES = {
     // rice is not something you count
     ['A rice was soft', 'wrong', 'order', '"rice" is not something you can count'],
     ['A warm bread tasted fresh', 'wrong', 'order', '"bread" is not something you can count'],
-    ['The chef baked the soup', 'wrong', 'sense', 'soup is cooked, not baked']
+    ['The chef baked the soup', 'wrong', 'sense', 'soup is cooked, not baked'],
+    ['The chef baked the sandwich', 'wrong', 'sense', 'you bake cookies'],
+    ['The farmer made a carrot', 'wrong', 'sense', 'nobody makes them'],
+    ['The pizza tastes sweet', 'wrong', 'sense', 'not sweet'],
+    ['The mom was a chef', 'correct', '']
   ],
   fantasy: [
     ['The brave knight found the golden sword in the old cave', 'correct', ''],
@@ -235,19 +252,55 @@ const CASES = {
     ['The knight walked the cave', 'wrong', 'order', '"walked" needs a Preposition'],
     ['The elf slept bravely', 'wrong', 'sense', 'sleeping takes no bravery'],
     ['him found the map', 'wrong', 'capital,order', 'starts with a Pronoun or a Determiner'],
-    ['The troll hid under the river', 'wrong', 'sense', 'you swim in a river']
+    ['The troll hid under the river', 'wrong', 'sense', 'you swim in a river'],
+    ['The knight flew over the castle', 'wrong', 'sense', 'only a dragon has wings'],
+    ['The unicorn held the sword', 'wrong', 'sense', 'no hands'],
+    ['The elf carried the giant', 'wrong', 'sense', 'a giant is too big for an elf to carry'],
+    ['The giant hid in the tower', 'wrong', 'sense', 'too big to fit in a tower'],
+    ['The tiny giant slept', 'wrong', 'sense', 'never tiny'],
+    ['The dragon carried the princess', 'correct', '']
   ],
   sports: [
     ['The goalie kicked the ball into the net', 'correct', ''],
     ['The coach passed the ball to her', 'correct', ''],
     ['The proud runner held the shiny trophy', 'correct', ''],
     ['The coach kicked the trophy', 'wrong', 'order', '"kicked" goes with "ball", not "trophy"'],
-    ['The swimmer swam into the gym', 'wrong', 'sense', 'you cannot swim in a gym']
+    ['The swimmer swam into the gym', 'wrong', 'sense', 'you cannot swim in a gym'],
+    ['The goalie waited in the net', 'wrong', 'sense', 'too big to fit in a net'],
+    ['The coach threw the runner a trophy', 'wrong', 'sense', 'you throw a ball']
+  ]
+};
+
+/* Silly mode: anything that sounds right is right - only the grammar is checked. */
+const SILLY_CASES = {
+  animals: [
+    ['The mouse carried the horse', 'correct', ''],
+    ['The carrot chased the barn', 'correct', ''],
+    ['The cat was a dog', 'correct', ''],
+    ['The dog cat ran', 'wrong', 'order', '"dog cat" is two Nouns in a row'],
+    ['the dog ran', 'wrong', 'capital', 'use "The"'],
+    ['I watched me', 'wrong', 'sense', 'myself'],
+    ['The happy dog was happy', 'wrong', 'sense', '"happy" is used twice']
+  ],
+  food: [
+    ['The cookie tasted big', 'correct', ''],
+    ['The pizza tastes sweet', 'correct', ''],
+    ['A rice was soft', 'wrong', 'order', 'not something you can count'],
+    ['The soup ate the chef', 'correct', '']
+  ],
+  fantasy: [
+    ['The knight flew over the castle', 'correct', ''],
+    ['The tiny giant slept', 'correct', ''],
+    ['The castle gave the dragon a sword', 'correct', '']
+  ],
+  sports: [
+    ['The coach kicked the trophy', 'correct', ''],
+    ['The whistle swam into the gym', 'correct', '']
   ]
 };
 
 function checkTopicCases() {
-  for (const [words, verdict, fails, says] of CASES[pack.id] || []) {
+  for (const [words, verdict, fails, says] of (pack.mode === 'silly' ? SILLY_CASES : CASES)[pack.id] || []) {
     const r = checkOf(words.split(' '));
     const name = '[' + pack.id + '] "' + words + '"';
     check(r.verdict === verdict, name + ' should be ' + verdict + ', got ' + r.verdict + ' (' + r.headline + ')');
@@ -621,10 +674,10 @@ async function checkJudgeClient() {
   check(v === null, 'with no network the judge should quietly give null');
 }
 
-function loadTopic(id) {
+function loadTopic(id, mode) {
   const index = JSON.parse(fs.readFileSync(path.join(root, 'data/topics.json'), 'utf8'));
   const entry = index.topics.find(t => t.id === id);
-  return JSON.parse(fs.readFileSync(path.join(root, 'data', entry.file), 'utf8'));
+  return NS.Grammar.forMode(JSON.parse(fs.readFileSync(path.join(root, 'data', entry.file), 'utf8')), mode || 'real');
 }
 
 /* The shop's closet: points only go up by playing, only go down by buying, things cost what
@@ -702,9 +755,12 @@ function checkCloset() {
      tools/list-sentences.py. */
   const index = JSON.parse(fs.readFileSync(path.join(root, 'data/topics.json'), 'utf8'));
   for (const entry of index.topics) {
-    pack = JSON.parse(fs.readFileSync(path.join(root, 'data', entry.file), 'utf8'));
-    console.log('\n=== ' + pack.name + ' (' + pack.sentenceCount + ' sentences) ===');
-    checkThisPack();
+    const raw = JSON.parse(fs.readFileSync(path.join(root, 'data', entry.file), 'utf8'));
+    for (const mode of ['real', 'silly']) {
+      pack = NS.Grammar.forMode(raw, mode);
+      console.log('\n=== ' + pack.name + ', ' + mode + ' mode (' + pack.sentenceCount + ' sentences) ===');
+      checkThisPack();
+    }
   }
   checkDecide();
   checkSyntheticPack();

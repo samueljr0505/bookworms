@@ -105,6 +105,7 @@ SHARED_CLASHES = [
     ["quickly", "sat", "sitting is not quick"],
     ["quickly", "waited", "waiting is not something you can hurry"],
     ["carefully", "saw", "you just see something - no care needed"],
+    ["hurried", "slowly", "hurrying is fast, not slow"],
     ["I", "me", "say \"myself\" for that - or pick someone else"],
     ["We", "us", "say \"ourselves\" for that - or pick someone else"],
 ]
@@ -179,6 +180,58 @@ def grammar(words, extra_rules=None, extra_structures=()):
                            "determiner <thingWord>? thing 'was' ( <thingWord> <at>? | <at> )" +
                            (" | <mass> 'was' ( quality <at>? | <at> )" if has("mass") else "")))
     structures.extend(extra_structures)
+    return rules, structures
+
+
+# Grammar-only pronoun pairs: wrong in any mode ("I watched me").
+GRAMMAR_CLASHES = [c for c in SHARED_CLASHES if c[0] in ("I", "We")]
+
+
+def silly_grammar(words):
+    """Silly mode: the same sentence shapes, with every word of a kind free to go anywhere
+    that kind goes. Any Adjective describes anything, anything can be the subject, and any
+    Noun can be carried, eaten or given - "The pencil ate the gym." sounds right, so it is
+    right. Only the grammar is checked: capitals, word order, a / the with "rice", end marks."""
+    has = lambda *kinds: all(words.get(k) for k in kinds)
+    either = lambda *kinds: " | ".join(k for k in kinds if words.get(k))
+    rules = {}
+    rules["adj"] = either("adjective", "mood", "quality")
+    rules["anyNoun"] = either("noun", "thing", "place")
+    rules["one"] = "determiner <adj>? <anyNoun>"
+    if has("mass"):
+        rules["mass"] = "( 'The' | 'the' | 'My' | 'my' ) <adj>? mass"
+    rules["anything"] = "<one> | <mass>" if has("mass") else "<one>"
+    rules["subjectOne"] = "<anything> | 'He' | 'She' | 'I'"
+    rules["subjectMany"] = "'They' | 'We'"
+    rules["subject"] = "<subjectOne> | <subjectMany>"
+    rules["someone"] = "<anything> | objectPronoun"
+    rules["to"] = "motionPrep <someone>"
+    rules["at"] = "placePrep <someone>"
+    rules["where"] = "<to> | <at>"
+
+    def doing(verb, after):
+        return ("<subject> ( adverb %s %s | %s %s adverb? )" % (verb, after, verb, after)).replace("  ", " ")
+
+    structures = []
+    if has("move"):
+        structures.append(("moving", "Action sentence", ["Subject", "Verb", "Modifier?"], doing("move", "<where>?")))
+    if has("stay"):
+        structures.append(("staying", "Action sentence", ["Subject", "Verb", "Modifier?"], doing("stay", "<at>?")))
+    for kind, after in (("take", "<someone> <where>?"), ("push", "<someone> <where>?"),
+                        ("see", "<someone> <at>?"), ("use", "<someone> <at>?")):
+        if has(kind):
+            structures.append((kind, "Object sentence", ["Subject", "Verb", "Object", "Modifier?"], doing(kind, after)))
+    if has("give"):
+        structures.append(("giving", "Giving sentence", ["Subject", "Verb", "Object", "Object?"],
+                           "<subject> adverb? give ( <someone> <someone> | <someone> ( 'to' <someone> )? )"))
+    linking = either("taste", "smell", "look")
+    if linking:
+        # "tastes" is singular, so no pronouns here: "I tastes sweet" is not English
+        structures.append(("tasting", "Describing sentence", ["Subject", "Verb", "Complement"],
+                           "<anything> ( %s ) <adj>" % linking))
+    structures.append(("describing", "Describing sentence", ["Subject", "Verb", "Complement"],
+                       "<subjectOne> 'was' ( <adj> <at>? | 'a' <adj>? <anyNoun> <at>? | <at> )"
+                       " | <subjectMany> 'were' ( <adj> <at>? | <at> )"))
     return rules, structures
 
 
@@ -445,6 +498,162 @@ TOPICS = {
 }
 
 
+# What makes sense in each topic, for Real mode (read by js/sense.js). The word lists above
+# already keep beings, things and places apart; this says which ones go together:
+#
+#   tags        name groups of words, to use in the lists below
+#   size        how big something is: 0 = you hold it, 1 = a mouse, 3 = a person, 5 = a giant
+#   holds       the biggest size that fits in / into / inside / through / under a place
+#               (a number, or {"under": 5, "*": 2} to say it per Preposition)
+#   verbs       who can do it ("who"), what it can be done to ("what"), and for verbs like
+#               carried, how much bigger than the doer the object may be ("bigger": -1 means
+#               it has to be smaller). "base" says the verb plainly for the reason ("carry"),
+#               and "why" is the reason a child is told when who or what does not fit.
+#   adjectives  what an Adjective can describe, with the reason
+#   canBe       "The boy was a ___": what each noun can be ("*" = any other noun)
+#
+# A list can name words or tags, and "!" rules one out. Every word is tagged with itself, and
+# with "being", "thing" or "place". A word not mentioned is never blocked. After a change,
+# read a sample with tools/list-sentences.py and add whatever still reads wrong.
+MEANING = {
+    "animals": {
+        "tags": {"bird": ["bird", "duck"],
+                 "digger": ["dog", "puppy", "fox"],
+                 "chewer": ["cat", "dog", "rabbit", "horse", "mouse", "puppy", "kitten", "fox"]},
+        "size": {"mouse": 1, "bird": 1, "kitten": 1, "duck": 2, "rabbit": 2, "puppy": 2, "cat": 2,
+                 "fox": 2, "dog": 3, "horse": 5,
+                 "bone": 0, "ball": 0, "stick": 0, "carrot": 0, "toy": 0, "leaf": 0},
+        "holds": {"nest": 1, "hole": 2, "tree": {"under": 9, "*": 2}},
+        "verbs": {
+            "hopped": {"who": ["rabbit", "bird", "mouse"], "why": "only small, light animals hop"},
+            "crawled": {"who": ["!horse", "!bird"], "why": "that animal walks - it does not crawl"},
+            "carried": {"bigger": -1, "base": "carry"},
+            "chased": {"bigger": 1, "base": "chase", "what": ["being", "ball", "leaf", "stick", "toy"],
+                       "why": "you chase something that moves"},
+            "followed": {"bigger": 1, "base": "follow", "what": ["being"],
+                         "why": "you follow someone who is going somewhere"},
+            "chewed": {"who": ["chewer"], "why": "a bird has a beak - it cannot chew"},
+            "buried": {"who": ["digger"], "why": "dogs and foxes bury things - not that animal"},
+            "gave": {"who": ["!being"], "why": "animals do not give presents - try a Pronoun like \"She\""},
+            "brought": {"who": ["dog", "puppy"], "why": "a dog brings things back - not that animal"},
+        },
+        "adjectives": {
+            "fluffy": {"what": ["!bird", "!duck", "!horse"], "why": "that animal has feathers or short hair, not fluff"},
+            "grey": {"what": ["!carrot"], "why": "a carrot is orange"},
+            "brown": {"what": ["!carrot"], "why": "a carrot is orange"},
+        },
+        "canBe": {"*": []},
+    },
+    "school": {
+        "tags": {"kid": ["student", "classmate", "boy", "girl"],
+                 "role": ["friend", "reader", "writer", "helper"]},
+        "size": {"teacher": 4, "student": 3, "classmate": 3, "boy": 3, "girl": 3, "friend": 3,
+                 "reader": 3, "writer": 3, "helper": 3,
+                 "book": 0, "pencil": 0, "paper": 0, "backpack": 1, "crayon": 0, "note": 0},
+        "holds": {"desk": {"under": 3, "*": 0}},
+        "verbs": {
+            "carried": {"bigger": -1, "base": "carry"},
+            "read": {"what": ["book", "note", "paper"], "why": "you read a book, a note or a paper"},
+            "wrote": {"what": ["book", "note", "paper"], "why": "you write a book, a note or on paper"},
+            "opened": {"what": ["book", "backpack", "note"], "why": "you open a book, a note or a backpack"},
+            "lent": {"what": ["thing"], "why": "you lend things, not people"},
+        },
+        "adjectives": {
+            "tall": {"what": ["being"], "why": "tall describes a person"},
+        },
+        "canBe": {"*": ["friend", "reader", "writer", "helper", "student", "classmate"],
+                  "teacher": ["friend", "reader", "writer", "helper"]},
+    },
+    "food": {
+        "tags": {"grownup": ["chef", "baker", "farmer", "mom", "dad"]},
+        "size": {"chef": 3, "baker": 3, "farmer": 3, "girl": 3, "boy": 3, "mom": 3, "dad": 3, "friend": 3},
+        "verbs": {
+            "baked": {"what": ["cookie", "pizza", "pie", "cake", "bread", "apple"],
+                      "why": "you bake cookies, pizza, pies, cakes and bread"},
+            "cooked": {"what": ["soup", "rice", "pancake", "carrot"],
+                       "why": "you cook soup, rice, pancakes and carrots"},
+            "made": {"what": ["!apple", "!carrot"], "why": "apples and carrots grow - nobody makes them"},
+            "cut": {"what": ["!soup", "!rice"], "why": "you cannot cut that"},
+            "tossed": {"what": ["apple", "carrot", "cookie", "pizza", "pancake"],
+                       "why": "that would make a big mess"},
+        },
+        "adjectives": {
+            "crunchy": {"what": ["apple", "carrot", "cookie", "pizza", "bread", "being"],
+                        "why": "that food is not crunchy"},
+            "sticky": {"what": ["cake", "pie", "rice", "pancake", "cookie", "sandwich", "being"],
+                       "why": "that food is not sticky"},
+            "sweet": {"what": ["!pizza", "!sandwich", "!soup", "!cheese", "!rice"],
+                      "why": "that food is not sweet"},
+        },
+        "canBe": {"*": ["friend"],
+                  "mom": ["chef", "baker", "farmer", "friend"], "dad": ["chef", "baker", "farmer", "friend"],
+                  "chef": ["baker", "friend"], "baker": ["chef", "friend"], "farmer": ["friend"]},
+    },
+    "fantasy": {
+        "tags": {"flyer": ["dragon"],
+                 "hands": ["knight", "wizard", "princess", "giant", "elf", "troll"],
+                 "walker": ["knight", "wizard", "princess", "giant", "elf", "troll"]},
+        "size": {"elf": 2, "princess": 3, "knight": 3, "wizard": 3, "troll": 4, "unicorn": 4,
+                 "giant": 5, "dragon": 5,
+                 "sword": 0, "map": 0, "crown": 0, "potion": 0, "shield": 0, "treasure": 1, "wand": 0},
+        "holds": {"tower": 4},
+        "verbs": {
+            "flew": {"who": ["flyer"], "why": "only a dragon has wings to fly"},
+            "marched": {"who": ["walker"], "why": "marching is for people on two feet"},
+            "carried": {"bigger": -1, "base": "carry"},
+            "followed": {"what": ["being", "map"], "why": "you follow someone, or a map"},
+            "chased": {"what": ["being"], "why": "you chase someone who runs away"},
+            "held": {"who": ["hands"], "why": "that creature has no hands to hold it"},
+            "waved": {"who": ["hands"], "why": "that creature has no hands to wave it"},
+            "threw": {"who": ["hands"], "why": "that creature has no hands to throw it"},
+        },
+        "adjectives": {
+            "tiny": {"what": ["!giant", "!dragon", "!troll", "!place"], "why": "that is never tiny"},
+            "big": {"what": ["!elf"], "why": "elves are small"},
+            "golden": {"what": ["thing", "castle", "tower", "dragon", "unicorn"],
+                       "why": "that is not made of gold"},
+        },
+        "canBe": {"*": [],
+                  "elf": ["knight", "wizard", "princess"], "giant": ["knight", "wizard"],
+                  "troll": ["knight", "wizard"], "princess": ["knight", "wizard"]},
+    },
+    "sports": {
+        "size": {"player": 3, "coach": 3, "runner": 3, "swimmer": 3, "goalie": 3, "referee": 3, "fan": 3,
+                 "ball": 0, "bat": 0, "helmet": 0, "trophy": 0, "medal": 0, "whistle": 0, "glove": 0},
+        "holds": {"net": 0},
+        "verbs": {
+            "threw": {"what": ["ball", "glove", "helmet", "being"], "why": "you throw a ball, not that"},
+            "passed": {"what": ["ball", "bat", "glove", "helmet", "whistle", "being"],
+                       "why": "you pass a ball, not that"},
+            "cheered": {"who": ["!referee"], "why": "a referee has to stay fair - no cheering"},
+        },
+        "canBe": {"*": [],
+                  "player": ["goalie", "runner", "swimmer"], "runner": ["player", "swimmer"],
+                  "swimmer": ["player", "runner"], "goalie": ["player"], "fan": ["player", "runner", "swimmer"]},
+    },
+}
+
+
+def check_meaning(tid, meaning, words):
+    """Every word the meaning section names has to be a real word or tag of the topic."""
+    known = {w for ws in words.values() for w in ws} | set(meaning.get("tags", {})) | {"being", "thing", "place"}
+    named = set()
+    for t, ws in meaning.get("tags", {}).items():
+        named |= set(ws)
+    named |= set(meaning.get("size", {})) | set(meaning.get("holds", {}))
+    for section in ("verbs", "adjectives"):
+        for w, rule in meaning.get(section, {}).items():
+            named.add(w)
+            for key in ("who", "what"):
+                named |= {x.lstrip("!") for x in rule.get(key, [])}
+    for w, can in meaning.get("canBe", {}).items():
+        named |= set(can) | ({w} if w != "*" else set())
+    unknown = sorted(named - known)
+    if unknown:
+        raise SystemExit("%s: the meaning section names words the topic does not have: %s"
+                         % (tid, ", ".join(unknown)))
+
+
 def build():
     os.makedirs(OUT, exist_ok=True)
     index, grand = [], 0
@@ -454,6 +663,10 @@ def build():
                  "objectPronoun": OBJECT_PRONOUNS, "be": BE, **topic["words"]}
         rules, structures = grammar(words, topic.get("rules"), topic.get("structures", ()))
         total = sum(shapes.count(shapes.parse(shape, rules), words) for *_, shape in structures)
+        silly_rules, silly_structures = silly_grammar(words)
+        silly_total = sum(shapes.count(shapes.parse(shape, silly_rules), words) for *_, shape in silly_structures)
+        meaning = MEANING.get(tid, {})
+        check_meaning(tid, meaning, words)
         used_pos = [p for p in FAMILY_OF if words.get(p)]
         used_fam = {FAMILY_OF[p] for p in used_pos}
 
@@ -477,6 +690,16 @@ def build():
                          for sid, name, blocks, shape in structures],
             "clashes": [c for c in SHARED_CLASHES + topic.get("clashes", [])
                         if all(any(w in ws for ws in words.values()) for w in c[:2])],
+            "meaning": meaning,
+            # Silly mode swaps these in (see BW.Grammar.forMode): looser shapes, no meaning
+            "silly": {
+                "sentenceCount": silly_total,
+                "rules": silly_rules,
+                "patterns": [{"id": "%s-silly-%s" % (tid, sid), "name": name, "blocks": blocks,
+                              "end": [".", "!"], "shape": shape}
+                             for sid, name, blocks, shape in silly_structures],
+                "clashes": GRAMMAR_CLASHES,
+            },
             "punctuation": [
                 {"mark": ".", "name": "period"},
                 {"mark": "!", "name": "exclamation point"},
@@ -486,7 +709,7 @@ def build():
             json.dump(pack, f, indent=2, ensure_ascii=False)
 
         index.append({"id": tid, "name": topic["name"], "emoji": topic["emoji"],
-                      "file": "topics/%s.json" % tid, "sentences": total})
+                      "file": "topics/%s.json" % tid, "sentences": total, "sillySentences": silly_total})
         grand += total
         print("%-9s %12s sentences   %3d words across %d kinds"
               % (topic["name"], "{:,}".format(total), sum(len(v) for v in pack["words"].values()),

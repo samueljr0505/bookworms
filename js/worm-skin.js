@@ -58,3 +58,22 @@ BW.chooseTopic = function (index, id) {
   const wanted = id || BW.urlTopic() || BW.savedTopic() || index.defaultTopic;
   return index.topics.find(t => t.id === wanted) || index.topics[0];
 };
+
+/* ---------- Real or Silly sentences ---------- */
+
+/* Real: the sentence has to make sense - "The mouse carried the horse." is wrong.
+   Silly: it only has to sound right - "The pencil ate the gym." is fine. */
+BW.MODES = ['real', 'silly'];
+BW.MODE_KEY = 'bookworms.mode';
+
+BW.saveMode = function (mode) {
+  try { localStorage.setItem(BW.MODE_KEY, mode); } catch (e) { /* not important */ }
+};
+
+/* The address wins, then the remembered choice, then Real. */
+BW.chooseMode = function () {
+  let url = null, saved = null;
+  try { url = new URLSearchParams(location.search).get('mode'); } catch (e) { /* no address */ }
+  try { saved = localStorage.getItem(BW.MODE_KEY); } catch (e) { /* no storage */ }
+  return [url, saved].find(m => BW.MODES.includes(m)) || 'real';
+};

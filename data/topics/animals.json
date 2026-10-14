@@ -556,6 +556,293 @@
       "you are in a garden, not under it"
     ]
   ],
+  "meaning": {
+    "tags": {
+      "bird": [
+        "bird",
+        "duck"
+      ],
+      "digger": [
+        "dog",
+        "puppy",
+        "fox"
+      ],
+      "chewer": [
+        "cat",
+        "dog",
+        "rabbit",
+        "horse",
+        "mouse",
+        "puppy",
+        "kitten",
+        "fox"
+      ]
+    },
+    "size": {
+      "mouse": 1,
+      "bird": 1,
+      "kitten": 1,
+      "duck": 2,
+      "rabbit": 2,
+      "puppy": 2,
+      "cat": 2,
+      "fox": 2,
+      "dog": 3,
+      "horse": 5,
+      "bone": 0,
+      "ball": 0,
+      "stick": 0,
+      "carrot": 0,
+      "toy": 0,
+      "leaf": 0
+    },
+    "holds": {
+      "nest": 1,
+      "hole": 2,
+      "tree": {
+        "under": 9,
+        "*": 2
+      }
+    },
+    "verbs": {
+      "hopped": {
+        "who": [
+          "rabbit",
+          "bird",
+          "mouse"
+        ],
+        "why": "only small, light animals hop"
+      },
+      "crawled": {
+        "who": [
+          "!horse",
+          "!bird"
+        ],
+        "why": "that animal walks - it does not crawl"
+      },
+      "carried": {
+        "bigger": -1,
+        "base": "carry"
+      },
+      "chased": {
+        "bigger": 1,
+        "base": "chase",
+        "what": [
+          "being",
+          "ball",
+          "leaf",
+          "stick",
+          "toy"
+        ],
+        "why": "you chase something that moves"
+      },
+      "followed": {
+        "bigger": 1,
+        "base": "follow",
+        "what": [
+          "being"
+        ],
+        "why": "you follow someone who is going somewhere"
+      },
+      "chewed": {
+        "who": [
+          "chewer"
+        ],
+        "why": "a bird has a beak - it cannot chew"
+      },
+      "buried": {
+        "who": [
+          "digger"
+        ],
+        "why": "dogs and foxes bury things - not that animal"
+      },
+      "gave": {
+        "who": [
+          "!being"
+        ],
+        "why": "animals do not give presents - try a Pronoun like \"She\""
+      },
+      "brought": {
+        "who": [
+          "dog",
+          "puppy"
+        ],
+        "why": "a dog brings things back - not that animal"
+      }
+    },
+    "adjectives": {
+      "fluffy": {
+        "what": [
+          "!bird",
+          "!duck",
+          "!horse"
+        ],
+        "why": "that animal has feathers or short hair, not fluff"
+      },
+      "grey": {
+        "what": [
+          "!carrot"
+        ],
+        "why": "a carrot is orange"
+      },
+      "brown": {
+        "what": [
+          "!carrot"
+        ],
+        "why": "a carrot is orange"
+      }
+    },
+    "canBe": {
+      "*": []
+    }
+  },
+  "silly": {
+    "sentenceCount": 331118387178,
+    "rules": {
+      "adj": "adjective | mood",
+      "anyNoun": "noun | thing | place",
+      "one": "determiner <adj>? <anyNoun>",
+      "anything": "<one>",
+      "subjectOne": "<anything> | 'He' | 'She' | 'I'",
+      "subjectMany": "'They' | 'We'",
+      "subject": "<subjectOne> | <subjectMany>",
+      "someone": "<anything> | objectPronoun",
+      "to": "motionPrep <someone>",
+      "at": "placePrep <someone>",
+      "where": "<to> | <at>"
+    },
+    "patterns": [
+      {
+        "id": "animals-silly-moving",
+        "name": "Action sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb move <where>? | move <where>? adverb? )"
+      },
+      {
+        "id": "animals-silly-staying",
+        "name": "Action sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb stay <at>? | stay <at>? adverb? )"
+      },
+      {
+        "id": "animals-silly-take",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb take <someone> <where>? | take <someone> <where>? adverb? )"
+      },
+      {
+        "id": "animals-silly-push",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb push <someone> <where>? | push <someone> <where>? adverb? )"
+      },
+      {
+        "id": "animals-silly-see",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb see <someone> <at>? | see <someone> <at>? adverb? )"
+      },
+      {
+        "id": "animals-silly-use",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb use <someone> <at>? | use <someone> <at>? adverb? )"
+      },
+      {
+        "id": "animals-silly-giving",
+        "name": "Giving sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Object?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> adverb? give ( <someone> <someone> | <someone> ( 'to' <someone> )? )"
+      },
+      {
+        "id": "animals-silly-describing",
+        "name": "Describing sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Complement"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subjectOne> 'was' ( <adj> <at>? | 'a' <adj>? <anyNoun> <at>? | <at> ) | <subjectMany> 'were' ( <adj> <at>? | <at> )"
+      }
+    ],
+    "clashes": [
+      [
+        "I",
+        "me",
+        "say \"myself\" for that - or pick someone else"
+      ],
+      [
+        "We",
+        "us",
+        "say \"ourselves\" for that - or pick someone else"
+      ]
+    ]
+  },
   "punctuation": [
     {
       "mark": ".",

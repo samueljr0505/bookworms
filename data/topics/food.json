@@ -564,6 +564,11 @@
       "you just see something - no care needed"
     ],
     [
+      "hurried",
+      "slowly",
+      "hurrying is fast, not slow"
+    ],
+    [
       "I",
       "me",
       "say \"myself\" for that - or pick someone else"
@@ -659,6 +664,298 @@
       "you walk around a market, not sit in it"
     ]
   ],
+  "meaning": {
+    "tags": {
+      "grownup": [
+        "chef",
+        "baker",
+        "farmer",
+        "mom",
+        "dad"
+      ]
+    },
+    "size": {
+      "chef": 3,
+      "baker": 3,
+      "farmer": 3,
+      "girl": 3,
+      "boy": 3,
+      "mom": 3,
+      "dad": 3,
+      "friend": 3
+    },
+    "verbs": {
+      "baked": {
+        "what": [
+          "cookie",
+          "pizza",
+          "pie",
+          "cake",
+          "bread",
+          "apple"
+        ],
+        "why": "you bake cookies, pizza, pies, cakes and bread"
+      },
+      "cooked": {
+        "what": [
+          "soup",
+          "rice",
+          "pancake",
+          "carrot"
+        ],
+        "why": "you cook soup, rice, pancakes and carrots"
+      },
+      "made": {
+        "what": [
+          "!apple",
+          "!carrot"
+        ],
+        "why": "apples and carrots grow - nobody makes them"
+      },
+      "cut": {
+        "what": [
+          "!soup",
+          "!rice"
+        ],
+        "why": "you cannot cut that"
+      },
+      "tossed": {
+        "what": [
+          "apple",
+          "carrot",
+          "cookie",
+          "pizza",
+          "pancake"
+        ],
+        "why": "that would make a big mess"
+      }
+    },
+    "adjectives": {
+      "crunchy": {
+        "what": [
+          "apple",
+          "carrot",
+          "cookie",
+          "pizza",
+          "bread",
+          "being"
+        ],
+        "why": "that food is not crunchy"
+      },
+      "sticky": {
+        "what": [
+          "cake",
+          "pie",
+          "rice",
+          "pancake",
+          "cookie",
+          "sandwich",
+          "being"
+        ],
+        "why": "that food is not sticky"
+      },
+      "sweet": {
+        "what": [
+          "!pizza",
+          "!sandwich",
+          "!soup",
+          "!cheese",
+          "!rice"
+        ],
+        "why": "that food is not sweet"
+      }
+    },
+    "canBe": {
+      "*": [
+        "friend"
+      ],
+      "mom": [
+        "chef",
+        "baker",
+        "farmer",
+        "friend"
+      ],
+      "dad": [
+        "chef",
+        "baker",
+        "farmer",
+        "friend"
+      ],
+      "chef": [
+        "baker",
+        "friend"
+      ],
+      "baker": [
+        "chef",
+        "friend"
+      ],
+      "farmer": [
+        "friend"
+      ]
+    }
+  },
+  "silly": {
+    "sentenceCount": 607958474352,
+    "rules": {
+      "adj": "adjective | mood | quality",
+      "anyNoun": "noun | thing | place",
+      "one": "determiner <adj>? <anyNoun>",
+      "mass": "( 'The' | 'the' | 'My' | 'my' ) <adj>? mass",
+      "anything": "<one> | <mass>",
+      "subjectOne": "<anything> | 'He' | 'She' | 'I'",
+      "subjectMany": "'They' | 'We'",
+      "subject": "<subjectOne> | <subjectMany>",
+      "someone": "<anything> | objectPronoun",
+      "to": "motionPrep <someone>",
+      "at": "placePrep <someone>",
+      "where": "<to> | <at>"
+    },
+    "patterns": [
+      {
+        "id": "food-silly-moving",
+        "name": "Action sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb move <where>? | move <where>? adverb? )"
+      },
+      {
+        "id": "food-silly-staying",
+        "name": "Action sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb stay <at>? | stay <at>? adverb? )"
+      },
+      {
+        "id": "food-silly-take",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb take <someone> <where>? | take <someone> <where>? adverb? )"
+      },
+      {
+        "id": "food-silly-push",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb push <someone> <where>? | push <someone> <where>? adverb? )"
+      },
+      {
+        "id": "food-silly-see",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb see <someone> <at>? | see <someone> <at>? adverb? )"
+      },
+      {
+        "id": "food-silly-use",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb use <someone> <at>? | use <someone> <at>? adverb? )"
+      },
+      {
+        "id": "food-silly-giving",
+        "name": "Giving sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Object?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> adverb? give ( <someone> <someone> | <someone> ( 'to' <someone> )? )"
+      },
+      {
+        "id": "food-silly-tasting",
+        "name": "Describing sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Complement"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<anything> ( taste | smell | look ) <adj>"
+      },
+      {
+        "id": "food-silly-describing",
+        "name": "Describing sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Complement"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subjectOne> 'was' ( <adj> <at>? | 'a' <adj>? <anyNoun> <at>? | <at> ) | <subjectMany> 'were' ( <adj> <at>? | <at> )"
+      }
+    ],
+    "clashes": [
+      [
+        "I",
+        "me",
+        "say \"myself\" for that - or pick someone else"
+      ],
+      [
+        "We",
+        "us",
+        "say \"ourselves\" for that - or pick someone else"
+      ]
+    ]
+  },
   "punctuation": [
     {
       "mark": ".",

@@ -110,7 +110,8 @@ window.BW = window.BW || {};
     if (!tokens.length) return null;
     const s = BW.Grammar.newSentence(pack, BW.rng);
     for (const t of tokens) s.add(t.word, t.pos);
-    return s.canEnd() && capitalTrouble(s) < 0 && !repeatedWord(s) && !clashIn(pack, s) ? s : null;
+    return s.canEnd() && capitalTrouble(s) < 0 && !repeatedWord(s) && !clashIn(pack, s) &&
+           !BW.Sense.problem(pack, s.tokens) ? s : null;
   }
 
   /* A corrected sentence to try, built from the topic's own tiles, so a wrong sentence always
@@ -329,15 +330,22 @@ window.BW = window.BW || {};
     else if (unfinished) items.order = say(true, 'So far, so good.');
     else items.order = say(false, explain(pack, sentence, trace));
 
-    // A word said twice is the game's own rule. Whether the rest makes sense needs a judge -
-    // or, with no judge about, a child reading it out loud.
+    // A word said twice is the game's own rule. In Real mode the topic's clashes and its
+    // meaning section (js/sense.js) catch what they know about; the rest needs a judge - or,
+    // with no judge about, a child reading it out loud. Silly mode only asks that it sounds
+    // right, so "The pencil ate the gym." is fine.
     const twice = repeatedWord(sentence);
     const clash = clashIn(pack, sentence);
+    const odd = BW.Sense.problem(pack, tokens);
     items.sense = twice
       ? say(false, '"' + twice.word + '" is used twice. Use a different word the second time.')
       : clash
       ? say(false, '"' + clash.first + '" and "' + clash.second + '" do not go together' +
                    (clash.why ? ': ' + clash.why + '.' : '.'))
+      : odd
+      ? say(false, '"' + odd.words[0] + '" and "' + odd.words[1] + '" do not go together: ' + odd.why + '.')
+      : pack.mode === 'silly'
+      ? say(true, 'Silly mode: it does not have to make sense!')
       : say(null, 'Read it out loud: does it make sense?');
 
     if (unfinished) {
@@ -368,6 +376,7 @@ window.BW = window.BW || {};
       next: unfinished ? nextStep(pack, sentence) : '',
       items: ORDER.filter(id => items[id]).map(id => ({ id, title: titles[id], ...items[id] })),
       by: 'rules',
+      silly: pack.mode === 'silly',
       rescued: false,
       suggestion: '',
       praise: ''
@@ -375,7 +384,8 @@ window.BW = window.BW || {};
     if (report.verdict === 'wrong') {
       // fix the first thing that went wrong: the word that broke the shape, else the word
       // said twice, else the word that clashes; a wrong end mark just needs the right one
-      const problems = [trace.at, capAt, twice ? twice.at : -1, clash ? clash.at : -1].filter(i => i >= 0);
+      const problems = [trace.at, capAt, twice ? twice.at : -1, clash ? clash.at : -1, odd ? odd.at : -1]
+        .filter(i => i >= 0);
       const at = problems.length ? Math.min(...problems) : sentence.tokens.length;
       report.suggestion = suggest(pack, sentence, mark, at, trace.finished && at === trace.at);
     }
@@ -407,7 +417,7 @@ window.BW = window.BW || {};
     }
     // When both say no, the rules' reason stays: it points at the exact word.
 
-    if (sense.ok !== false) {                  // a word said twice stays a problem
+    if (sense.ok !== false && !out.silly) {    // a word said twice stays a problem; Silly needs no sense
       sense.ok = !!verdict.makes_sense;
       sense.note = verdict.makes_sense ? 'The words fit together.'
                  : verdict.grammatical ? (feedback || 'The words do not fit together.')
@@ -416,7 +426,8 @@ window.BW = window.BW || {};
     // the judge's corrected sentence when it gave one, otherwise the rules' own
     const suggestion = String(verdict.suggestion || '').trim();
     if (suggestion && suggestion !== report.text) out.suggestion = suggestion;
-    out.praise = feedback;
+    // in Silly mode the judge's word on meaning ("a pencil cannot eat") is not praise
+    out.praise = out.silly && !verdict.makes_sense ? '' : feedback;
     return finish(out);
   }
 

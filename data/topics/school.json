@@ -470,6 +470,11 @@
       "you just see something - no care needed"
     ],
     [
+      "hurried",
+      "slowly",
+      "hurrying is fast, not slow"
+    ],
+    [
       "I",
       "me",
       "say \"myself\" for that - or pick someone else"
@@ -620,6 +625,252 @@
       "a desk is too small to go across"
     ]
   ],
+  "meaning": {
+    "tags": {
+      "kid": [
+        "student",
+        "classmate",
+        "boy",
+        "girl"
+      ],
+      "role": [
+        "friend",
+        "reader",
+        "writer",
+        "helper"
+      ]
+    },
+    "size": {
+      "teacher": 4,
+      "student": 3,
+      "classmate": 3,
+      "boy": 3,
+      "girl": 3,
+      "friend": 3,
+      "reader": 3,
+      "writer": 3,
+      "helper": 3,
+      "book": 0,
+      "pencil": 0,
+      "paper": 0,
+      "backpack": 1,
+      "crayon": 0,
+      "note": 0
+    },
+    "holds": {
+      "desk": {
+        "under": 3,
+        "*": 0
+      }
+    },
+    "verbs": {
+      "carried": {
+        "bigger": -1,
+        "base": "carry"
+      },
+      "read": {
+        "what": [
+          "book",
+          "note",
+          "paper"
+        ],
+        "why": "you read a book, a note or a paper"
+      },
+      "wrote": {
+        "what": [
+          "book",
+          "note",
+          "paper"
+        ],
+        "why": "you write a book, a note or on paper"
+      },
+      "opened": {
+        "what": [
+          "book",
+          "backpack",
+          "note"
+        ],
+        "why": "you open a book, a note or a backpack"
+      },
+      "lent": {
+        "what": [
+          "thing"
+        ],
+        "why": "you lend things, not people"
+      }
+    },
+    "adjectives": {
+      "tall": {
+        "what": [
+          "being"
+        ],
+        "why": "tall describes a person"
+      }
+    },
+    "canBe": {
+      "*": [
+        "friend",
+        "reader",
+        "writer",
+        "helper",
+        "student",
+        "classmate"
+      ],
+      "teacher": [
+        "friend",
+        "reader",
+        "writer",
+        "helper"
+      ]
+    }
+  },
+  "silly": {
+    "sentenceCount": 602049847220,
+    "rules": {
+      "adj": "adjective | mood | quality",
+      "anyNoun": "noun | thing | place",
+      "one": "determiner <adj>? <anyNoun>",
+      "anything": "<one>",
+      "subjectOne": "<anything> | 'He' | 'She' | 'I'",
+      "subjectMany": "'They' | 'We'",
+      "subject": "<subjectOne> | <subjectMany>",
+      "someone": "<anything> | objectPronoun",
+      "to": "motionPrep <someone>",
+      "at": "placePrep <someone>",
+      "where": "<to> | <at>"
+    },
+    "patterns": [
+      {
+        "id": "school-silly-moving",
+        "name": "Action sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb move <where>? | move <where>? adverb? )"
+      },
+      {
+        "id": "school-silly-staying",
+        "name": "Action sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb stay <at>? | stay <at>? adverb? )"
+      },
+      {
+        "id": "school-silly-take",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb take <someone> <where>? | take <someone> <where>? adverb? )"
+      },
+      {
+        "id": "school-silly-push",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb push <someone> <where>? | push <someone> <where>? adverb? )"
+      },
+      {
+        "id": "school-silly-see",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb see <someone> <at>? | see <someone> <at>? adverb? )"
+      },
+      {
+        "id": "school-silly-use",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb use <someone> <at>? | use <someone> <at>? adverb? )"
+      },
+      {
+        "id": "school-silly-giving",
+        "name": "Giving sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Object?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> adverb? give ( <someone> <someone> | <someone> ( 'to' <someone> )? )"
+      },
+      {
+        "id": "school-silly-describing",
+        "name": "Describing sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Complement"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subjectOne> 'was' ( <adj> <at>? | 'a' <adj>? <anyNoun> <at>? | <at> ) | <subjectMany> 'were' ( <adj> <at>? | <at> )"
+      }
+    ],
+    "clashes": [
+      [
+        "I",
+        "me",
+        "say \"myself\" for that - or pick someone else"
+      ],
+      [
+        "We",
+        "us",
+        "say \"ourselves\" for that - or pick someone else"
+      ]
+    ]
+  },
   "punctuation": [
     {
       "mark": ".",

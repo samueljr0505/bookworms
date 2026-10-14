@@ -17,7 +17,8 @@ window.BW = window.BW || {};
       if (!r.ok) throw new Error(topic.file + ': HTTP ' + r.status);
       return r.json();
     });
-    return pack;
+    // Real (it has to make sense) or Silly (it only has to sound right), from the home page
+    return BW.Grammar.forMode(pack, BW.chooseMode());
   }
 
   /* Players only ever see the family a part of speech belongs to. The fine-grained
@@ -233,10 +234,12 @@ window.BW = window.BW || {};
   }
 
   function renderJudge(status) {
-    $('checker-status').textContent = status.state === 'on'
+    const silly = BW.game && BW.game.pack.mode === 'silly';
+    $('checker-status').textContent = (status.state === 'on'
       ? 'Sentences are checked by the game\'s rules and an AI judge.'
       : 'Sentences are checked by the game\'s rules.' +
-        (status.saved ? ' ' + status.saved + ' saved answers from the judge are used too.' : '');
+        (status.saved ? ' ' + status.saved + ' saved answers from the judge are used too.' : '')) +
+      (silly ? ' Silly mode: a sentence only has to sound right, not make sense.' : '');
   }
 
   let messageTimer = null;
@@ -332,6 +335,7 @@ window.BW = window.BW || {};
     document.title = 'Bookworms - ' + pack.name;
     const heading = document.querySelector('.tagline');
     if (heading) heading.textContent = pack.emoji + ' ' + pack.name +
+      (pack.mode === 'silly' ? ' · 🤪 Silly sentences' : ' · 🌍 Real sentences') +
       ' - eat the words in the right order and build a sentence.';
 
     const wardrobe = await loadWardrobe();
@@ -369,6 +373,7 @@ window.BW = window.BW || {};
     $('report-go').addEventListener('click', () => { game.carryOn(null); $('report-go').blur(); });
 
     window.BW.game = game;   // handy for poking at in the browser console
+    renderJudge(BW.Judge.status());
   }
 
   document.addEventListener('DOMContentLoaded', boot);

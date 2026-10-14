@@ -645,6 +645,226 @@
       "a nervous player is not proud"
     ]
   ],
+  "meaning": {
+    "size": {
+      "player": 3,
+      "coach": 3,
+      "runner": 3,
+      "swimmer": 3,
+      "goalie": 3,
+      "referee": 3,
+      "fan": 3,
+      "ball": 0,
+      "bat": 0,
+      "helmet": 0,
+      "trophy": 0,
+      "medal": 0,
+      "whistle": 0,
+      "glove": 0
+    },
+    "holds": {
+      "net": 0
+    },
+    "verbs": {
+      "threw": {
+        "what": [
+          "ball",
+          "glove",
+          "helmet",
+          "being"
+        ],
+        "why": "you throw a ball, not that"
+      },
+      "passed": {
+        "what": [
+          "ball",
+          "bat",
+          "glove",
+          "helmet",
+          "whistle",
+          "being"
+        ],
+        "why": "you pass a ball, not that"
+      },
+      "cheered": {
+        "who": [
+          "!referee"
+        ],
+        "why": "a referee has to stay fair - no cheering"
+      }
+    },
+    "canBe": {
+      "*": [],
+      "player": [
+        "goalie",
+        "runner",
+        "swimmer"
+      ],
+      "runner": [
+        "player",
+        "swimmer"
+      ],
+      "swimmer": [
+        "player",
+        "runner"
+      ],
+      "goalie": [
+        "player"
+      ],
+      "fan": [
+        "player",
+        "runner",
+        "swimmer"
+      ]
+    }
+  },
+  "silly": {
+    "sentenceCount": 756914926414,
+    "rules": {
+      "adj": "adjective | mood | quality",
+      "anyNoun": "noun | thing | place",
+      "one": "determiner <adj>? <anyNoun>",
+      "anything": "<one>",
+      "subjectOne": "<anything> | 'He' | 'She' | 'I'",
+      "subjectMany": "'They' | 'We'",
+      "subject": "<subjectOne> | <subjectMany>",
+      "someone": "<anything> | objectPronoun",
+      "to": "motionPrep <someone>",
+      "at": "placePrep <someone>",
+      "where": "<to> | <at>"
+    },
+    "patterns": [
+      {
+        "id": "sports-silly-moving",
+        "name": "Action sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb move <where>? | move <where>? adverb? )"
+      },
+      {
+        "id": "sports-silly-staying",
+        "name": "Action sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb stay <at>? | stay <at>? adverb? )"
+      },
+      {
+        "id": "sports-silly-take",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb take <someone> <where>? | take <someone> <where>? adverb? )"
+      },
+      {
+        "id": "sports-silly-push",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb push <someone> <where>? | push <someone> <where>? adverb? )"
+      },
+      {
+        "id": "sports-silly-see",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb see <someone> <at>? | see <someone> <at>? adverb? )"
+      },
+      {
+        "id": "sports-silly-use",
+        "name": "Object sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Modifier?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> ( adverb use <someone> <at>? | use <someone> <at>? adverb? )"
+      },
+      {
+        "id": "sports-silly-giving",
+        "name": "Giving sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Object",
+          "Object?"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subject> adverb? give ( <someone> <someone> | <someone> ( 'to' <someone> )? )"
+      },
+      {
+        "id": "sports-silly-describing",
+        "name": "Describing sentence",
+        "blocks": [
+          "Subject",
+          "Verb",
+          "Complement"
+        ],
+        "end": [
+          ".",
+          "!"
+        ],
+        "shape": "<subjectOne> 'was' ( <adj> <at>? | 'a' <adj>? <anyNoun> <at>? | <at> ) | <subjectMany> 'were' ( <adj> <at>? | <at> )"
+      }
+    ],
+    "clashes": [
+      [
+        "I",
+        "me",
+        "say \"myself\" for that - or pick someone else"
+      ],
+      [
+        "We",
+        "us",
+        "say \"ourselves\" for that - or pick someone else"
+      ]
+    ]
+  },
   "punctuation": [
     {
       "mark": ".",

@@ -273,6 +273,7 @@ window.BW = window.BW || {};
       this.tokens = [];          // [{ word, pos }] - everything eaten, whether it fits or not
       this.tracks = freshTracks(this.pack);
       this.wanted = null;        // what wants() worked out for the current states
+      this.ahead = null;         // what leadsOn() worked out: words after these -> can it finish?
       this.punctuation = null;
       return lost;
     }
@@ -283,6 +284,7 @@ window.BW = window.BW || {};
       this.tokens.push({ word, pos });
       for (const t of this.tracks) t.states = advance(t.nfa, t.states, word, pos);
       this.wanted = null;
+      this.ahead = null;
     }
 
     /* Guided building, for the tests: add the word only if it keeps the sentence on track. */
@@ -379,33 +381,59 @@ window.BW = window.BW || {};
 
     /* Would eating this word keep the sentence on track? That is what the hints outline. */
     fits(word, pos) {
-      if (this.repeats(word, pos) || this.clashWith(word)) return false;
-      if (!this.capitalFits(word, pos, this.tokens.length)) return false;
+      if (!this.allows(word, pos)) return false;
       return this.leadsOn(word, pos);
     }
 
-    /* After this word, is there still a way on? Words that clash can paint a sentence into a
-       corner - "A goalie swam across a muddy..." can only end at a pool, and a pool is never
-       muddy - so the hints look one word ahead. Cheap: it only checks the next word's rules
-       (repeats, clashes, capitals), not where that word would lead. */
+    /* The word's own rules, right where it would go: not said twice, no clash, the right
+       capital letter, and (in Real mode) it makes sense with the words before it. */
+    allows(word, pos) {
+      if (this.repeats(word, pos) || this.clashWith(word)) return false;
+      if (!this.capitalFits(word, pos, this.tokens.length)) return false;
+      return !BW.Sense || BW.Sense.fits(this.pack, this.tokens, word, pos);
+    }
+
+    /* After this word, is there still a way to finish? Words that clash or do not make sense
+       together can paint a sentence into a corner - "The horse hid in the..." has no place
+       big enough - so the hints look ahead, a few words at most, until the sentence could
+       end. What it finds is kept until the next word is eaten, because the board asks about
+       every word in the topic in a row and they share most of the road ahead. */
     leadsOn(word, pos) {
-      const after = this.live()
-        .map(t => ({ pattern: t.pattern, nfa: t.nfa, states: advance(t.nfa, t.states, word, pos) }))
-        .filter(t => t.states.size > 0);
-      if (!after.length) return false;
-      if (after.some(t => t.states.has(t.nfa.accept))) return true;
+      if (!this.ahead) this.ahead = new Map();
       this.tokens.push({ word, pos });
       try {
-        for (const m of wantedBy(this.pack, after)) {
-          const p = m.pos || posOfWord(this.pack, m.word);
-          for (const w of m.word ? [m.word] : (this.pack.words[m.pos] || [])) {
-            if (!this.repeats(w, p) && !this.clashWith(w) && this.capitalFits(w, p, this.tokens.length)) return true;
-          }
-        }
-        return false;
+        return this.canFinish(this.live(), word, pos, 6);
       } finally {
         this.tokens.pop();
       }
+    }
+
+    /* `tracks` are the shapes before the last word in this.tokens; `depth` is how many more
+       words the search may add after it. */
+    canFinish(tracks, word, pos, depth) {
+      const key = this.tokens.map(t => t.word).join(' ');
+      if (this.ahead.has(key)) return this.ahead.get(key);
+      const after = tracks
+        .map(t => ({ pattern: t.pattern, nfa: t.nfa, states: advance(t.nfa, t.states, word, pos) }))
+        .filter(t => t.states.size > 0);
+      let ok = after.some(t => t.states.has(t.nfa.accept));
+      if (!ok && after.length && depth > 0) {
+        search:
+        for (const m of wantedBy(this.pack, after)) {
+          const p = m.pos || posOfWord(this.pack, m.word);
+          for (const w of m.word ? [m.word] : (this.pack.words[m.pos] || [])) {
+            if (!this.allows(w, p)) continue;
+            this.tokens.push({ word: w, pos: p });
+            try {
+              if (this.canFinish(after, w, p, depth - 1)) { ok = true; break search; }
+            } finally {
+              this.tokens.pop();
+            }
+          }
+        }
+      }
+      this.ahead.set(key, ok);
+      return ok;
     }
 
     /* Replay the words from the start and find the first one no shape could take.
@@ -557,7 +585,19 @@ window.BW = window.BW || {};
     return problems;
   }
 
+  /* A topic as played in Real or Silly mode. Real is the topic as written, with its
+     `meaning` section (js/sense.js). Silly swaps in the looser shapes the topic carries in
+     `silly` - any Adjective with any Noun, anything as the subject - and drops the meaning
+     and the clashes about meaning, so only the grammar is checked. */
+  function forMode(pack, mode) {
+    if (mode === 'silly' && pack.silly) {
+      return { ...pack, ...pack.silly, meaning: null, mode: 'silly' };
+    }
+    return { ...pack, mode: 'real' };
+  }
+
   BW.Grammar = {
+    forMode,
     slotPos,
     slotOptional,
     parse,

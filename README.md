@@ -8,6 +8,14 @@ verb, does it sound right, does it make sense, end mark - and if it passes, it g
 Sentences are built from real building blocks - a subject, a verb, and if you like an object and
 modifiers - in five topics: Animals, School, Food, Fantasy and Sports.
 
+On the home page the player also picks **Real** or **Silly**:
+
+- **Real** - the sentence has to make sense. "The mouse carried the horse." is marked wrong: *a
+  horse is too big for a mouse to carry.*
+- **Silly** - the sentence only has to sound right. Any Adjective goes with any Noun and anything
+  can do anything, so "The pencil ate the gym." is a fine sentence. Capitals, word order, *a* /
+  *the*, repeated words and end marks are still checked.
+
 **The worm's body is the sentence.** Every word you eat is written along the body, one letter per
 square, coloured by its part of speech - read your worm from its tail to its head to see what you
 have built. Long words make you long. Crash into a wall or into yourself and those words fall off
@@ -113,6 +121,13 @@ which words fit where and which words cannot share a sentence, so the rules catc
 - "A rice is soft." - *"rice" is not something you can count, so it goes with "The" or "My".*
 - "The small reader is tall." - *"small" and "tall" do not go together: someone cannot be tall and
   small at once.*
+
+In Real mode the topic's `meaning` section catches sentences that sound right but could not
+happen (see [Real mode: what makes sense](#real-mode-what-makes-sense)):
+
+- "The mouse carried the horse." - *a horse is too big for a mouse to carry.*
+- "The knight flew over the castle." - *only a dragon has wings to fly.*
+- "The boy was a teacher." - *a boy cannot be a teacher.*
 
 **Every wrong sentence gets feedback**: the reason, pinned to the word, and a corrected sentence to
 try, built from the topic's own tiles and changing as little as possible ("The dog cat ran." -
@@ -239,6 +254,7 @@ bookworms/
     config.js           tweakable numbers: speed, board size, rules, points
     util.js             random-number helpers and the sound effects
     grammar.js          sentence-shape language: which shapes the words fit, what could come next
+    sense.js            Real mode: does the sentence make sense (sizes, who can do what)
     checker.js          checks a finished sentence, and folds in the judge's answer
     judge.js            asks the judge: saved answers first, then the server
     worm.js             the worm: its squares, turning, growing, shrinking
@@ -316,6 +332,31 @@ hear:
 
 The game marks that sentence wrong with that reason, the hints never lead to it, and the tests
 check that a correct sentence can still always be finished.
+
+### Real mode: what makes sense
+
+The word lists already keep beings, things and places apart. The `MEANING` table in
+`tools/build-topics.py` says which of them go together, and `js/sense.js` checks it as each word
+is eaten - so the hints never lead to nonsense, and a wrong word gets a reason pinned to it:
+
+| Field | Says | Example |
+| --- | --- | --- |
+| `tags` | names groups of words | `"flyer": ["dragon"]` |
+| `size` | how big something is: 0 you hold it, 1 a mouse, 3 a person, 5 a giant | `"horse": 5` |
+| `holds` | the biggest size that fits in / into / inside / through / under a place | `"nest": 1` |
+| `verbs` | `who` can do it, `what` it is done to, `bigger` for carry-like verbs, and the `why` | `"flew": {"who": ["flyer"], "why": "only a dragon has wings to fly"}` |
+| `adjectives` | what an Adjective can describe | `"tall": {"what": ["being"]}` |
+| `canBe` | "The boy was a ___" | `"teacher": ["friend", "reader"]` |
+
+A list names words or tags, and `"!"` rules one out (`"who": ["!horse"]`). Pronouns could be
+anyone, so they are never ruled out, and a word the table does not mention is never blocked.
+`build-topics.py` refuses to build if the table names a word the topic does not have.
+
+Silly mode uses a looser copy of the sentence shapes that `build-topics.py` writes into each topic
+file under `"silly"`, and ignores the meaning table and the meaning clashes.
+
+`tools/list-sentences.py` still samples by shape and clashes only, so it can show sentences that
+Real mode's meaning table would turn down.
 
 ### Add a worm colour
 
