@@ -1,5 +1,5 @@
 {
-  "_comment": "Everything a worm can wear. Each item's id is also how it is drawn - boards in js/board-art.js, everything else in js/worm-art.js - so a new item needs a drawing there too. Prices are in points: one finished five-word sentence is worth about 100.",
+  "_comment": "Everything a worm can wear. Each item's id is also how it is drawn - boards in js/board-art.js, everything else in js/worm-art.js - so a new item needs a drawing there too. Prices are in points: one correct sentence is worth 20.",
   "slots": [
     { "id": "color",   "name": "Colors",   "emoji": "🎨" },
     { "id": "hat",     "name": "Hats",     "emoji": "🎩" },

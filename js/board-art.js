@@ -26,11 +26,13 @@ BW.BoardArt = (function () {
     }
   }
 
-  /* Each board: `frame` colours the border round the board in the game; `paint` draws the
-     still part; `move` (if any) draws what moves, every frame. */
+  /* Each board: `frame` colours the border round the board in the game; `grid` is the faint
+     line round every square, so a player can still see the squares the worm moves along;
+     `paint` draws the still part; `move` (if any) draws what moves, every frame. */
   const BOARDS = {
     garden: {
       frame: '#cdb98f',
+      grid: 'rgba(120, 100, 70, 0.09)',
       paint(ctx, W, H, cell) {
         ctx.fillStyle = '#fdf6e8'; ctx.fillRect(0, 0, W, H);
         checker(ctx, W, H, cell, 'rgba(140, 190, 120, 0.08)');
@@ -39,6 +41,7 @@ BW.BoardArt = (function () {
 
     notebook: {
       frame: '#9fb7d9',
+      grid: 'rgba(110, 160, 220, 0.16)',
       paint(ctx, W, H, cell) {
         ctx.fillStyle = '#fffefa'; ctx.fillRect(0, 0, W, H);
         ctx.strokeStyle = 'rgba(110, 160, 220, 0.35)'; ctx.lineWidth = Math.max(1, cell / 26);
@@ -56,6 +59,7 @@ BW.BoardArt = (function () {
 
     chalkboard: {
       frame: '#8a5a33',
+      grid: 'rgba(255, 255, 255, 0.07)',
       paint(ctx, W, H, cell) {
         ctx.fillStyle = '#35564a'; ctx.fillRect(0, 0, W, H);
         const rnd = seeded(7);
@@ -79,6 +83,7 @@ BW.BoardArt = (function () {
 
     candy: {
       frame: '#f29cc2',
+      grid: 'rgba(200, 90, 140, 0.10)',
       paint(ctx, W, H, cell) {
         ctx.fillStyle = '#ffe6f1'; ctx.fillRect(0, 0, W, H);
         ctx.save();
@@ -103,6 +108,7 @@ BW.BoardArt = (function () {
 
     beach: {
       frame: '#e2bb72',
+      grid: 'rgba(150, 110, 50, 0.10)',
       paint(ctx, W, H, cell) {
         const sand = ctx.createLinearGradient(0, 0, 0, H);
         sand.addColorStop(0, '#f8e7bd'); sand.addColorStop(1, '#f1d79f');
@@ -132,6 +138,7 @@ BW.BoardArt = (function () {
 
     cabin: {
       frame: '#9c6b3f',
+      grid: 'rgba(110, 70, 30, 0.09)',
       paint(ctx, W, H, cell) {
         ctx.fillStyle = '#ecd2a6'; ctx.fillRect(0, 0, W, H);
         const rnd = seeded(5);
@@ -162,6 +169,7 @@ BW.BoardArt = (function () {
 
     snow: {
       frame: '#9cc7e4',
+      grid: 'rgba(90, 140, 190, 0.12)',
       paint(ctx, W, H, cell) {
         const sky = ctx.createLinearGradient(0, 0, 0, H);
         sky.addColorStop(0, '#e3f1fb'); sky.addColorStop(1, '#f6fbff');
@@ -190,6 +198,7 @@ BW.BoardArt = (function () {
 
     space: {
       frame: '#4a3f7a',
+      grid: 'rgba(200, 190, 255, 0.08)',
       paint(ctx, W, H, cell) {
         const sky = ctx.createLinearGradient(0, 0, W, H);
         sky.addColorStop(0, '#1d2347'); sky.addColorStop(1, '#2d2156');
@@ -227,6 +236,16 @@ BW.BoardArt = (function () {
     }
   };
 
+  /* The faint grid over every board: one thin line along each edge of the squares. */
+  function gridLines(ctx, W, H, cell, color) {
+    ctx.strokeStyle = color || 'rgba(120, 100, 70, 0.09)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = cell; x < W; x += cell) { ctx.moveTo(Math.round(x) + 0.5, 0); ctx.lineTo(Math.round(x) + 0.5, H); }
+    for (let y = cell; y < H; y += cell) { ctx.moveTo(0, Math.round(y) + 0.5); ctx.lineTo(W, Math.round(y) + 0.5); }
+    ctx.stroke();
+  }
+
   const cache = new Map();
 
   /* The still part of a board, painted once per size and kept. */
@@ -240,6 +259,7 @@ BW.BoardArt = (function () {
       const cx = c.getContext('2d');
       cx.scale(dpr, dpr);
       BOARDS[id].paint(cx, W, H, cell);
+      gridLines(cx, W, H, cell, BOARDS[id].grid);
       if (cache.size > 60) cache.delete(cache.keys().next().value);
       cache.set(key, c);
     }

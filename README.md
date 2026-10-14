@@ -62,7 +62,7 @@ what each test proves.
 - **Eat a punctuation mark to end the sentence, and it gets checked.** The worm stops while the
   checker reads it, then shows a checklist with a reason for anything that failed. Press an arrow
   key to carry on.
-  - **Right:** it goes up on your list, with points for every word in it.
+  - **Right:** it goes up on your list and scores 20 points.
   - **Not finished yet:** the checker says what is missing ("What happens? Add a Verb."), and the
     words stay on the worm so you can keep building.
   - **Not quite right:** the checker says which word and why, and the words go back on the board
@@ -89,7 +89,7 @@ shop, `shop.html`, on things for the worm to wear:
 - Tap anything to **try it on** in the dressing room before buying. Buying takes two taps, so
   nothing is bought by accident, and the worm puts it on straight away.
 - Saved points only go up by playing and down by buying - a wrong sentence costs points in the
-  game's score, never in the shop. Prices run from 100 to 1000; a five-word sentence is about 100.
+  game's score, never in the shop. Prices run from 100 to 1000; a correct sentence is worth 20 (more on a streak).
 - The game's sidebar shows the cheapest thing not bought yet, with the worm already wearing it,
   and says when you can afford it.
 - The words written on the body always keep their part-of-speech colours. Patterns show on the
