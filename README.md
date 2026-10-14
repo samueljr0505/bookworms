@@ -9,8 +9,9 @@ Sentences are built from real building blocks - a subject, a verb, and if you li
 modifiers - in five topics: Animals, School, Food, Fantasy and Sports.
 
 **The worm's body is the sentence.** Every word you eat is written along the body, one letter per
-square, coloured by its part of speech - read your worm from its tail to its head to see what you
-have built. Long words make you long. Crash into a wall or into yourself and those words fall off
+square, coloured by its part of speech, with a little gap between words. Whichever way the worm
+goes, the words read the normal way round - left to right, or top to bottom - and a new word slides
+in a letter at a time as the body grows. Long words make you long. Crash into a wall or into yourself and those words fall off
 the body and scatter back onto the board for you to collect again.
 
 There is no game over. Nobody gets eliminated.
@@ -83,6 +84,7 @@ shop, `shop.html`, on things for the worm to wear:
 | Neckwear | bow tie, bandana, scarf, gold medal |
 | Patterns | stripes, spots, rainbow, shiny gold, galaxy |
 | Trails | sparkles, bubbles, hearts, music notes, confetti puffing out behind the worm |
+| Boards | the garden lawn is free; notebook, chalkboard, candy shop, beach, cozy cabin, snow day (with falling snow) and outer space (with twinkling stars) are bought |
 
 - Tap anything to **try it on** in the dressing room before buying. Buying takes two taps, so
   nothing is bought by accident, and the worm puts it on straight away.
@@ -236,6 +238,7 @@ bookworms/
     closet.js           saved points, what has been bought, what is being worn
     worm-skin.js        which worm and topic were picked (shared by every page)
     worm-art.js         draws the worm and everything it wears, plus particles (shared by every page)
+    board-art.js        draws the boards from the shop (shared by the game and the shop)
     config.js           tweakable numbers: speed, board size, rules, points
     util.js             random-number helpers and the sound effects
     grammar.js          sentence-shape language: which shapes the words fit, what could come next
@@ -334,7 +337,9 @@ as a rim around them.
 
 Add an entry to `data/shop.json` - `slot`, `id`, `name` and `price` - then draw it in
 `js/worm-art.js`: hats in `hat()`, glasses in `glasses()`, neckwear in `neckwear()`, patterns in
-`bodyFill()` / `patternMarks()`, trails as a particle kind in `Particles`. Each drawing is sized as
+`bodyFill()` / `patternMarks()`, trails as a particle kind in `Particles`, and boards in
+`js/board-art.js` (a `paint` for the still part, an optional `move` for what moves, and a `frame`
+colour). Boards are only ever background: tiles and letters keep their colours on all of them. Each drawing is sized as
 a fraction of one body square, so it works on the board and in the shop alike. `node tools/test.js`
 checks that every slot has a free starting item and every price is sensible.
 

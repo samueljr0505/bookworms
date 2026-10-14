@@ -84,7 +84,7 @@ window.BW = window.BW || {};
       canvas.className = 'item-worm';
       look.appendChild(canvas);
       look.addEventListener('click', () => tryOn(item));
-      BW.WormArt.mount(canvas, () => skinWith(item), { segments: 3 });
+      BW.WormArt.mount(canvas, () => skinWith(item), { segments: 3, board: item.slot === 'board' });
 
       const name = document.createElement('b');
       name.className = 'item-name';
@@ -190,7 +190,10 @@ window.BW = window.BW || {};
       return;
     }
 
-    const stage = BW.WormArt.mount($('stage-worm'), () => skinWith(trying), { segments: 6, letters: 'WORM' });
+    const stage = BW.WormArt.mount($('stage-worm'), () => skinWith(trying), {
+      segments: 6, letters: 'WORM',
+      board: () => slot === 'board'          // on the Boards tab, the dressing room shows the board
+    });
     stage.fx = stageFx;     // celebrate() throws its confetti into the stage's own particles
 
     renderSlots();

@@ -1,12 +1,13 @@
 {
-  "_comment": "Everything a worm can wear. Each item's id is also how js/worm-art.js draws it, so a new item needs a drawing there too. Prices are in points: one finished five-word sentence is worth about 100.",
+  "_comment": "Everything a worm can wear. Each item's id is also how it is drawn - boards in js/board-art.js, everything else in js/worm-art.js - so a new item needs a drawing there too. Prices are in points: one finished five-word sentence is worth about 100.",
   "slots": [
     { "id": "color",   "name": "Colors",   "emoji": "🎨" },
     { "id": "hat",     "name": "Hats",     "emoji": "🎩" },
     { "id": "glasses", "name": "Glasses",  "emoji": "🕶️" },
     { "id": "neck",    "name": "Neckwear", "emoji": "🎀" },
     { "id": "pattern", "name": "Patterns", "emoji": "🌈" },
-    { "id": "trail",   "name": "Trails",   "emoji": "✨" }
+    { "id": "trail",   "name": "Trails",   "emoji": "✨" },
+    { "id": "board",   "name": "Boards",   "emoji": "🗺️" }
   ],
   "items": [
     { "slot": "hat", "id": "none",    "name": "No hat" },
@@ -46,6 +47,15 @@
     { "slot": "trail", "id": "bubble",   "name": "Bubbles",  "price": 250 },
     { "slot": "trail", "id": "heart",    "name": "Hearts",   "price": 350 },
     { "slot": "trail", "id": "note",     "name": "Music Notes", "price": 400 },
-    { "slot": "trail", "id": "confetti", "name": "Confetti", "price": 600 }
+    { "slot": "trail", "id": "confetti", "name": "Confetti", "price": 600 },
+
+    { "slot": "board", "id": "garden",     "name": "Garden Lawn" },
+    { "slot": "board", "id": "notebook",   "name": "Notebook",    "price": 150 },
+    { "slot": "board", "id": "chalkboard", "name": "Chalkboard",  "price": 250 },
+    { "slot": "board", "id": "candy",      "name": "Candy Shop",  "price": 300 },
+    { "slot": "board", "id": "beach",      "name": "Beach Day",   "price": 350 },
+    { "slot": "board", "id": "cabin",      "name": "Cozy Cabin",  "price": 400 },
+    { "slot": "board", "id": "snow",       "name": "Snow Day",    "price": 500 },
+    { "slot": "board", "id": "space",      "name": "Outer Space", "price": 700 }
   ]
 }
