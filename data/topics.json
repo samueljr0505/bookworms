@@ -6,21 +6,35 @@
       "name": "Animals",
       "emoji": "\ud83d\udc3e",
       "file": "topics/animals.json",
-      "sentences": 15840
+      "sentences": 6989641595
     },
     {
       "id": "school",
       "name": "School",
       "emoji": "\ud83c\udf92",
       "file": "topics/school.json",
-      "sentences": 19800
+      "sentences": 6215810917
     },
     {
       "id": "food",
       "name": "Food",
       "emoji": "\ud83c\udf4e",
       "file": "topics/food.json",
-      "sentences": 11688
+      "sentences": 1734658205
+    },
+    {
+      "id": "fantasy",
+      "name": "Fantasy",
+      "emoji": "\ud83d\udc09",
+      "file": "topics/fantasy.json",
+      "sentences": 14233411461
+    },
+    {
+      "id": "sports",
+      "name": "Sports",
+      "emoji": "\u26bd",
+      "file": "topics/sports.json",
+      "sentences": 5548719992
     }
   ]
 }

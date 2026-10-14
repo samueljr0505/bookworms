@@ -29,7 +29,7 @@
 window.BW = window.BW || {};
 
 (function () {
-  const ORDER = ['capital', 'noun', 'verb', 'order', 'sense', 'end'];
+  const ORDER = ['capital', 'subject', 'verb', 'order', 'sense', 'end'];
 
   function familyOf(pack, pos) {
     const info = pack.pos[pos];
@@ -92,12 +92,25 @@ window.BW = window.BW || {};
     return null;
   }
 
+  /* The first word with its capital letter in the wrong place: a small letter to start
+     with, or a capital in the middle ("The dog chased The cat"). -1 when all is well. */
+  function capitalTrouble(sentence) {
+    return sentence.tokens.findIndex((t, i) => !sentence.capitalFits(t.word, t.pos, i));
+  }
+
+  /* The same word with its capital letter switched, if the topic has that tile. */
+  function otherCase(pack, word) {
+    const flip = word[0] === word[0].toLowerCase() ? word[0].toUpperCase() + word.slice(1)
+                                                   : word[0].toLowerCase() + word.slice(1);
+    return BW.Grammar.posOfWord(pack, flip) ? flip : null;
+  }
+
   /* Would these words pass the rules as they stand? */
   function passes(pack, tokens) {
-    if (!tokens.length || tokens[0].word[0] === tokens[0].word[0].toLowerCase()) return null;
+    if (!tokens.length) return null;
     const s = BW.Grammar.newSentence(pack, BW.rng);
     for (const t of tokens) s.add(t.word, t.pos);
-    return s.canEnd() && !repeatedWord(s) && !clashIn(pack, s) ? s : null;
+    return s.canEnd() && capitalTrouble(s) < 0 && !repeatedWord(s) && !clashIn(pack, s) ? s : null;
   }
 
   /* A corrected sentence to try, built from the topic's own tiles, so a wrong sentence always
@@ -111,16 +124,21 @@ window.BW = window.BW || {};
     const tiles = [];
     for (const pos of Object.keys(pack.words)) for (const word of pack.words[pos]) tiles.push({ word, pos });
     const tries = [];
-    if (finished) tries.push(toks.slice(0, at));
     // "A rice": nothing wrong with "rice" - it is the word before it that has to change
     const note = toks[at] && pack.pos[toks[at].pos] && pack.pos[toks[at].pos].note;
     if (note && at > 0) for (const t of tiles) tries.push([...toks.slice(0, at - 1), t, ...toks.slice(at)]);
     for (const t of tiles) tries.push([...toks.slice(0, at), t, ...toks.slice(at)]);
     for (const t of tiles) tries.push([...toks.slice(0, at), t, ...toks.slice(at + 1)]);
     tries.push([...toks.slice(0, at), ...toks.slice(at + 1)]);
+    if (finished) tries.push(toks.slice(0, at));
     let fixed = null;
     for (const t of tries) if ((fixed = passes(pack, t))) break;
-    for (let depth = 0; !fixed && depth <= 5; depth++) fixed = finishOff(pack, toks.slice(0, at), depth);
+    // keep the words before the mistake and finish the sentence; if those words cannot be
+    // finished either ("swam across a muddy..." - only a pool fits, and a pool is not muddy),
+    // give back one word at a time until they can
+    for (let cut = at; !fixed && cut >= 0; cut--) {
+      for (let depth = 0; !fixed && depth <= 4; depth++) fixed = finishOff(pack, toks.slice(0, cut), depth);
+    }
     if (!fixed) return '';
     return fixed.text(fixed.endMarks().includes(mark) ? mark : fixed.endMarks()[0]);
   }
@@ -152,15 +170,34 @@ window.BW = window.BW || {};
     const word = '"' + words[i] + '"';
 
     if (i === 0) {
-      const kind = trace.wanted.find(m => m.pos);
-      const like = kind ? ', like ' + orList((pack.words[kind.pos] || []).slice(0, 3).map(w => '"' + w + '"')) : '';
-      return 'A sentence here starts with ' + wantedText(pack, trace.wanted) + like + '.';
+      // say it by kind of word, with real capitalised examples: "a Determiner or a Pronoun"
+      const kinds = [], like = [];
+      for (const m of trace.wanted) {
+        const pos = m.pos || BW.Grammar.posOfWord(pack, m.word);
+        const k = an(labelOf(pack, pos));
+        if (!kinds.includes(k)) kinds.push(k);
+        for (const w of m.word ? [m.word] : (pack.words[pos] || [])) {
+          if (w[0] !== w[0].toLowerCase() && !like.includes(w) && like.length < 4) like.push(w);
+        }
+      }
+      return 'A sentence here starts with ' + orList(kinds) +
+             (like.length ? ', like ' + orList(like.map(w => '"' + w + '"')) : '') + '.';
+    }
+    const family = t => pack.pos[t.pos] && pack.pos[t.pos].family;
+    const wantsFamily = f => trace.wanted.some(m => family({ pos: m.pos || BW.Grammar.posOfWord(pack, m.word) }) === f);
+    // "The knight walked the cave": walking does not take an object - it goes somewhere
+    const placeWord = (family(cur) === 'determiner' || roleOf(pack, cur.pos) === 'naming') &&
+                      sentence.capitalFits(cur.word, cur.pos, i);
+    if (placeWord && wantsFamily('preposition') && roleOf(pack, prev.pos) === 'action') {
+      const prep = trace.wanted.map(m => m.word || (pack.words[m.pos] || [])[0])
+                        .find(w => w && family({ pos: BW.Grammar.posOfWord(pack, w) }) === 'preposition');
+      return '"' + words[i - 1] + '" needs a Preposition to say where, like "' + words[i - 1] + ' ' +
+             prep + ' ' + words[i] + '".';
     }
     if (trace.finished) {
       return quote(words.slice(0, i)) + ' was already a whole sentence, so ' + word +
              ' does not fit after it. You could have ended it there!';
     }
-    const family = t => pack.pos[t.pos] && pack.pos[t.pos].family;
     if (roleOf(pack, prev.pos) === 'naming' && roleOf(pack, cur.pos) === 'describing') {
       return cap(an(labelOf(pack, cur.pos))) + ' goes before the ' + labelOf(pack, prev.pos) +
              ' it describes: "' + words[i] + ' ' + words[i - 1] + '", not "' +
@@ -184,6 +221,14 @@ window.BW = window.BW || {};
       if (note && words.slice(0, i).some(w => note.after.includes(w))) {
         return note.text.replace(/\{word\}/g, words[i]);
       }
+      const exact = sameKind.filter(m => m.word && m.word !== cur.word &&
+                                     BW.Grammar.posOfWord(pack, m.word) === cur.pos).map(m => m.word);
+      if (exact.length && exact.length <= 4) {
+        // after "the" or "big", the word it has to suit is the verb before it: "kicked ... ball"
+        const anchor = ['determiner', 'adjective'].includes(family(prev))
+          ? tokens.slice(0, i).reverse().find(t => roleOf(pack, t.pos) === 'action') || prev : prev;
+        return '"' + anchor.word + '" goes with ' + orList(exact.map(w => '"' + w + '"')) + ', not ' + word + '.';
+      }
       const fits = [];
       for (const m of sameKind) {
         for (const w of m.word ? [m.word] : (pack.words[m.pos] || [])) {
@@ -193,6 +238,12 @@ window.BW = window.BW || {};
       const kind = labelOf(pack, cur.pos);
       return word + ' does not go with "' + words[i - 1] + '". ' + cap(kind) + 's that do: ' +
              orList(fits.slice(0, 4).map(w => '"' + w + '"')) + '.';
+    }
+    // "The knight carried quickly": carried what?
+    const verb = tokens.slice(0, i).reverse().find(t => roleOf(pack, t.pos) === 'action');
+    if (verb && roleOf(pack, prev.pos) === 'action' && (wantsFamily('determiner') || wantsFamily('pronoun'))) {
+      return '"' + verb.word + '" needs an object first: ' + verb.word + ' what? Put a Noun or a ' +
+             'Pronoun before ' + word + '.';
     }
     if (/^[A-Z]/.test(words[i]) && roleOf(pack, cur.pos) !== 'naming') {
       return word + ' has a capital letter because it starts a sentence, so it does not ' +
@@ -213,6 +264,17 @@ window.BW = window.BW || {};
     }
     // a slot only certain words fit - "tastes" takes taste words, not every Adjective
     const last = sentence.tokens[sentence.tokens.length - 1];
+    const lastFamily = last && pack.pos[last.pos] && pack.pos[last.pos].family;
+    if (lastFamily === 'preposition') {
+      const place = (pack.words.place || [])[0];
+      return '"' + last.word + '" where? Finish it with a place' + (place ? ', like "' + last.word + ' the ' + place + '"' : '') + '.';
+    }
+    if ((lastFamily === 'determiner' || lastFamily === 'adjective') && role === 'naming') return '"' + last.word + '" what? Add a Noun.';
+    const doing = sentence.tokens.slice().reverse().find(t =>
+      roleOf(pack, t.pos) === 'action' && !BW.Grammar.isScaffold(t.pos));
+    if (doing && (role === 'naming' || (pack.pos[need.pos] || {}).family === 'determiner') && last === doing) {
+      return 'It needs an object: ' + doing.word + ' what? Add a Noun or a Pronoun.';
+    }
     const label = labelOf(pack, need.pos) + (need.literal && last ? ' that goes with "' + last.word + '"' : '');
     const noun = sentence.tokens.slice().reverse().find(t => roleOf(pack, t.pos) === 'naming');
     switch (role) {
@@ -240,22 +302,28 @@ window.BW = window.BW || {};
     const items = {};
     const say = (ok, note) => ({ ok, note });
 
+    // A capital letter to start, and small letters after (but "I" and names): "The" opens a
+    // sentence and "the" goes in the middle, and both are tiles.
     const first = words[0];
-    items.capital = first[0] !== first[0].toLowerCase()
-      ? say(true, 'It starts with "' + first + '".')
-      : say(false, 'A sentence starts with a capital letter, and "' + first + '" does not have one.');
+    const capAt = capitalTrouble(sentence);
+    const fix = capAt >= 0 ? otherCase(pack, tokens[capAt].word) : null;
+    items.capital = capAt < 0 ? say(true, 'It starts with "' + first + '".')
+      : capAt === 0 ? say(false, 'A sentence starts with a capital letter, and "' + first + '" does not have one' +
+                                 (fix ? ' - use "' + fix + '".' : '.'))
+      : say(false, '"' + tokens[capAt].word + '" is in the middle of the sentence, so it needs a small letter' +
+                   (fix ? ': "' + fix + '".' : '.'));
 
     // Is there a who-or-what, and something that happens? Read off the word families'
     // roles, so a topic that calls them something else still gets checked.
-    const part = (role, question, tells) => {
-      const fam = familyWithRole(pack, role);
-      if (!fam) return null;
+    const part = (role, need, tells) => {
+      const fams = Object.keys(pack.families || {}).map(k => pack.families[k]).filter(f => f.role === role);
+      if (!fams.length) return null;
       const t = tokens.find(x => roleOf(pack, x.pos) === role);
       return t ? say(true, '"' + t.word + '" ' + tells + '.')
-               : say(false, 'It needs ' + an(fam.label) + ': ' + question);
+               : say(false, need + ' Use ' + orList(fams.map(f => an(f.label))) + '.');
     };
-    items.noun = part('naming', 'who or what is it about?', 'tells who or what it is about');
-    items.verb = part('action', 'what happens?', 'tells what happens');
+    items.subject = part('naming', 'It needs a subject: who or what is it about?', 'is the subject: who or what it is about');
+    items.verb = part('action', 'It needs a verb: what happens?', 'tells what happens');
 
     if (shape) items.order = say(true, 'The words make ' + an(shape.name || 'sentence') + '.');
     else if (unfinished) items.order = say(true, 'So far, so good.');
@@ -284,7 +352,7 @@ window.BW = window.BW || {};
 
     const titles = {
       capital: 'Capital letter',
-      noun: (familyWithRole(pack, 'naming') || {}).label,
+      subject: 'Subject',
       verb: (familyWithRole(pack, 'action') || {}).label,
       order: 'Sounds right',
       sense: 'Makes sense',
@@ -307,7 +375,7 @@ window.BW = window.BW || {};
     if (report.verdict === 'wrong') {
       // fix the first thing that went wrong: the word that broke the shape, else the word
       // said twice, else the word that clashes; a wrong end mark just needs the right one
-      const problems = [trace.at, twice ? twice.at : -1, clash ? clash.at : -1].filter(i => i >= 0);
+      const problems = [trace.at, capAt, twice ? twice.at : -1, clash ? clash.at : -1].filter(i => i >= 0);
       const at = problems.length ? Math.min(...problems) : sentence.tokens.length;
       report.suggestion = suggest(pack, sentence, mark, at, trace.finished && at === trace.at);
     }
@@ -371,7 +439,7 @@ window.BW = window.BW || {};
     if (r.verdict === 'unfinished') return 'Not finished yet! ' + r.next;
     const order = get('order');
     if (order && order.ok === false && r.at === 0) return order.note;
-    for (const id of ['noun', 'verb', 'order', 'capital', 'sense', 'end']) {
+    for (const id of ['subject', 'verb', 'order', 'capital', 'sense', 'end']) {
       const item = get(id);
       if (item && item.ok === false) return item.note;
     }

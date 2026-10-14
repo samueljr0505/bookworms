@@ -66,21 +66,43 @@ def parse(src, rules=None):
     return alt()
 
 
+def fits_place(word, first):
+    """A capital letter starts a sentence, and only "I" keeps one in the middle."""
+    capital = word[0] != word[0].lower()
+    return capital if first else (not capital or word == "I")
+
+
 def count(node, words):
-    """How many different word sequences a shape can make."""
+    """How many different sentences a shape can make, with capitals where they belong.
+    (Repeated words and clashes are not taken off, so it is an upper bound.)"""
+    return sum(_count(node, words, {True: 1}).values())
+
+
+def _count(node, words, ways):
+    """`ways` maps "still at the first word?" to how many ways there are to get here."""
     kind, value = node
-    if kind == "pos":
-        return len(words.get(value, []))
-    if kind == "word":
-        return 1
+    if kind in ("pos", "word"):
+        options = words.get(value, []) if kind == "pos" else [value]
+        out = {}
+        for first, n in ways.items():
+            k = sum(1 for w in options if fits_place(w, first))
+            if k:
+                out[False] = out.get(False, 0) + n * k
+        return out
     if kind == "opt":
-        return 1 + count(value, words)
+        out = dict(ways)
+        for first, n in _count(value, words, ways).items():
+            out[first] = out.get(first, 0) + n
+        return out
     if kind == "alt":
-        return sum(count(o, words) for o in value)
-    n = 1
+        out = {}
+        for o in value:
+            for first, n in _count(o, words, ways).items():
+                out[first] = out.get(first, 0) + n
+        return out
     for item in value:
-        n *= count(item, words)
-    return n
+        ways = _count(item, words, ways)
+    return ways
 
 
 def sample(node, words, rng=random):

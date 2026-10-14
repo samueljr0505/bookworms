@@ -90,8 +90,10 @@ sentence can follow a recipe and still be wrong.
 Then write to the child:
 - feedback: one or two short sentences, 25 words at most, that an eight-year-old can \
 read. If something is wrong, name the word that is the problem and say why, using the \
-game's names for kinds of word: Determiner, Adjective, Noun, Verb, Adverb. If it is \
-right, praise one specific thing in it. Be warm; never scold.
+game's names for kinds of word: Determiner, Adjective, Noun, Pronoun, Verb, Adverb, \
+Preposition - and its names for the parts of a sentence: Subject, Verb, Object, \
+Modifier, Complement. If it is right, praise one specific thing in it. Be warm; never \
+scold.
 - suggestion: if the sentence is wrong, a corrected sentence that keeps the child's \
 idea and uses only the topic's word tiles, so the child could build it next. If it is \
 right, an empty string.

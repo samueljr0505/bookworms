@@ -13,8 +13,8 @@ BW.CONFIG = {
   minStepMs: 165,          // the fastest the worm is ever allowed to get
   speedUpPerSentence: 3,   // shave this many ms off stepMs after each finished sentence
 
-  wordsOnBoard: 7,         // how many word tiles float around at once
-  minValidWords: 2,        // always keep at least this many tiles that would keep the sentence on track
+  wordsOnBoard: 9,         // how many word tiles float around at once
+  minValidWords: 3,        // always keep at least this many tiles that would keep the sentence on track
 
   // The worm's body spells out the sentence: one letter per body square. So eating a long
   // word makes you a lot longer. Each finished sentence leaves this many squares behind

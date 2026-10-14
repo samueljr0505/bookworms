@@ -368,10 +368,44 @@ window.BW = window.BW || {};
       return null;
     }
 
+    /* A capital letter starts a sentence, and a small one goes in the middle - so "The"
+       and "the" are both tiles, and only one of them is right at any point. A name, or "I",
+       keeps its capital anywhere (mark a name's list "proper" in the pack). */
+    capitalFits(word, pos, at) {
+      const capital = word[0] !== word[0].toLowerCase();
+      if (at === 0) return capital;
+      return !capital || word === 'I' || !!(this.pack.pos[pos] && this.pack.pos[pos].proper);
+    }
+
     /* Would eating this word keep the sentence on track? That is what the hints outline. */
     fits(word, pos) {
       if (this.repeats(word, pos) || this.clashWith(word)) return false;
-      return this.live().some(t => advance(t.nfa, t.states, word, pos).size > 0);
+      if (!this.capitalFits(word, pos, this.tokens.length)) return false;
+      return this.leadsOn(word, pos);
+    }
+
+    /* After this word, is there still a way on? Words that clash can paint a sentence into a
+       corner - "A goalie swam across a muddy..." can only end at a pool, and a pool is never
+       muddy - so the hints look one word ahead. Cheap: it only checks the next word's rules
+       (repeats, clashes, capitals), not where that word would lead. */
+    leadsOn(word, pos) {
+      const after = this.live()
+        .map(t => ({ pattern: t.pattern, nfa: t.nfa, states: advance(t.nfa, t.states, word, pos) }))
+        .filter(t => t.states.size > 0);
+      if (!after.length) return false;
+      if (after.some(t => t.states.has(t.nfa.accept))) return true;
+      this.tokens.push({ word, pos });
+      try {
+        for (const m of wantedBy(this.pack, after)) {
+          const p = m.pos || posOfWord(this.pack, m.word);
+          for (const w of m.word ? [m.word] : (this.pack.words[m.pos] || [])) {
+            if (!this.repeats(w, p) && !this.clashWith(w) && this.capitalFits(w, p, this.tokens.length)) return true;
+          }
+        }
+        return false;
+      } finally {
+        this.tokens.pop();
+      }
     }
 
     /* Replay the words from the start and find the first one no shape could take.
@@ -511,16 +545,13 @@ window.BW = window.BW || {};
       // The checker wants a capital letter on the first word, and it only has the tiles to
       // go on - so a shape that can open with a lower-case tile could never be right.
       const nfa = compile(tree);
+      const firsts = [];
       for (const id of closure(nfa, [nfa.start])) {
-        for (const e of nfa.nodes[id].edges) {
-          const firsts = e.m.word ? [e.m.word] : (pack.words[e.m.pos] || []);
-          for (const w of firsts) {
-            if (w[0] === w[0].toLowerCase()) {
-              problems.push('pattern "' + pattern.id + '" can start with "' + w +
-                            '", which has no capital letter, so the checker would never pass it');
-            }
-          }
-        }
+        for (const e of nfa.nodes[id].edges) firsts.push(...(e.m.word ? [e.m.word] : (pack.words[e.m.pos] || [])));
+      }
+      if (!firsts.some(w => w[0] !== w[0].toLowerCase())) {
+        problems.push('pattern "' + pattern.id + '" can only start with a word that has no capital letter, ' +
+                      'so the checker would never pass it');
       }
     }
     return problems;
@@ -534,6 +565,7 @@ window.BW = window.BW || {};
     checkPack,
     posOfWord,
     roleOf,
+    isScaffold: pos => Sentence.SCAFFOLD.includes(pos),
     newSentence(pack, rng) {
       // patterns may carry a "weight" to show up more (or less) often than the rest
       const total = pack.patterns.reduce((sum, p) => sum + (p.weight || 1), 0);

@@ -2,18 +2,18 @@
   "id": "school",
   "name": "School",
   "emoji": "🎒",
-  "description": "Any word of the right kind fits, so there is never one secret answer.",
-  "sentenceCount": 19800,
+  "description": "Build a sentence from a subject, a verb, and as much more as you like.",
+  "sentenceCount": 6215810917,
   "families": {
     "determiner": {
       "label": "Determiner",
-      "hint": "starts the sentence: A, The, My",
+      "hint": "comes before a noun: The, a, my",
       "color": "#9aa7d7",
       "role": "other"
     },
     "adjective": {
       "label": "Adjective",
-      "hint": "describes a noun: big, grey",
+      "hint": "describes a noun: big, brave",
       "color": "#f2a65a",
       "role": "describing"
     },
@@ -23,9 +23,15 @@
       "color": "#5ec4a3",
       "role": "naming"
     },
+    "pronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "role": "naming"
+    },
     "verb": {
       "label": "Verb",
-      "hint": "what happens: ran, is",
+      "hint": "what happens: ran, was",
       "color": "#e9797a",
       "role": "action"
     },
@@ -34,32 +40,38 @@
       "hint": "how it happened: slowly",
       "color": "#c79ae0",
       "role": "other"
+    },
+    "preposition": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "role": "other"
     }
   },
   "pos": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "comes before a noun: The, a, my",
+      "color": "#9aa7d7",
+      "family": "determiner"
+    },
     "adjective": {
       "label": "Adjective",
-      "hint": "describes a noun: big, grey",
+      "hint": "describes a noun: big, brave",
       "color": "#f2a65a",
       "family": "adjective"
     },
-    "adverb": {
-      "label": "Adverb",
-      "hint": "how it happened: slowly",
-      "color": "#c79ae0",
-      "family": "adverb"
+    "mood": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
     },
-    "be": {
-      "label": "Verb",
-      "hint": "what happens: ran, is",
-      "color": "#e9797a",
-      "family": "verb"
-    },
-    "determiner": {
-      "label": "Determiner",
-      "hint": "starts the sentence: A, The, My",
-      "color": "#9aa7d7",
-      "family": "determiner"
+    "quality": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
     },
     "noun": {
       "label": "Noun",
@@ -67,30 +79,125 @@
       "color": "#5ec4a3",
       "family": "noun"
     },
-    "verb": {
+    "thing": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "place": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "subjectPronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "family": "pronoun"
+    },
+    "objectPronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "family": "pronoun"
+    },
+    "move": {
       "label": "Verb",
-      "hint": "what happens: ran, is",
+      "hint": "what happens: ran, was",
       "color": "#e9797a",
       "family": "verb"
+    },
+    "stay": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "take": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "push": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "see": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "use": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "give": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "be": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "how it happened: slowly",
+      "color": "#c79ae0",
+      "family": "adverb"
+    },
+    "motionPrep": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "family": "preposition"
+    },
+    "placePrep": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "family": "preposition"
     }
   },
   "words": {
     "determiner": [
-      "A",
       "The",
-      "My"
+      "A",
+      "My",
+      "the",
+      "a",
+      "my"
     ],
     "adjective": [
-      "new",
-      "old",
       "tall",
       "small",
-      "quiet",
-      "noisy",
+      "new",
+      "old"
+    ],
+    "mood": [
       "happy",
       "busy",
       "kind",
-      "clever"
+      "clever",
+      "quiet",
+      "noisy",
+      "tired"
+    ],
+    "quality": [
+      "red",
+      "blue",
+      "yellow"
     ],
     "noun": [
       "teacher",
@@ -101,31 +208,277 @@
       "friend",
       "reader",
       "writer",
-      "helper",
-      "painter"
+      "helper"
     ],
-    "verb": [
+    "thing": [
+      "book",
+      "pencil",
+      "paper",
+      "backpack",
+      "crayon",
+      "note"
+    ],
+    "place": [
+      "classroom",
+      "library",
+      "hallway",
+      "gym",
+      "playground",
+      "desk",
+      "office"
+    ],
+    "subjectPronoun": [
+      "He",
+      "She",
+      "I",
+      "They",
+      "We"
+    ],
+    "objectPronoun": [
+      "him",
+      "her",
+      "me",
+      "them",
+      "us"
+    ],
+    "move": [
+      "walked",
+      "ran",
+      "hurried",
+      "skipped"
+    ],
+    "stay": [
+      "waited",
+      "smiled",
+      "listened",
+      "studied",
+      "sat",
+      "laughed"
+    ],
+    "take": [
+      "carried"
+    ],
+    "push": [
+      "dropped",
+      "slid"
+    ],
+    "see": [
+      "found",
+      "saw",
+      "watched"
+    ],
+    "use": [
       "read",
       "wrote",
-      "listened",
-      "waited",
-      "studied",
-      "walked",
-      "worked",
-      "smiled"
+      "opened"
+    ],
+    "give": [
+      "gave",
+      "handed",
+      "showed",
+      "lent"
     ],
     "be": [
-      "is",
-      "was"
+      "was",
+      "were"
     ],
     "adverb": [
       "quickly",
       "slowly",
       "quietly",
-      "carefully"
+      "carefully",
+      "happily"
+    ],
+    "motionPrep": [
+      "into",
+      "to",
+      "toward",
+      "across",
+      "through"
+    ],
+    "placePrep": [
+      "in",
+      "near",
+      "at",
+      "behind"
     ]
   },
+  "rules": {
+    "beingWord": "adjective | mood",
+    "being": "determiner <beingWord>? noun",
+    "subjectOne": "<being> | 'He' | 'She' | 'I'",
+    "subjectMany": "'They' | 'We'",
+    "subject": "<subjectOne> | <subjectMany>",
+    "someone": "<being> | objectPronoun",
+    "thingWord": "adjective | quality",
+    "something": "determiner <thingWord>? thing",
+    "takeTarget": "<someone> | <something>",
+    "pushTarget": "<something>",
+    "useTarget": "<something>",
+    "spot": "determiner adjective? place",
+    "to": "motionPrep <spot>",
+    "at": "placePrep <spot>",
+    "where": "<to> | <at>"
+  },
+  "patterns": [
+    {
+      "id": "school-moving",
+      "name": "Action sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb move <where>? | move <where>? adverb? )"
+    },
+    {
+      "id": "school-staying",
+      "name": "Action sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb stay <at>? | stay <at>? adverb? )"
+    },
+    {
+      "id": "school-taking",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb take <takeTarget> <where>? | take <takeTarget> <where>? adverb? )"
+    },
+    {
+      "id": "school-pushing",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb push <pushTarget> <where>? | push <pushTarget> <where>? adverb? )"
+    },
+    {
+      "id": "school-seeing",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb see ( ( <someone> | <something> ) <at>? | <spot> ) | see ( ( <someone> | <something> ) <at>? | <spot> ) adverb? )"
+    },
+    {
+      "id": "school-using",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb use <useTarget> <at>? | use <useTarget> <at>? adverb? )"
+    },
+    {
+      "id": "school-giving",
+      "name": "Giving sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Object?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> adverb? give ( <someone> <something> | <something> ( 'to' <someone> )? )"
+    },
+    {
+      "id": "school-describing",
+      "name": "Describing sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subjectOne> 'was' ( <beingWord> <at>? | 'a' <beingWord>? noun <at>? | <at> ) | <subjectMany> 'were' ( <beingWord> <at>? | <at> )"
+    },
+    {
+      "id": "school-describing-things",
+      "name": "Describing sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "determiner <thingWord>? thing 'was' ( <thingWord> <at>? | <at> )"
+    }
+  ],
   "clashes": [
+    [
+      "quickly",
+      "sat",
+      "sitting is not quick"
+    ],
+    [
+      "quickly",
+      "waited",
+      "waiting is not something you can hurry"
+    ],
+    [
+      "carefully",
+      "saw",
+      "you just see something - no care needed"
+    ],
+    [
+      "I",
+      "me",
+      "say \"myself\" for that - or pick someone else"
+    ],
+    [
+      "We",
+      "us",
+      "say \"ourselves\" for that - or pick someone else"
+    ],
     [
       "tall",
       "small",
@@ -137,16 +490,6 @@
       "old and new mean opposite things"
     ],
     [
-      "old",
-      "boy",
-      "a boy is young, not old"
-    ],
-    [
-      "old",
-      "girl",
-      "a girl is young, not old"
-    ],
-    [
       "quiet",
       "noisy",
       "quiet and noisy mean opposite things"
@@ -155,6 +498,16 @@
       "noisy",
       "quietly",
       "noisy and quiet mean opposite things"
+    ],
+    [
+      "old",
+      "boy",
+      "a boy is young, not old"
+    ],
+    [
+      "old",
+      "girl",
+      "a girl is young, not old"
     ],
     [
       "listened",
@@ -185,27 +538,87 @@
       "smiled",
       "carefully",
       "a smile is not something you do carefully"
+    ],
+    [
+      "read",
+      "pencil",
+      "you write with a pencil - you cannot read it"
+    ],
+    [
+      "read",
+      "backpack",
+      "you cannot read a backpack"
+    ],
+    [
+      "read",
+      "crayon",
+      "you draw with a crayon - you cannot read it"
+    ],
+    [
+      "wrote",
+      "pencil",
+      "you write WITH a pencil, not write a pencil"
+    ],
+    [
+      "wrote",
+      "backpack",
+      "you cannot write a backpack"
+    ],
+    [
+      "wrote",
+      "crayon",
+      "you write WITH a crayon, not write a crayon"
+    ],
+    [
+      "opened",
+      "pencil",
+      "a pencil does not open"
+    ],
+    [
+      "opened",
+      "crayon",
+      "a crayon does not open"
+    ],
+    [
+      "opened",
+      "paper",
+      "you open a book or a note, not a paper"
+    ],
+    [
+      "through",
+      "desk",
+      "you cannot go through a desk"
+    ],
+    [
+      "in",
+      "desk",
+      "things are at a desk or behind it, not in it"
+    ],
+    [
+      "red",
+      "blue",
+      "it cannot be two colours at once"
+    ],
+    [
+      "red",
+      "yellow",
+      "it cannot be two colours at once"
+    ],
+    [
+      "blue",
+      "yellow",
+      "it cannot be two colours at once"
+    ],
+    [
+      "into",
+      "desk",
+      "you cannot go into a desk"
+    ],
+    [
+      "across",
+      "desk",
+      "a desk is too small to go across"
     ]
-  ],
-  "patterns": [
-    {
-      "id": "school-doing",
-      "name": "Doing sentence",
-      "end": [
-        ".",
-        "!"
-      ],
-      "shape": "determiner adjective? noun verb adverb?"
-    },
-    {
-      "id": "school-describing",
-      "name": "Describing sentence",
-      "end": [
-        ".",
-        "!"
-      ],
-      "shape": "determiner adjective? noun be adjective"
-    }
   ],
   "punctuation": [
     {

@@ -72,6 +72,17 @@ window.BW = window.BW || {};
       : guide.pattern === s.pattern ? 'Build ' + article(name) + ' ' + name
       : 'Now it is ' + article(name) + ' ' + name;
 
+    // the building blocks of that shape: Subject, Verb, Object, Modifier...
+    const blocks = $('blocks');
+    blocks.textContent = '';
+    (guide && guide.pattern.blocks || []).forEach((b, i) => {
+      if (i) blocks.append(' + ');
+      const el = document.createElement('span');
+      el.className = 'block' + (b.endsWith('?') ? ' optional' : '');
+      el.textContent = b.replace('?', '');
+      blocks.append(el);
+    });
+
     // the words so far, then the slots the shape still has room for
     const building = $('building');
     building.innerHTML = '';

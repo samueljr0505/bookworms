@@ -78,18 +78,19 @@ sentence before they have looked at the board.
 **Status: done - every sentence is checked when punctuation ends it, and only a correct one
 counts.**
 
-Each topic describes its sentences as **shapes**, written in a small shape language such as
-`"determiner adjective? noun verb adverb?"` - parts of speech, optional parts (`?`), and, for
-bigger topics, commas, exact words, repeats, choices and reusable phrases. The shapes live in the
-topic files in `data/topics/`, and every word is filed under its part of speech.
+Every topic shares one grammar, built from the blocks of a sentence: a **Subject** (a Noun or a
+Pronoun), a **Verb**, and optionally an **Object** and **Modifiers** (Adverbs, prepositional
+phrases, complements after *was*). It is written as **shapes** in a small shape language - parts
+of speech, exact words, optional parts (`?`), choices (`|`) and reusable phrases (`<subject>`) - in
+`tools/build-topics.py`, which writes the topic files in `data/topics/`.
 
 The player can eat any word - it goes onto the worm whatever it is. When they eat a punctuation
 mark, the sentence is checked against the list a teacher uses for a complete sentence:
 
 | Line | What is checked | By |
 | --- | --- | --- |
-| Capital letter | the first word starts with one | rules |
-| Noun | there is a who or what | rules |
+| Capital letter | the first word starts with one, and only "I" keeps one in the middle | rules |
+| Subject | there is a who or what - a Noun or a Pronoun | rules |
 | Verb | something happens | rules |
 | Sounds right | the words are in an order one of the topic's shapes allows | rules, then the judge |
 | Makes sense | the words fit together: no word used twice, no pair the topic says clash | rules for those, then the judge |

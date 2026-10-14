@@ -2,8 +2,11 @@
 
 A Google-Snake-style game that teaches 3rd-5th graders how sentences are built. You steer a worm
 around a board covered in words. Eat the words in an order that makes a real sentence, then eat a
-punctuation mark to end it. **That is when the sentence is checked** - capital letter, noun, verb,
-does it sound right, does it make sense, end mark - and if it passes, it goes up on your list.
+punctuation mark to end it. **That is when the sentence is checked** - capital letter, subject,
+verb, does it sound right, does it make sense, end mark - and if it passes, it goes up on your list.
+
+Sentences are built from real building blocks - a subject, a verb, and if you like an object and
+modifiers - in five topics: Animals, School, Food, Fantasy and Sports.
 
 **The worm's body is the sentence.** Every word you eat is written along the body, one letter per
 square, coloured by its part of speech - read your worm from its tail to its head to see what you
@@ -69,7 +72,7 @@ what each test proves.
 ## The sentence checker
 
 When the worm eats a punctuation mark, the sentence is checked against the list a teacher uses for
-a complete sentence: **capital letter, noun, verb, sounds right, makes sense, end mark**. Two
+a complete sentence: **capital letter, subject, verb, sounds right, makes sense, end mark**. Two
 things do the checking.
 
 **1. The game's rules (`js/checker.js`)** - always on, instant, no internet. They compare the words
@@ -225,91 +228,61 @@ only part that needs anything installed, and the game runs without it.
 
 ## Growing it
 
-### Add words
+### How a sentence is built
 
-Open `data/packs/words.json` and add to any list under `words`. This is the safest, most
-useful change a student can make.
+Every topic shares one grammar, made from the building blocks of a sentence:
 
-```json
-"noun": ["cat", "dog", "dragon", "skateboard", "volcano"],
-"adjective": ["happy", "sleepy", "glittery"]
-```
-
-Rules for new words:
-
-- Put it under the right part of speech, or sentences will come out wrong.
-- **Add verbs to the table in `tools/verbs.py`, not straight into the pack**, then run
-  `python3 tools/verbs.py`. Each verb has four forms, and each form has its own list:
-
-  | Form | Stands alone | Needs something after it |
-  | --- | --- | --- |
-  | now, for he / she / it | `verbS` - hops | `transitiveS` - builds |
-  | plain: I / you / we / they, after a helper, commands | `baseVerb` - hop | `baseTransitive` - build |
-  | past, for anyone | `verb` - hopped | `transitive` - built |
-  | -ing, after am / is / are / was / were | `ing` - hopping | |
-
-  The pack's rules pick the form that agrees with the subject: `<one>` (a singular noun, a name,
-  he, she, it) takes `hops` and `is`; `<iOrMany>` (I, you, we, they, or "Mom and Dad") takes
-  `hop` and `are`. Verbs in the table's `EITHER` group (`eat`, `paint`, `sing`) stand alone or
-  take something after them: "The bear eats." and "The bear eats the berries."
-- Nouns under `noun` must be singular things you can count ("a cat"). Plurals and stuff you
-  cannot count (`berries`, `mud`) go under `mass`, which is never used after "a" and only
-  appears after the verb.
-- A word may only appear in one list, because a tile carries a single part of speech.
-
-### Add a sentence shape
-
-A pattern describes the shape of a sentence in a tiny language. Words in it are parts of speech
-from the pack; the symbols around them say how they may be combined:
-
-| Write | Means | Example |
+| Block | What it is | Examples |
 | --- | --- | --- |
-| `noun` | eat any word of that part of speech | `determiner noun verb` |
-| `,` | eat a comma tile here | `adverb , <clause>` -> "Suddenly, the cat ran." |
-| `'and'` | eat exactly this word | `<object> 'and' <object> <action>` |
-| `x?` | optional | `verb adverb?` |
-| `x*` / `x+` | any number of times / one or more | `adjective ( , adjective )*` |
-| `( a b )` | a group | `( preposition <thing> )?` |
-| `a \| b` | either one | `( name \| pronoun )` |
-| `<clause>` | a phrase from the pack's `rules` | see below |
+| **Subject** | who or what the sentence is about: a Determiner + (Adjective) + Noun, or a Pronoun | *The brave knight*, *She* |
+| **Verb** | what happens, or *was* / *were* | *flew*, *found*, *was* |
+| **Object** (optional) | who or what gets the action; giving verbs take two | *found **the map***, *gave **him** **a sword*** |
+| **Modifiers & Complements** (optional) | an Adverb before or after the verb, a Preposition and a place, or a complement after *was* | *quickly*, *into the dark cave*, *was **a wise wizard*** |
 
-Reusable phrases live under `rules` so patterns stay short:
+So there is never one recipe to follow: *The dragon flew.*, *The dragon quickly flew over the old
+castle.* and *She gave the knight a golden sword.* are all sentences of the Fantasy topic. The
+shapes live in `grammar()` in `tools/build-topics.py`. A capital letter is part of the lesson:
+**The** and **the** are both tiles, and only one fits at the start of a sentence.
 
-```json
-"rules": {
-  "thing":   "determiner ( adjective ( , adjective )? )? noun",
-  "subject": "<thing> | name | pronoun",
-  "clause":  "<subject> <action>"
-}
+### Add words, or a topic
+
+Topics are made by `tools/build-topics.py` - edit the `TOPICS` table there, never the JSON files
+it writes - then run:
+
+```bash
+python3 tools/build-topics.py
+python3 tools/list-sentences.py fantasy
+node tools/test.js
 ```
 
-Then a pattern is one line. `end` lists the marks that may finish it (default `.` and `!`), and
-`weight` makes it show up more or less often (default 1):
+A topic is just word lists. Which list a word goes in decides where it may go:
 
-```json
-{ "id": "compound", "name": "Joined sentence", "shape": "<clause> , conjunction <clause>" },
-{ "id": "yes-no", "name": "Yes-or-no question", "end": ["?"],
-  "shape": "helper <subject> baseVerb adverb? <place>?" }
+| List | Holds | Goes |
+| --- | --- | --- |
+| `noun` | beings - people, animals, creatures | subject or object |
+| `thing` | things you can carry, find and give | object |
+| `mass` | things you cannot count - rice, soup | with *the* / *my*, never *a* |
+| `place` | places | after a Preposition, or seen / found |
+| `adjective` | describes anything - big, old | before any noun |
+| `mood` / `quality` | describes beings only / things only | brave knight / shiny sword |
+| `move` / `stay` | verbs that go somewhere / stay put | *ran into the cave* / *slept in the cave* |
+| `take`, `push`, `see`, `use`, `give` | verbs that take an object - of the right kind | *carried him*, *kicked the ball*, *found the cave*, *ate the pie*, *gave him a map* |
+| `motionPrep` / `placePrep` | where something went / where it was | *into*, *toward* / *in*, *near* |
+
+Determiners, pronouns and *was* / *were* are shared by every topic. A topic can narrow what one
+kind of verb takes (in Sports, *kicked*, *hit* and *caught* only take a ball) and add shapes of its
+own (Food's *The soup tastes warm.*).
+
+Then read the sample from `list-sentences.py`. Anything that reads wrong is usually two words
+that cannot share a sentence - add them to the topic's `clashes` with the reason a child should
+hear:
+
+```python
+["swam", "gym", "you cannot swim in a gym"],
 ```
 
-The words pack ships 40 shapes that follow the sections of words.pdf: simple and doing-to
-sentences in the present and past, describing (`The soup is hot.`), is-a (`He is a brave
-firefighter.`), where (`The frog jumps into the pond.`), time-first (`At night, the moon
-glows.`), two and three actions (`She jumps, spins, and lands.`), want-to, future (`will`),
--ing (`The kids were playing.`), negatives (`does not`, `can't`), there-is, joined and
-when-or-why sentences, five kinds of question, commands (`Please ...`, `Don't ...`, `Let's ...`),
-and exclamations (`What a big dog!`, `How cold!`). A word with an apostrophe goes in double
-quotes inside a shape, which in the JSON file is written `\"can't\"`.
-
-The old list form (`"slots": ["determiner", "adjective?", "noun", "verb"]`) still works. Run
-`node tools/test.js` afterwards - it checks the pack, and will tell you if a new pattern can
-produce something ungrammatical or can never be finished.
-
-### Add a new part of speech
-
-Add an entry to `pos` (with the kid-friendly label, hint, and colour), add a word list under
-`words` with the same key, then use that key in a pattern. Nothing in the JavaScript needs to
-change - the legend, the colours, and the hints are all generated from the pack file.
+The game marks that sentence wrong with that reason, the hints never lead to it, and the tests
+check that a correct sentence can still always be finished.
 
 ### Add a worm colour
 
@@ -323,11 +296,6 @@ Add an entry to `data/worms.json` and it appears on the home page immediately:
 head. The squares carrying letters keep their part-of-speech colours, so the worm colour shows
 on the head and on any body squares that are not spelling anything yet.
 
-### Add a whole new pack
-
-Drop `data/packs/animals.json` next to the starter pack, list it in `data/packs.json`, and point
-`defaultPack` at it. A pack switcher in the sidebar is the obvious next feature.
-
 ### Change how it feels
 
 Everything tunable is in `js/config.js` with a comment: board size, worm speed, how much the worm
@@ -335,7 +303,6 @@ grows, how many words are on the board at once, points, sound on or off, and wha
 
 ## Ideas for the next version
 
-- A pack picker so a class can switch between topics.
 - Two players on one board.
 - Save finished sentences so a teacher can print what the class wrote.
 

@@ -65,7 +65,14 @@ window.BW = window.BW || {};
     }
   }
 
-  /* The topic decides which set of hand-written sentences the game uses. */
+  /* "Billions of sentences" says more to a child than 6989641595 does. */
+  function howMany(n) {
+    if (n >= 1e9) return 'Billions of';
+    if (n >= 1e6) return 'Millions of';
+    return Number(n).toLocaleString();
+  }
+
+  /* The topic decides which word lists the game uses. */
   function buildTopics(index, current) {
     const list = $('topics');
     list.innerHTML = '';
@@ -77,7 +84,7 @@ window.BW = window.BW || {};
       button.setAttribute('role', 'radio');
       button.setAttribute('aria-checked', String(topic.id === current.id));
       button.innerHTML = '<span>' + (topic.emoji || '') + '</span><span>' + topic.name +
-                         '<small>' + topic.sentences + ' sentences</small></span>';
+                         '<small>' + howMany(topic.sentences) + ' sentences</small></span>';
       button.addEventListener('click', () => {
         BW.saveTopic(topic.id);
         chosenTopic = topic.id;

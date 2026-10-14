@@ -172,45 +172,77 @@ const CASES = {
     ['The big dog ran quickly', 'correct', ''],
     ['My cat hid', 'correct', ''],
     ['A fluffy rabbit was sleepy', 'correct', ''],
+    ['The dog quickly ran into the barn', 'correct', ''],          // an Adverb before the Verb is fine
+    ['She chased the ball across the field', 'correct', ''],        // pronoun subject, object, place
+    ['The puppy brought him a stick', 'correct', ''],               // two objects
+    ['The puppy brought a stick to him', 'correct', ''],
+    ['They were hungry', 'correct', ''],
     ['The big dog', 'unfinished', 'verb', 'What happens? Add a Verb'],
-    ['The', 'unfinished', 'noun,verb', 'Who or what is it about? Add a Noun'],
-    ['The dog is', 'unfinished', '', 'What is the dog like? Add an Adjective'],
+    ['The', 'unfinished', 'subject,verb', '"The" what? Add a Noun'],
+    ['The dog was', 'unfinished', '', 'What is the dog like? Add an Adjective'],
+    ['The dog chased', 'unfinished', '', 'It needs an object: chased what?'],
+    ['The dog ran into', 'unfinished', '', '"into" where?'],
     ['The dog cat ran', 'wrong', 'order', '"dog cat" is two Nouns in a row'],
-    ['dog ran', 'wrong', 'capital,order', 'starts with a Determiner'],
-    ['The dog big', 'wrong', 'order,verb', 'It needs a Verb'],
+    ['dog ran', 'wrong', 'capital,order', 'starts with a Pronoun or a Determiner'],
+    ['the dog ran', 'wrong', 'capital', 'use "The"'],
+    ['The dog chased The cat', 'wrong', 'capital', 'needs a small letter: "the"'],
+    ['The dog big', 'wrong', 'order,verb', 'It needs a verb'],
     ['The big fluffy dog ran', 'wrong', 'order', 'has room for one'],
     ['The dog ran quickly slowly', 'wrong', 'order', 'was already a whole sentence'],
-    ['The happy dog is happy', 'wrong', 'sense', '"happy" is used twice'],
-    ['The dog ran The', 'wrong', 'order', 'was already a whole sentence'],
-    ['The dog The cat', 'wrong', 'order,verb', 'It needs a Verb'],
-    ['The dog quickly ran', 'wrong', 'order', 'needed a Verb there'],
-    ['The quickly', 'wrong', 'noun,order,verb', 'It needs a Noun'],
-    // words the topic says cannot share a sentence
+    ['The dog ran the barn', 'wrong', 'order', 'needs a Preposition to say where'],
+    ['The dog chased quickly', 'wrong', 'order', 'needs an object first'],
+    ['They was hungry', 'wrong', 'order', '"They" goes with "were", not "was"'],
+    ['The happy dog was happy', 'wrong', 'sense', '"happy" is used twice'],
     ['The quick fox ran slowly', 'wrong', 'sense', '"quick" and "slowly" do not go together'],
-    ['The big mouse is small', 'wrong', 'sense', 'cannot be big and small at once']
+    ['The big mouse was small', 'wrong', 'sense', 'cannot be big and small at once'],
+    ['I watched me', 'wrong', 'sense', 'myself'],
+    ['The quickly', 'wrong', 'order,subject,verb', 'It needs a subject']
   ],
   school: [
     ['The kind teacher smiled', 'correct', ''],
-    ['A old student was busy', 'correct', ''],     // shown as "An old student", see below
-    ['The teacher read carefully quietly', 'wrong', 'order', 'was already a whole sentence'],
-    ['The teacher is', 'unfinished', '', 'What is the teacher like?'],
-    ['The small reader is tall', 'wrong', 'sense', '"small" and "tall" do not go together'],
+    ['A old student was busy', 'correct', ''],     // shown as "An old student"
+    ['The teacher read the book in the library', 'correct', ''],
+    ['She handed the boy a red pencil', 'correct', ''],
+    ['The teacher smiled happily quietly', 'wrong', 'order', 'was already a whole sentence'],
+    ['The teacher was', 'unfinished', '', 'What is the teacher like?'],
+    ['The small reader was tall', 'wrong', 'sense', '"small" and "tall" do not go together'],
     ['The student waited quickly', 'wrong', 'sense', 'waiting is not something you can hurry'],
-    ['The old boy smiled', 'wrong', 'sense', 'a boy is young']
+    ['The old boy smiled', 'wrong', 'sense', 'a boy is young'],
+    ['The girl read the pencil', 'wrong', 'sense', 'you cannot read it']
   ],
   food: [
     ['The apple tastes sweet', 'correct', ''],
     ['The rice looks sticky', 'correct', ''],
     ['A pie was big', 'correct', ''],
+    ['The chef baked a warm pie in the kitchen', 'correct', ''],
     ['The soup tastes', 'unfinished', '', 'What is the soup like? Add an Adjective'],
-    ['The soup sticky', 'wrong', 'order,verb', 'It needs a Verb'],
+    ['The soup sticky', 'wrong', 'order,verb', 'It needs a verb'],
     // the right kind of word, but not one that fits: a size is not a taste
     ['The cookie tasted big', 'wrong', 'order', '"big" does not go with "tasted". Adjectives that do: "sweet"'],
-    ['The bread smelled soft', 'wrong', 'order', '"soft" does not go with "smelled"'],
-    ['The rice is big', 'wrong', 'order', '"big" does not go with "is"'],
+    ['The bread smelled soft', 'wrong', 'order', 'not "soft"'],
+    ['The rice was big', 'wrong', 'order', '"big" does not go with "was"'],
     // rice is not something you count
-    ['A rice is soft', 'wrong', 'order', '"rice" is not something you can count'],
-    ['A warm bread tasted fresh', 'wrong', 'order', '"bread" is not something you can count']
+    ['A rice was soft', 'wrong', 'order', '"rice" is not something you can count'],
+    ['A warm bread tasted fresh', 'wrong', 'order', '"bread" is not something you can count'],
+    ['The chef baked the soup', 'wrong', 'sense', 'soup is cooked, not baked']
+  ],
+  fantasy: [
+    ['The brave knight found the golden sword in the old cave', 'correct', ''],
+    ['She gave the wise wizard a magic wand', 'correct', ''],
+    ['The dragon quickly flew over the old castle', 'correct', ''],
+    ['He was a brave knight', 'correct', ''],
+    ['We were in the tower', 'correct', ''],
+    ['The knight walked the cave', 'wrong', 'order', '"walked" needs a Preposition'],
+    ['The elf slept bravely', 'wrong', 'sense', 'sleeping takes no bravery'],
+    ['him found the map', 'wrong', 'capital,order', 'starts with a Pronoun or a Determiner'],
+    ['The troll hid under the river', 'wrong', 'sense', 'you swim in a river']
+  ],
+  sports: [
+    ['The goalie kicked the ball into the net', 'correct', ''],
+    ['The coach passed the ball to her', 'correct', ''],
+    ['The proud runner held the shiny trophy', 'correct', ''],
+    ['The coach kicked the trophy', 'wrong', 'order', '"kicked" goes with "ball", not "trophy"'],
+    ['The swimmer swam into the gym', 'wrong', 'sense', 'you cannot swim in a gym']
   ]
 };
 
@@ -463,7 +495,7 @@ function checkDecide() {
   // the game's own rules hold whatever the judge says
   r = NS.Checker.decide(checkOf(['dog', 'ran'], '.', animals), yes);
   check(r.verdict === 'wrong' && itemOf(r, 'capital').ok === false, 'no capital letter stays wrong');
-  r = NS.Checker.decide(checkOf(['The', 'happy', 'dog', 'is', 'happy'], '.', animals), yes);
+  r = NS.Checker.decide(checkOf(['The', 'happy', 'dog', 'was', 'happy'], '.', animals), yes);
   check(r.verdict === 'wrong' && itemOf(r, 'sense').ok === false, 'a repeated word stays wrong');
 
   // a teacher's ruling is credited to the teacher
@@ -485,7 +517,7 @@ function checkSyntheticPack() {
                 adjective: fam('Adjective', 'describing') },
     pos: { determiner: { family: 'determiner' }, noun: { family: 'noun' }, verb: { family: 'verb' },
            be: { family: 'verb' }, question: { family: 'determiner' }, adjective: { family: 'adjective' } },
-    words: { determiner: ['The'], noun: ['cat', 'dog'], verb: ['ran'], be: ['Is'], question: ['Did'],
+    words: { determiner: ['The', 'the'], noun: ['cat', 'dog'], verb: ['ran'], be: ['Is'], question: ['Did'],
              adjective: ['big'] },
     patterns: [
       { id: 'statement', name: 'Telling sentence', shape: 'determiner noun verb' },
@@ -494,9 +526,9 @@ function checkSyntheticPack() {
     punctuation: [{ mark: '.' }, { mark: '!' }, { mark: '?' }]
   };
   check(NS.Grammar.checkPack(q).length === 0, 'the made-up pack should be sound: ' + NS.Grammar.checkPack(q).join('; '));
-  let r = checkOf(['Is', 'The', 'cat', 'big'], '?', q);
+  let r = checkOf(['Is', 'the', 'cat', 'big'], '?', q);
   check(r.verdict === 'correct', 'a question ending in "?" should pass, got ' + r.headline);
-  r = checkOf(['Is', 'The', 'cat', 'big'], '.', q);
+  r = checkOf(['Is', 'the', 'cat', 'big'], '.', q);
   check(r.verdict === 'wrong' && failed(r) === 'end' && r.headline.includes('A question ends with'),
         'a question ending in "." should fail on its end mark: ' + r.headline);
   r = checkOf(['The', 'cat', 'ran'], '?', q);

@@ -1,0 +1,629 @@
+{
+  "id": "fantasy",
+  "name": "Fantasy",
+  "emoji": "🐉",
+  "description": "Build a sentence from a subject, a verb, and as much more as you like.",
+  "sentenceCount": 14233411461,
+  "families": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "comes before a noun: The, a, my",
+      "color": "#9aa7d7",
+      "role": "other"
+    },
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "role": "describing"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "role": "naming"
+    },
+    "pronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "role": "naming"
+    },
+    "verb": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "role": "action"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "how it happened: slowly",
+      "color": "#c79ae0",
+      "role": "other"
+    },
+    "preposition": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "role": "other"
+    }
+  },
+  "pos": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "comes before a noun: The, a, my",
+      "color": "#9aa7d7",
+      "family": "determiner"
+    },
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "mood": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "quality": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "thing": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "place": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "subjectPronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "family": "pronoun"
+    },
+    "objectPronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "family": "pronoun"
+    },
+    "move": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "stay": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "take": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "push": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "see": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "use": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "give": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "be": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "how it happened: slowly",
+      "color": "#c79ae0",
+      "family": "adverb"
+    },
+    "motionPrep": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "family": "preposition"
+    },
+    "placePrep": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "family": "preposition"
+    }
+  },
+  "words": {
+    "determiner": [
+      "The",
+      "A",
+      "My",
+      "the",
+      "a",
+      "my"
+    ],
+    "adjective": [
+      "big",
+      "tiny",
+      "old",
+      "golden",
+      "magic"
+    ],
+    "mood": [
+      "brave",
+      "wise",
+      "sleepy",
+      "angry",
+      "kind",
+      "grumpy"
+    ],
+    "quality": [
+      "shiny",
+      "heavy",
+      "secret"
+    ],
+    "noun": [
+      "knight",
+      "dragon",
+      "wizard",
+      "princess",
+      "giant",
+      "elf",
+      "troll",
+      "unicorn"
+    ],
+    "thing": [
+      "sword",
+      "map",
+      "crown",
+      "potion",
+      "shield",
+      "treasure",
+      "wand"
+    ],
+    "place": [
+      "castle",
+      "forest",
+      "cave",
+      "tower",
+      "river",
+      "mountain",
+      "village"
+    ],
+    "subjectPronoun": [
+      "He",
+      "She",
+      "I",
+      "They",
+      "We"
+    ],
+    "objectPronoun": [
+      "him",
+      "her",
+      "me",
+      "them",
+      "us"
+    ],
+    "move": [
+      "flew",
+      "ran",
+      "walked",
+      "marched",
+      "jumped",
+      "crept"
+    ],
+    "stay": [
+      "slept",
+      "waited",
+      "hid",
+      "laughed",
+      "sang",
+      "rested"
+    ],
+    "take": [
+      "carried",
+      "followed",
+      "chased"
+    ],
+    "push": [
+      "dropped",
+      "threw"
+    ],
+    "see": [
+      "found",
+      "saw",
+      "guarded",
+      "protected"
+    ],
+    "use": [
+      "held",
+      "waved"
+    ],
+    "give": [
+      "gave",
+      "showed",
+      "sent"
+    ],
+    "be": [
+      "was",
+      "were"
+    ],
+    "adverb": [
+      "quickly",
+      "slowly",
+      "quietly",
+      "bravely",
+      "happily"
+    ],
+    "motionPrep": [
+      "into",
+      "through",
+      "across",
+      "toward",
+      "to",
+      "over",
+      "up"
+    ],
+    "placePrep": [
+      "in",
+      "near",
+      "under",
+      "behind",
+      "inside"
+    ]
+  },
+  "rules": {
+    "beingWord": "adjective | mood",
+    "being": "determiner <beingWord>? noun",
+    "subjectOne": "<being> | 'He' | 'She' | 'I'",
+    "subjectMany": "'They' | 'We'",
+    "subject": "<subjectOne> | <subjectMany>",
+    "someone": "<being> | objectPronoun",
+    "thingWord": "adjective | quality",
+    "something": "determiner <thingWord>? thing",
+    "takeTarget": "<someone> | <something>",
+    "pushTarget": "<something>",
+    "useTarget": "<something>",
+    "spot": "determiner adjective? place",
+    "to": "motionPrep <spot>",
+    "at": "placePrep <spot>",
+    "where": "<to> | <at>"
+  },
+  "patterns": [
+    {
+      "id": "fantasy-moving",
+      "name": "Action sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb move <where>? | move <where>? adverb? )"
+    },
+    {
+      "id": "fantasy-staying",
+      "name": "Action sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb stay <at>? | stay <at>? adverb? )"
+    },
+    {
+      "id": "fantasy-taking",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb take <takeTarget> <where>? | take <takeTarget> <where>? adverb? )"
+    },
+    {
+      "id": "fantasy-pushing",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb push <pushTarget> <where>? | push <pushTarget> <where>? adverb? )"
+    },
+    {
+      "id": "fantasy-seeing",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb see ( ( <someone> | <something> ) <at>? | <spot> ) | see ( ( <someone> | <something> ) <at>? | <spot> ) adverb? )"
+    },
+    {
+      "id": "fantasy-using",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb use <useTarget> <at>? | use <useTarget> <at>? adverb? )"
+    },
+    {
+      "id": "fantasy-giving",
+      "name": "Giving sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Object?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> adverb? give ( <someone> <something> | <something> ( 'to' <someone> )? )"
+    },
+    {
+      "id": "fantasy-describing",
+      "name": "Describing sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subjectOne> 'was' ( <beingWord> <at>? | 'a' <beingWord>? noun <at>? | <at> ) | <subjectMany> 'were' ( <beingWord> <at>? | <at> )"
+    },
+    {
+      "id": "fantasy-describing-things",
+      "name": "Describing sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "determiner <thingWord>? thing 'was' ( <thingWord> <at>? | <at> )"
+    }
+  ],
+  "clashes": [
+    [
+      "quickly",
+      "rested",
+      "resting is slow, not quick"
+    ],
+    [
+      "quickly",
+      "slept",
+      "sleeping is not quick"
+    ],
+    [
+      "quickly",
+      "waited",
+      "waiting is not something you can hurry"
+    ],
+    [
+      "I",
+      "me",
+      "say \"myself\" for that - or pick someone else"
+    ],
+    [
+      "We",
+      "us",
+      "say \"ourselves\" for that - or pick someone else"
+    ],
+    [
+      "big",
+      "tiny",
+      "something cannot be big and tiny at once"
+    ],
+    [
+      "angry",
+      "happily",
+      "an angry creature does nothing happily"
+    ],
+    [
+      "grumpy",
+      "happily",
+      "a grumpy creature does nothing happily"
+    ],
+    [
+      "sleepy",
+      "quickly",
+      "a sleepy creature is not quick"
+    ],
+    [
+      "crept",
+      "quickly",
+      "creeping is slow and quiet"
+    ],
+    [
+      "bravely",
+      "slept",
+      "sleeping takes no bravery"
+    ],
+    [
+      "bravely",
+      "rested",
+      "resting takes no bravery"
+    ],
+    [
+      "bravely",
+      "laughed",
+      "laughing takes no bravery"
+    ],
+    [
+      "bravely",
+      "sang",
+      "singing takes no bravery"
+    ],
+    [
+      "bravely",
+      "saw",
+      "seeing takes no bravery"
+    ],
+    [
+      "bravely",
+      "showed",
+      "showing takes no bravery"
+    ],
+    [
+      "bravely",
+      "sent",
+      "sending takes no bravery"
+    ],
+    [
+      "heavy",
+      "map",
+      "a map is not heavy"
+    ],
+    [
+      "heavy",
+      "potion",
+      "a potion is too small to be heavy"
+    ],
+    [
+      "heavy",
+      "wand",
+      "a wand is not heavy"
+    ],
+    [
+      "waved",
+      "treasure",
+      "you cannot wave treasure"
+    ],
+    [
+      "waved",
+      "potion",
+      "you drink a potion - you do not wave it"
+    ],
+    [
+      "up",
+      "village",
+      "you go into a village, not up it"
+    ],
+    [
+      "up",
+      "forest",
+      "you go into a forest, not up it"
+    ],
+    [
+      "up",
+      "cave",
+      "you go into a cave, not up it"
+    ],
+    [
+      "across",
+      "tower",
+      "you climb a tower, not go across it"
+    ],
+    [
+      "across",
+      "cave",
+      "you go into a cave, not across it"
+    ],
+    [
+      "under",
+      "river",
+      "you swim in a river, not under it"
+    ],
+    [
+      "under",
+      "forest",
+      "you are in a forest, not under it"
+    ],
+    [
+      "under",
+      "village",
+      "you are in a village, not under it"
+    ],
+    [
+      "inside",
+      "river",
+      "you are in a river, not inside it"
+    ]
+  ],
+  "punctuation": [
+    {
+      "mark": ".",
+      "name": "period"
+    },
+    {
+      "mark": "!",
+      "name": "exclamation point"
+    }
+  ]
+}

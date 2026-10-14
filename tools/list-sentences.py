@@ -32,23 +32,27 @@ for entry in index["topics"]:
 
     kind_of = {w: pos for pos, ws in pack["words"].items() for w in ws}
     content = {pos for pos, info in pack["pos"].items()
-               if info["family"] in ("noun", "adjective", "verb") and pos != "be"}
+               if info["family"] in ("noun", "pronoun", "adjective", "verb") and pos != "be"}
     for pattern in pack["patterns"]:
         print("\n  %s   [%s]" % (pattern["name"], pattern["shape"]))
         tree = shapes.parse(pattern["shape"], pack.get("rules"))
         seen, tries = set(), 0
-        while len(seen) < howmany // len(pack["patterns"]) and tries < 5000:
+        while len(seen) < howmany // len(pack["patterns"]) and tries < 200000:
             tries += 1
             # words spelled out in a shape ('sweet') still belong to a kind
             picked = [(w, pos or kind_of[w]) for w, pos in shapes.sample(tree, pack["words"])]
             # The checker refuses a content word that is already in the sentence
             # ("My quick puppy is quick"), so the sample skips those too - or it
             # shows sentences the game would never pass.
+            # capitals where they belong: "The" to start, "the" in the middle
+            if not all(shapes.fits_place(w, i == 0) for i, (w, _) in enumerate(picked)):
+                continue
             used = [w for w, pos in picked if pos in content or pos == "adverb"]
             if len(used) != len(set(used)):
                 continue
             # ...and words the topic says cannot share a sentence ("small" ... "tall")
-            if any(c[0] in used and c[1] in used for c in pack.get("clashes", [])):
+            every = [w for w, _ in picked]
+            if any(c[0] in every and c[1] in every for c in pack.get("clashes", [])):
                 continue
             words = [w for w, _ in picked]
             # "a apple" -> "an apple"

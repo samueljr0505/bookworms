@@ -14,6 +14,8 @@
   --c-verb: #e9797a;
   --c-adv:  #c79ae0;
   --c-end:  #f5c26b;
+  --c-pron: #7cc6e8;
+  --c-prep: #b8c97a;
 }
 
 * { box-sizing: border-box; }
@@ -240,6 +242,20 @@ body {
 .card.verb { border-top-color: var(--c-verb); }
 .card.adv  { border-top-color: var(--c-adv); }
 .card.end  { border-top-color: var(--c-end); }
+.card.pron { border-top-color: var(--c-pron); }
+.card.prep { border-top-color: var(--c-prep); }
+
+/* ---------- the building blocks ---------- */
+
+.blocks-demo { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+.block-card {
+  background: #faf5ea; border: 2px dashed var(--line); border-radius: 12px;
+  padding: 8px 10px; display: flex; flex-direction: column; gap: 2px;
+}
+.block-card.must { border-style: solid; border-color: var(--green); background: #fff; }
+.block-card b { font-size: 16px; }
+.block-card span { font-size: 13px; color: var(--muted); font-weight: 700; }
+.block-card em { font-size: 13px; font-style: normal; font-weight: 800; }
 
 /* ---------- finish ---------- */
 

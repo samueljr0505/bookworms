@@ -2,18 +2,18 @@
   "id": "food",
   "name": "Food",
   "emoji": "🍎",
-  "description": "Any word of the right kind fits, so there is never one secret answer.",
-  "sentenceCount": 11688,
+  "description": "Build a sentence from a subject, a verb, and as much more as you like.",
+  "sentenceCount": 1734658205,
   "families": {
     "determiner": {
       "label": "Determiner",
-      "hint": "starts the sentence: A, The, My",
+      "hint": "comes before a noun: The, a, my",
       "color": "#9aa7d7",
       "role": "other"
     },
     "adjective": {
       "label": "Adjective",
-      "hint": "describes a noun: big, grey",
+      "hint": "describes a noun: big, brave",
       "color": "#f2a65a",
       "role": "describing"
     },
@@ -23,37 +23,67 @@
       "color": "#5ec4a3",
       "role": "naming"
     },
+    "pronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "role": "naming"
+    },
     "verb": {
       "label": "Verb",
-      "hint": "what happens: ran, is",
+      "hint": "what happens: ran, was",
       "color": "#e9797a",
       "role": "action"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "how it happened: slowly",
+      "color": "#c79ae0",
+      "role": "other"
+    },
+    "preposition": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "role": "other"
     }
   },
   "pos": {
-    "adjective": {
-      "label": "Adjective",
-      "hint": "describes a noun: big, grey",
-      "color": "#f2a65a",
-      "family": "adjective"
-    },
-    "be": {
-      "label": "Verb",
-      "hint": "what happens: ran, is",
-      "color": "#e9797a",
-      "family": "verb"
-    },
     "determiner": {
       "label": "Determiner",
-      "hint": "starts the sentence: A, The, My",
+      "hint": "comes before a noun: The, a, my",
       "color": "#9aa7d7",
       "family": "determiner"
     },
-    "look": {
-      "label": "Verb",
-      "hint": "what happens: ran, is",
-      "color": "#e9797a",
-      "family": "verb"
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "mood": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "quality": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "thing": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
     },
     "mass": {
       "label": "Noun",
@@ -62,60 +92,229 @@
       "family": "noun",
       "note": {
         "after": [
-          "A"
+          "A",
+          "a"
         ],
-        "text": "\"{word}\" is not something you can count, so it goes with \"The\" or \"My\", not \"A\"."
+        "text": "\"{word}\" is not something you can count, so it goes with \"the\" or \"my\", not \"a\"."
       }
     },
-    "noun": {
+    "place": {
       "label": "Noun",
       "hint": "a person, place, or thing",
       "color": "#5ec4a3",
       "family": "noun"
     },
-    "smell": {
+    "subjectPronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "family": "pronoun"
+    },
+    "objectPronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "family": "pronoun"
+    },
+    "move": {
       "label": "Verb",
-      "hint": "what happens: ran, is",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "stay": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "take": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "push": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "see": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "use": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "give": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "be": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
       "color": "#e9797a",
       "family": "verb"
     },
     "taste": {
       "label": "Verb",
-      "hint": "what happens: ran, is",
+      "hint": "what happens: ran, was",
       "color": "#e9797a",
       "family": "verb"
+    },
+    "smell": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "look": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "how it happened: slowly",
+      "color": "#c79ae0",
+      "family": "adverb"
+    },
+    "motionPrep": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "family": "preposition"
+    },
+    "placePrep": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "family": "preposition"
     }
   },
   "words": {
     "determiner": [
-      "A",
       "The",
-      "My"
+      "A",
+      "My",
+      "the",
+      "a",
+      "my"
     ],
     "adjective": [
+      "big",
+      "small"
+    ],
+    "mood": [
+      "hungry",
+      "happy",
+      "busy",
+      "tired",
+      "kind"
+    ],
+    "quality": [
       "warm",
       "cold",
       "fresh",
       "sweet",
       "soft",
-      "big",
-      "small",
       "sticky",
-      "tasty"
+      "tasty",
+      "crunchy"
     ],
     "noun": [
+      "chef",
+      "baker",
+      "farmer",
+      "girl",
+      "boy",
+      "mom",
+      "dad",
+      "friend"
+    ],
+    "thing": [
       "apple",
       "cookie",
       "pizza",
       "carrot",
       "pancake",
-      "pie"
+      "pie",
+      "sandwich",
+      "cake"
     ],
     "mass": [
       "soup",
       "bread",
       "rice",
       "cheese"
+    ],
+    "place": [
+      "kitchen",
+      "garden",
+      "market",
+      "bakery",
+      "table"
+    ],
+    "subjectPronoun": [
+      "He",
+      "She",
+      "I",
+      "They",
+      "We"
+    ],
+    "objectPronoun": [
+      "him",
+      "her",
+      "me",
+      "them",
+      "us"
+    ],
+    "move": [
+      "ran",
+      "walked",
+      "hurried"
+    ],
+    "stay": [
+      "waited",
+      "sat",
+      "smiled",
+      "rested"
+    ],
+    "take": [
+      "carried"
+    ],
+    "push": [
+      "dropped",
+      "tossed"
+    ],
+    "see": [
+      "found",
+      "saw"
+    ],
+    "use": [
+      "ate",
+      "baked",
+      "cooked",
+      "cut",
+      "made"
+    ],
+    "give": [
+      "gave",
+      "brought",
+      "served"
+    ],
+    "be": [
+      "was",
+      "were"
     ],
     "taste": [
       "tastes",
@@ -129,20 +328,251 @@
       "looks",
       "looked"
     ],
-    "be": [
-      "is",
-      "was"
+    "adverb": [
+      "quickly",
+      "slowly",
+      "carefully",
+      "happily"
+    ],
+    "motionPrep": [
+      "into",
+      "to",
+      "toward",
+      "through"
+    ],
+    "placePrep": [
+      "in",
+      "near",
+      "at"
     ]
   },
   "rules": {
-    "count": "determiner adjective? noun",
-    "stuff": "( 'The' | 'My' ) <stuffWord>? mass",
-    "start": "<count> | <stuff>",
-    "stuffWord": "'warm' | 'cold' | 'fresh' | 'sweet' | 'soft' | 'sticky' | 'tasty'",
+    "beingWord": "adjective | mood",
+    "being": "determiner <beingWord>? noun",
+    "subjectOne": "<being> | 'He' | 'She' | 'I'",
+    "subjectMany": "'They' | 'We'",
+    "subject": "<subjectOne> | <subjectMany>",
+    "someone": "<being> | objectPronoun",
+    "thingWord": "adjective | quality",
+    "something": "determiner <thingWord>? thing | <mass>",
+    "mass": "( 'The' | 'the' | 'My' | 'my' ) quality? mass",
+    "takeTarget": "<someone> | <something>",
+    "pushTarget": "<something>",
+    "useTarget": "<something>",
+    "spot": "determiner adjective? place",
+    "to": "motionPrep <spot>",
+    "at": "placePrep <spot>",
+    "where": "<to> | <at>",
     "tasteWord": "'sweet' | 'fresh' | 'warm' | 'cold'",
-    "smellWord": "'sweet' | 'fresh' | 'tasty'"
+    "smellWord": "'sweet' | 'fresh' | 'tasty'",
+    "food": "determiner <thingWord>? thing | <mass>"
   },
+  "patterns": [
+    {
+      "id": "food-moving",
+      "name": "Action sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb move <where>? | move <where>? adverb? )"
+    },
+    {
+      "id": "food-staying",
+      "name": "Action sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb stay <at>? | stay <at>? adverb? )"
+    },
+    {
+      "id": "food-taking",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb take <takeTarget> <where>? | take <takeTarget> <where>? adverb? )"
+    },
+    {
+      "id": "food-pushing",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb push <pushTarget> <where>? | push <pushTarget> <where>? adverb? )"
+    },
+    {
+      "id": "food-seeing",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb see ( ( <someone> | <something> ) <at>? | <spot> ) | see ( ( <someone> | <something> ) <at>? | <spot> ) adverb? )"
+    },
+    {
+      "id": "food-using",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb use <useTarget> <at>? | use <useTarget> <at>? adverb? )"
+    },
+    {
+      "id": "food-giving",
+      "name": "Giving sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Object?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> adverb? give ( <someone> <something> | <something> ( 'to' <someone> )? )"
+    },
+    {
+      "id": "food-describing",
+      "name": "Describing sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subjectOne> 'was' ( <beingWord> <at>? | 'a' <beingWord>? noun <at>? | <at> ) | <subjectMany> 'were' ( <beingWord> <at>? | <at> )"
+    },
+    {
+      "id": "food-describing-things",
+      "name": "Describing sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "determiner <thingWord>? thing 'was' ( <thingWord> <at>? | <at> ) | <mass> 'was' ( quality <at>? | <at> )"
+    },
+    {
+      "id": "food-tasting",
+      "name": "Tasting sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<food> taste <tasteWord>"
+    },
+    {
+      "id": "food-smelling",
+      "name": "Tasting sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<food> smell <smellWord>"
+    },
+    {
+      "id": "food-looking",
+      "name": "Describing sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "determiner <thingWord>? thing look <thingWord> | <mass> look quality"
+    }
+  ],
   "clashes": [
+    [
+      "quickly",
+      "rested",
+      "resting is slow, not quick"
+    ],
+    [
+      "quickly",
+      "sat",
+      "sitting is not quick"
+    ],
+    [
+      "quickly",
+      "waited",
+      "waiting is not something you can hurry"
+    ],
+    [
+      "carefully",
+      "saw",
+      "you just see something - no care needed"
+    ],
+    [
+      "I",
+      "me",
+      "say \"myself\" for that - or pick someone else"
+    ],
+    [
+      "We",
+      "us",
+      "say \"ourselves\" for that - or pick someone else"
+    ],
     [
       "warm",
       "cold",
@@ -152,45 +582,82 @@
       "big",
       "small",
       "something cannot be big and small at once"
+    ],
+    [
+      "soft",
+      "crunchy",
+      "soft and crunchy mean opposite things"
+    ],
+    [
+      "sticky",
+      "crunchy",
+      "sticky and crunchy do not go together"
+    ],
+    [
+      "crunchy",
+      "rice",
+      "rice is soft, not crunchy"
+    ],
+    [
+      "crunchy",
+      "cheese",
+      "cheese is soft, not crunchy"
+    ],
+    [
+      "baked",
+      "soup",
+      "soup is cooked, not baked"
+    ],
+    [
+      "baked",
+      "rice",
+      "rice is cooked, not baked"
+    ],
+    [
+      "cut",
+      "soup",
+      "you cannot cut soup"
+    ],
+    [
+      "cut",
+      "rice",
+      "you cannot cut rice"
+    ],
+    [
+      "tossed",
+      "soup",
+      "you cannot toss soup"
+    ],
+    [
+      "crunchy",
+      "soup",
+      "soup is never crunchy"
+    ],
+    [
+      "sticky",
+      "carrot",
+      "a carrot is not sticky"
+    ],
+    [
+      "in",
+      "table",
+      "things are on a table or at it, not in it"
+    ],
+    [
+      "into",
+      "table",
+      "you cannot go into a table"
+    ],
+    [
+      "through",
+      "table",
+      "you cannot go through a table"
+    ],
+    [
+      "sat",
+      "market",
+      "you walk around a market, not sit in it"
     ]
-  ],
-  "patterns": [
-    {
-      "id": "food-tasting",
-      "name": "Tasting sentence",
-      "end": [
-        ".",
-        "!"
-      ],
-      "shape": "<start> taste <tasteWord>"
-    },
-    {
-      "id": "food-smelling",
-      "name": "Smelling sentence",
-      "end": [
-        ".",
-        "!"
-      ],
-      "shape": "<start> smell <smellWord>"
-    },
-    {
-      "id": "food-looking",
-      "name": "Looking sentence",
-      "end": [
-        ".",
-        "!"
-      ],
-      "shape": "<count> look adjective | <stuff> look <stuffWord>"
-    },
-    {
-      "id": "food-describing",
-      "name": "Describing sentence",
-      "end": [
-        ".",
-        "!"
-      ],
-      "shape": "<count> be adjective | <stuff> be <stuffWord>"
-    }
   ],
   "punctuation": [
     {

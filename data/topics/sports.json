@@ -1,0 +1,658 @@
+{
+  "id": "sports",
+  "name": "Sports",
+  "emoji": "⚽",
+  "description": "Build a sentence from a subject, a verb, and as much more as you like.",
+  "sentenceCount": 5548719992,
+  "families": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "comes before a noun: The, a, my",
+      "color": "#9aa7d7",
+      "role": "other"
+    },
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "role": "describing"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "role": "naming"
+    },
+    "pronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "role": "naming"
+    },
+    "verb": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "role": "action"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "how it happened: slowly",
+      "color": "#c79ae0",
+      "role": "other"
+    },
+    "preposition": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "role": "other"
+    }
+  },
+  "pos": {
+    "determiner": {
+      "label": "Determiner",
+      "hint": "comes before a noun: The, a, my",
+      "color": "#9aa7d7",
+      "family": "determiner"
+    },
+    "adjective": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "mood": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "quality": {
+      "label": "Adjective",
+      "hint": "describes a noun: big, brave",
+      "color": "#f2a65a",
+      "family": "adjective"
+    },
+    "noun": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "thing": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "place": {
+      "label": "Noun",
+      "hint": "a person, place, or thing",
+      "color": "#5ec4a3",
+      "family": "noun"
+    },
+    "subjectPronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "family": "pronoun"
+    },
+    "objectPronoun": {
+      "label": "Pronoun",
+      "hint": "takes a noun's place: he, them",
+      "color": "#7cc6e8",
+      "family": "pronoun"
+    },
+    "move": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "stay": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "take": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "push": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "see": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "use": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "give": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "be": {
+      "label": "Verb",
+      "hint": "what happens: ran, was",
+      "color": "#e9797a",
+      "family": "verb"
+    },
+    "adverb": {
+      "label": "Adverb",
+      "hint": "how it happened: slowly",
+      "color": "#c79ae0",
+      "family": "adverb"
+    },
+    "motionPrep": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "family": "preposition"
+    },
+    "placePrep": {
+      "label": "Preposition",
+      "hint": "where it happened: into, under",
+      "color": "#b8c97a",
+      "family": "preposition"
+    }
+  },
+  "words": {
+    "determiner": [
+      "The",
+      "A",
+      "My",
+      "the",
+      "a",
+      "my"
+    ],
+    "adjective": [
+      "big",
+      "small",
+      "new",
+      "muddy",
+      "wet"
+    ],
+    "mood": [
+      "fast",
+      "strong",
+      "tired",
+      "happy",
+      "proud",
+      "nervous"
+    ],
+    "quality": [
+      "shiny",
+      "heavy"
+    ],
+    "noun": [
+      "player",
+      "coach",
+      "runner",
+      "swimmer",
+      "goalie",
+      "referee",
+      "fan"
+    ],
+    "thing": [
+      "ball",
+      "bat",
+      "helmet",
+      "trophy",
+      "medal",
+      "whistle",
+      "glove"
+    ],
+    "place": [
+      "field",
+      "court",
+      "gym",
+      "pool",
+      "track",
+      "net",
+      "stadium"
+    ],
+    "subjectPronoun": [
+      "He",
+      "She",
+      "I",
+      "They",
+      "We"
+    ],
+    "objectPronoun": [
+      "him",
+      "her",
+      "me",
+      "them",
+      "us"
+    ],
+    "move": [
+      "ran",
+      "jumped",
+      "raced",
+      "swam",
+      "slid",
+      "dashed"
+    ],
+    "stay": [
+      "waited",
+      "cheered",
+      "rested",
+      "clapped",
+      "stretched",
+      "laughed"
+    ],
+    "take": [
+      "chased",
+      "followed"
+    ],
+    "push": [
+      "kicked",
+      "rolled",
+      "bounced",
+      "hit",
+      "caught"
+    ],
+    "see": [
+      "found",
+      "watched",
+      "guarded"
+    ],
+    "use": [
+      "held",
+      "cleaned",
+      "carried"
+    ],
+    "give": [
+      "threw",
+      "passed",
+      "handed",
+      "gave"
+    ],
+    "be": [
+      "was",
+      "were"
+    ],
+    "adverb": [
+      "quickly",
+      "slowly",
+      "proudly",
+      "carefully",
+      "happily"
+    ],
+    "motionPrep": [
+      "into",
+      "across",
+      "toward",
+      "to",
+      "over",
+      "around"
+    ],
+    "placePrep": [
+      "in",
+      "near",
+      "on",
+      "at"
+    ]
+  },
+  "rules": {
+    "beingWord": "adjective | mood",
+    "being": "determiner <beingWord>? noun",
+    "subjectOne": "<being> | 'He' | 'She' | 'I'",
+    "subjectMany": "'They' | 'We'",
+    "subject": "<subjectOne> | <subjectMany>",
+    "someone": "<being> | objectPronoun",
+    "thingWord": "adjective | quality",
+    "something": "determiner <thingWord>? thing",
+    "takeTarget": "<someone> | determiner <thingWord>? 'ball'",
+    "pushTarget": "determiner <thingWord>? 'ball'",
+    "useTarget": "<something>",
+    "spot": "determiner adjective? place",
+    "to": "motionPrep <spot>",
+    "at": "placePrep <spot>",
+    "where": "<to> | <at>"
+  },
+  "patterns": [
+    {
+      "id": "sports-moving",
+      "name": "Action sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb move <where>? | move <where>? adverb? )"
+    },
+    {
+      "id": "sports-staying",
+      "name": "Action sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb stay <at>? | stay <at>? adverb? )"
+    },
+    {
+      "id": "sports-taking",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb take <takeTarget> <where>? | take <takeTarget> <where>? adverb? )"
+    },
+    {
+      "id": "sports-pushing",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb push <pushTarget> <where>? | push <pushTarget> <where>? adverb? )"
+    },
+    {
+      "id": "sports-seeing",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb see ( ( <someone> | <something> ) <at>? | <spot> ) | see ( ( <someone> | <something> ) <at>? | <spot> ) adverb? )"
+    },
+    {
+      "id": "sports-using",
+      "name": "Object sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Modifier?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> ( adverb use <useTarget> <at>? | use <useTarget> <at>? adverb? )"
+    },
+    {
+      "id": "sports-giving",
+      "name": "Giving sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Object",
+        "Object?"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subject> adverb? give ( <someone> <something> | <something> ( 'to' <someone> )? )"
+    },
+    {
+      "id": "sports-describing",
+      "name": "Describing sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "<subjectOne> 'was' ( <beingWord> <at>? | 'a' <beingWord>? noun <at>? | <at> ) | <subjectMany> 'were' ( <beingWord> <at>? | <at> )"
+    },
+    {
+      "id": "sports-describing-things",
+      "name": "Describing sentence",
+      "blocks": [
+        "Subject",
+        "Verb",
+        "Complement"
+      ],
+      "end": [
+        ".",
+        "!"
+      ],
+      "shape": "determiner <thingWord>? thing 'was' ( <thingWord> <at>? | <at> )"
+    }
+  ],
+  "clashes": [
+    [
+      "quickly",
+      "rested",
+      "resting is slow, not quick"
+    ],
+    [
+      "quickly",
+      "waited",
+      "waiting is not something you can hurry"
+    ],
+    [
+      "I",
+      "me",
+      "say \"myself\" for that - or pick someone else"
+    ],
+    [
+      "We",
+      "us",
+      "say \"ourselves\" for that - or pick someone else"
+    ],
+    [
+      "big",
+      "small",
+      "something cannot be big and small at once"
+    ],
+    [
+      "fast",
+      "slowly",
+      "fast and slow mean opposite things"
+    ],
+    [
+      "tired",
+      "quickly",
+      "a tired player is not quick"
+    ],
+    [
+      "raced",
+      "slowly",
+      "racing is fast, not slow"
+    ],
+    [
+      "dashed",
+      "slowly",
+      "dashing is fast, not slow"
+    ],
+    [
+      "swam",
+      "field",
+      "you cannot swim on a field"
+    ],
+    [
+      "swam",
+      "court",
+      "you cannot swim on a court"
+    ],
+    [
+      "swam",
+      "gym",
+      "you cannot swim in a gym"
+    ],
+    [
+      "swam",
+      "track",
+      "you cannot swim on a track"
+    ],
+    [
+      "swam",
+      "stadium",
+      "you swim in a pool, not a stadium"
+    ],
+    [
+      "swam",
+      "net",
+      "you cannot swim to a net"
+    ],
+    [
+      "swam",
+      "on",
+      "you swim in a pool, not on it"
+    ],
+    [
+      "muddy",
+      "trophy",
+      "a trophy is kept clean and shiny"
+    ],
+    [
+      "muddy",
+      "medal",
+      "a medal is kept clean and shiny"
+    ],
+    [
+      "heavy",
+      "whistle",
+      "a whistle is not heavy"
+    ],
+    [
+      "muddy",
+      "shiny",
+      "something muddy is not shiny"
+    ],
+    [
+      "wet",
+      "shiny",
+      "say wet or shiny - not both"
+    ],
+    [
+      "heavy",
+      "glove",
+      "a glove is not heavy"
+    ],
+    [
+      "heavy",
+      "medal",
+      "a medal is not heavy"
+    ],
+    [
+      "on",
+      "pool",
+      "you swim in a pool, not on it"
+    ],
+    [
+      "on",
+      "gym",
+      "you are in a gym, not on it"
+    ],
+    [
+      "on",
+      "stadium",
+      "you are in a stadium, not on it"
+    ],
+    [
+      "on",
+      "net",
+      "a ball goes into a net, not on it"
+    ],
+    [
+      "in",
+      "track",
+      "you run on a track, not in it"
+    ],
+    [
+      "around",
+      "net",
+      "the ball goes into the net, not around it"
+    ],
+    [
+      "cheered",
+      "carefully",
+      "cheering is loud, not careful"
+    ],
+    [
+      "clapped",
+      "carefully",
+      "clapping is loud, not careful"
+    ],
+    [
+      "laughed",
+      "carefully",
+      "laughing is not careful"
+    ],
+    [
+      "proudly",
+      "rested",
+      "resting is nothing to be proud of"
+    ],
+    [
+      "proudly",
+      "waited",
+      "waiting is nothing to be proud of"
+    ],
+    [
+      "proudly",
+      "stretched",
+      "stretching is nothing to be proud of"
+    ],
+    [
+      "proudly",
+      "laughed",
+      "you laugh happily, not proudly"
+    ],
+    [
+      "nervous",
+      "proudly",
+      "a nervous player is not proud"
+    ]
+  ],
+  "punctuation": [
+    {
+      "mark": ".",
+      "name": "period"
+    },
+    {
+      "mark": "!",
+      "name": "exclamation point"
+    }
+  ]
+}

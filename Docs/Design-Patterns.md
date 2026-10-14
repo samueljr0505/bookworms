@@ -66,14 +66,16 @@ and no JavaScript.
 
 ## 3. Data-driven design / external configuration
 
-**Where:** `data/packs/*.json` for content, `js/config.js` for feel.
+**Where:** `tools/build-topics.py` -> `data/topics/*.json` for content, `js/config.js` for feel.
 
 Two separate knobs for two separate audiences:
 
-- **`data/packs/words.json`** holds the words, the parts of speech, the sentence patterns, the
-  punctuation, the colours and the kid-friendly labels ("Naming Word", not "noun"). Nothing in
-  the JavaScript hard-codes a part of speech - the legend, the tile colours and the hint text are
-  all generated from this file, so adding a new part of speech needs no code at all.
+- **The topic files** hold the words, the parts of speech, the sentence shapes, the clashes, the
+  punctuation, the colours and the labels. They are written by `tools/build-topics.py`, where
+  every topic shares one grammar - Subject, Verb, Object, Modifiers - and differs only in its
+  word lists, so a new topic is a page of words and no code. Nothing in the JavaScript
+  hard-codes a part of speech - the legend, the tile colours and the hint text are all generated
+  from the topic file.
 - **`js/config.js`** holds board size, speed, delays, scoring and rule variants.
 
 **Why it matters here:** the target user is a 3rd-5th grader. The most valuable thing they can
