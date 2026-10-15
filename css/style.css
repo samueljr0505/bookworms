@@ -150,6 +150,8 @@ button.primary kbd { background: rgba(255, 255, 255, 0.25); color: #fff; }
   text-decoration: none; display: inline-block; box-shadow: 0 3px 0 var(--line);
 }
 .btn-link:hover { background: #fffaf0; border-color: var(--green); color: var(--ink); }
+.btn-link.shop { background: #f6c544; border-color: #e0a21f; color: #5a3d00; box-shadow: 0 3px 0 #c98f12; }
+.btn-link.shop:hover { background: #f8d061; border-color: #e0a21f; color: #5a3d00; }
 kbd {
   font: inherit; font-size: 11px; background: #efe6d2; border-radius: 5px;
   padding: 1px 5px; margin-left: 4px; color: var(--muted);

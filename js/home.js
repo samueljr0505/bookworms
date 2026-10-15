@@ -23,7 +23,7 @@ window.BW = window.BW || {};
   }
 
   function buildWorm() {
-    BW.WormArt.mount($('worm-preview'), () => skin, { segments: 7 });
+    BW.WormArt.mount($('worm-preview'), () => skin, { segments: 7, followPointer: true });   // it watches you
     $('bank-points').textContent = BW.closet.bank.toLocaleString();
   }
 

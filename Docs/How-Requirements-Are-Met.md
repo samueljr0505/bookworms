@@ -201,8 +201,8 @@ the drop and the self-bite rule (the tail square is safe, because it moves away 
   is guaranteed to be out there.
 - `check()` in `js/game.js` - eating a mark stops the worm and checks the sentence (Req 4). The
   card stays up until the player presses a key, so there is time to read it.
-  - **Correct:** `finishSentence()` adds it to the "Sentences you wrote" list, scores a bonus
-    plus points for every word, plays a jingle, clears the words off the worm's body (leaving one
+  - **Correct:** `finishSentence()` adds it to the "Sentences you wrote" list, scores its points
+    (`points` in `js/config.js`), plays a jingle, clears the words off the worm's body (leaving one
     trophy square behind), speeds the game up slightly, and draws a brand new recipe.
   - **Not finished:** nothing is lost. The mark is not added, the words stay on the worm, and the
     card says what is still needed.

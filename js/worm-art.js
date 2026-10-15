@@ -1,5 +1,6 @@
 /* Drawing the worm and everything it can wear. Shared by the game board (js/render.js), the
-   home page and the shop, so a crown looks the same everywhere.
+   home page and the shop, so a crown looks the same everywhere. (Boards are drawn by
+   js/board-art.js.)
 
    Every size is a fraction of `s`, the width of one body square, so the same code draws the
    26px worm on the board and the big worm in the shop. A "skin" is the worm's two colours
@@ -94,28 +95,48 @@ BW.WormArt = (function () {
     }
   }
 
-  /* One body square centred on (cx, cy). With a label, the word's colour sits inside a rim of
-     the worm's own colour - the part of speech teaches, the rim shows off the skin. */
-  function segment(ctx, cx, cy, s, i, n, skin, now, label, labelColor, font) {
+  /* One body square centred on (cx, cy). A square with a letter written on it (`written`)
+     stays full size and plain, so the word on top of it is easy to read. */
+  function segment(ctx, cx, cy, s, i, n, skin, now, written) {
     const t = i / Math.max(1, n - 1);
-    const pad = label ? 1 : 1.5 + t * 1.5;
+    const pad = written ? 1 : 1.5 + t * 1.5;
     const x = cx - s / 2 + pad, y = cy - s / 2 + pad, w = s - pad * 2;
 
     ctx.fillStyle = bodyFill(skin, i, n, now);
     roundRect(ctx, x, y, w, w, w * 0.28);
     ctx.fill();
+    if (!written) patternMarks(ctx, skin, x, y, w, i, now);
+  }
 
-    if (!label) { patternMarks(ctx, skin, x, y, w, i, now); return; }
+  /* The words written along the body. `letters` are in order along the body, each
+     { x, y, char, color, word }. The letters of one word are joined into a single coloured
+     strip, so the words stand apart from each other with a little of the worm showing
+     between them - the gap a reader needs - without the worm getting any longer. The
+     worm's own colour shows as a rim around every word. */
+  function words(ctx, letters, s, font) {
+    const tile = s - 2 - Math.max(2, s * 0.1) * 2;
 
-    const inset = Math.max(2, s * 0.1);
-    ctx.fillStyle = labelColor;
-    roundRect(ctx, x + inset, y + inset, w - inset * 2, w - inset * 2, w * 0.2);
-    ctx.fill();
-    ctx.fillStyle = '#20242e';
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = tile * 0.82;
+    for (let i = 1; i < letters.length; i++) {
+      const a = letters[i - 1], b = letters[i];
+      // only neighbours are joined - not two letters on opposite edges when the walls wrap
+      if (a.word !== b.word || Math.hypot(a.x - b.x, a.y - b.y) > s * 1.5) continue;
+      ctx.strokeStyle = a.color;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+
     ctx.font = font;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(label, cx, cy + 1);
+    for (const l of letters) {
+      ctx.fillStyle = l.color;
+      roundRect(ctx, l.x - tile / 2, l.y - tile / 2, tile, tile, tile * 0.24);
+      ctx.fill();
+      ctx.fillStyle = '#20242e';
+      ctx.fillText(l.char, l.x, l.y + 1);
+    }
   }
 
   /* ---------- head, eyes and glasses ---------- */
@@ -145,14 +166,23 @@ BW.WormArt = (function () {
     const eyes = [[-s * 0.17 + lean, -s * 0.08], [s * 0.17 + lean, -s * 0.08]];
     const blink = (now + (opts.blinkOffset || 0)) % 4300 < 130;
 
+    // where the pupils point: the way the worm is going, unless it is watching something
+    // (opts.look, a direction no longer than 1 - see followPointer below)
+    const look = opts.look || { x: dir.x * 0.8, y: dir.y * 0.8 };
     for (const [ex, ey] of eyes) {
+      if (opts.happy) {
+        // being petted: happy squinting eyes, ^ ^
+        ctx.strokeStyle = '#1b2430'; ctx.lineWidth = s * 0.055; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(ex, ey + s * 0.04, s * 0.09, 1.15 * Math.PI, 1.85 * Math.PI); ctx.stroke();
+        continue;
+      }
       ctx.fillStyle = '#fff';
       ctx.beginPath();
       ctx.ellipse(ex, ey, s * 0.13, blink ? s * 0.025 : s * 0.14, 0, 0, TAU);
       ctx.fill();
       if (!blink) {
         ctx.fillStyle = '#1b2430';
-        circle(ctx, ex + dir.x * s * 0.05, ey + dir.y * s * 0.05, s * 0.065);
+        circle(ctx, ex + look.x * s * 0.065, ey + look.y * s * 0.07, s * 0.065);
         ctx.fill();
       }
     }
@@ -409,6 +439,7 @@ BW.WormArt = (function () {
   /* ---------- particles: trails, crumbs, confetti ---------- */
 
   const CONFETTI = ['#ff6fa8', '#ffd23f', '#5ec4a3', '#72b6e8', '#c79ae0', '#f2a65a'];
+  const GLOW = { sparkle: '#fff1a6', bubble: '#a9dcff', heart: '#ffb3c9', note: '#d7c2f5' };
 
   class Particles {
     constructor() { this.list = []; }
@@ -425,7 +456,8 @@ BW.WormArt = (function () {
           g: 0, life: 0, max: (opts.life || 900) * (0.7 + Math.random() * 0.6),
           size: (opts.size || 6) * (0.7 + Math.random() * 0.6),
           rot: Math.random() * TAU, vr: (Math.random() - 0.5) * 8,
-          color: opts.color || CONFETTI[Math.floor(Math.random() * CONFETTI.length)]
+          color: opts.color || CONFETTI[Math.floor(Math.random() * CONFETTI.length)],
+          glow: !!opts.glow
         };
         if (kind === 'bubble' || kind === 'note' || kind === 'heart') { p.vy = -Math.abs(p.vy) * 0.6 - 12; p.vx *= 0.5; }
         if (kind === 'confetti') { p.vy = -Math.abs(p.vy) - 60; p.g = 260; }
@@ -435,11 +467,16 @@ BW.WormArt = (function () {
       if (this.list.length > 400) this.list.splice(0, this.list.length - 400);
     }
 
-    /* the little puff a worm leaves behind while it wears a trail */
-    trail(kind, x, y) {
+    /* The puff a worm leaves behind while it wears a trail: a couple of bits each step,
+       big enough to see at a glance, with a soft glow, fading out over a second and a half.
+       Enough to notice and enjoy - not so much that it hides the words on the board. */
+    trail(kind, x, y, size) {
       if (!kind || kind === 'none') return;
-      this.emit(kind, x + (Math.random() - 0.5) * 8, y + (Math.random() - 0.5) * 8, 1,
-                { speed: 14, life: 1100, size: kind === 'confetti' ? 5 : 6 });
+      const r = size || 9;
+      for (let i = 0; i < 2; i++) {
+        this.emit(kind, x + (Math.random() - 0.5) * r * 1.4, y + (Math.random() - 0.5) * r * 1.4, 1,
+                  { speed: 30, life: 1500, size: kind === 'confetti' ? r * 0.8 : r, glow: true });
+      }
     }
 
     update(dt) {
@@ -458,24 +495,39 @@ BW.WormArt = (function () {
       for (const p of this.list) {
         const t = p.life / p.max;
         ctx.save();
-        ctx.globalAlpha = Math.max(0, 1 - t * t);
+        // trail bits pop in, hold, then fade; everything else just fades
+        ctx.globalAlpha = Math.max(0, p.glow ? 1 - t * t * t : 1 - t * t);
         ctx.translate(p.x, p.y);
+        const pop = p.glow ? Math.min(1, t * 8) : 1;
+        const r = p.size * (0.4 + 0.6 * pop);
+        if (p.glow) {
+          // a soft halo behind the bit, fading out to nothing, so it shows up on any board
+          const halo = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 1.4);
+          halo.addColorStop(0, GLOW[p.kind] || p.color);
+          halo.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          ctx.fillStyle = halo;
+          ctx.globalAlpha *= 0.55;
+          circle(ctx, 0, 0, r * 1.4); ctx.fill();
+          ctx.globalAlpha /= 0.55;
+        }
         ctx.rotate(p.kind === 'confetti' || p.kind === 'sparkle' ? p.rot : 0);
-        const r = p.size;
         switch (p.kind) {
-          case 'sparkle':
-            ctx.fillStyle = '#ffe066'; star(ctx, 0, 0, r * (1 - t * 0.5), 4, 0.3); ctx.fill(); break;
+          case 'sparkle': {
+            const tw = 0.75 + 0.25 * Math.sin(p.life / 70 + p.rot * 5);    // a little twinkle
+            ctx.fillStyle = '#ffd23f'; star(ctx, 0, 0, r * tw * (1 - t * 0.4), 4, 0.3); ctx.fill();
+            ctx.fillStyle = '#fff'; circle(ctx, 0, 0, r * 0.16); ctx.fill(); break;
+          }
           case 'bubble':
-            ctx.strokeStyle = 'rgba(80, 160, 220, 0.9)'; ctx.lineWidth = 1.5;
+            ctx.strokeStyle = 'rgba(70, 150, 215, 0.95)'; ctx.lineWidth = 2;
             circle(ctx, 0, 0, r * (0.6 + t * 0.6)); ctx.stroke();
             ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'; circle(ctx, -r * 0.3, -r * 0.3, r * 0.2); ctx.fill(); break;
           case 'heart':
             ctx.fillStyle = '#ff5c8a'; heart(ctx, 0, 0, r * 0.8); ctx.fill(); break;
           case 'note':
             ctx.fillStyle = '#7d5cae';
-            ctx.font = `900 ${r * 2.4}px system-ui, sans-serif`;
+            ctx.font = `900 ${r * 2}px system-ui, sans-serif`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(p.size > 6 ? '♫' : '♪', 0, 0); break;
+            ctx.fillText(p.rot > Math.PI ? '♫' : '♪', 0, 0); break;
           case 'confetti':
             ctx.fillStyle = p.color; ctx.fillRect(-r / 2, -r / 4, r, r / 2); break;
           case 'crumb':
@@ -498,7 +550,11 @@ BW.WormArt = (function () {
   function loop(now) {
     const dt = Math.min(60, now - (lastFrame || now));
     lastFrame = now;
-    for (const m of mounted) if (m.canvas.isConnected) drawPreview(m, now, dt);
+    for (const m of mounted) {
+      if (!m.canvas.isConnected) continue;
+      // one broken preview must not freeze every other worm on the page
+      try { drawPreview(m, now, dt); } catch (err) { if (!m.failed) console.error(err); m.failed = true; }
+    }
     for (let i = mounted.length - 1; i >= 0; i--) if (!mounted[i].canvas.isConnected) mounted.splice(i, 1);
     if (mounted.length) requestAnimationFrame(loop); else looping = false;
   }
@@ -532,6 +588,9 @@ BW.WormArt = (function () {
     const skin = m.getSkin();
     const n = opts.segments || 6;
     const s = Math.min(ch / 2.6, cw / (n + 1.2));
+    // the shop shows boards behind the worm; everywhere else the worm stands on the page
+    const onBoard = typeof opts.board === 'function' ? opts.board() : opts.board;
+    if (onBoard && BW.BoardArt) BW.BoardArt.draw(ctx, skin.board, cw, ch, s * 0.8, now);
     const gap = s * 0.96;
     const start = cw / 2 + (n - 1) * gap / 2;          // the head, on the right
     const baseY = ch * 0.6;
@@ -541,20 +600,58 @@ BW.WormArt = (function () {
 
     if (now > m.nextPuff && skin.trail && skin.trail !== 'none') {
       const tail = pos(n - 1);
-      m.fx.emit(skin.trail, tail.x - s * 0.4, tail.y, 1, { speed: 18, life: 1300, size: s * 0.22 });
-      m.nextPuff = now + 220;
+      m.fx.trail(skin.trail, tail.x - s * 0.4, tail.y, s * 0.3);
+      m.nextPuff = now + 240;
     }
     m.fx.update(dt);
     m.fx.draw(ctx);
 
+    const written = [];
     for (let i = n - 1; i >= 1; i--) {
       const p = pos(i);
-      const ch_ = letters[letters.length - i];
-      segment(ctx, p.x, p.y, s, i, n, skin, now, ch_ || null, opts.letterColor || '#ffe9a8', font);
+      const ch = letters[letters.length - i];
+      segment(ctx, p.x, p.y, s, i, n, skin, now, !!ch);
+      if (ch) written.push({ x: p.x, y: p.y, char: ch, color: opts.letterColor || '#ffe9a8', word: 0 });
     }
+    words(ctx, written, s, font);
     const h = pos(0);
-    head(ctx, h.x, h.y, s, { x: 1, y: 0 }, skin, now, { neck: pos(1), blinkOffset: m.blinkOffset });
+    const watch = opts.followPointer ? watching(m, canvas, h, s, dt) : {};
+    head(ctx, h.x, h.y, s, { x: 1, y: 0 }, skin, now,
+         { neck: pos(1), blinkOffset: m.blinkOffset, look: watch.look, happy: watch.happy });
   }
 
-  return { mix, roundRect, segment, head, hat, glasses, neckwear, Particles, mount, CONFETTI };
+  /* ---------- eyes that follow the mouse ---------- */
+
+  // where the mouse (or a finger) is on the page, or null once it has left the window
+  let pointer = null;
+  let listening = false;
+  function listen() {
+    if (listening) return;
+    listening = true;
+    window.addEventListener('pointermove', e => { pointer = { x: e.clientX, y: e.clientY }; }, { passive: true });
+    document.addEventListener('pointerleave', () => { pointer = null; });
+    window.addEventListener('blur', () => { pointer = null; });
+  }
+
+  /* Which way the eyes of preview `m` look, with its head at (h.x, h.y) on the canvas: towards
+     the pointer, a little less the closer it is, easing there rather than snapping so the eyes
+     seem to follow rather than twitch. A pointer right on the head is a pat on the head. */
+  function watching(m, canvas, h, s, dt) {
+    listen();
+    const box = canvas.getBoundingClientRect();
+    let target = { x: 0.8, y: 0 }, happy = false;      // nobody about: look ahead
+    if (pointer) {
+      const dx = pointer.x - (box.left + h.x), dy = pointer.y - (box.top + h.y);
+      const dist = Math.hypot(dx, dy);
+      happy = dist < s * 0.6;
+      const reach = Math.min(1, dist / (s * 1.5));
+      target = dist ? { x: dx / dist * reach, y: dy / dist * reach } : { x: 0, y: 0 };
+    }
+    const ease = Math.min(1, dt / 80);
+    m.look = m.look || { x: 0.8, y: 0 };
+    m.look = { x: m.look.x + (target.x - m.look.x) * ease, y: m.look.y + (target.y - m.look.y) * ease };
+    return { look: m.look, happy };
+  }
+
+  return { mix, roundRect, segment, words, head, hat, glasses, neckwear, Particles, mount, CONFETTI };
 })();

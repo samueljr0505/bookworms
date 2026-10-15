@@ -22,6 +22,7 @@ BW.Renderer = class Renderer {
     // (see js/closet.js) - drawn by js/worm-art.js
     const worm = cfg.worm || BW.DEFAULT_WORM;
     this.skin = cfg.skin || { body: worm.body, head: worm.head };
+    canvas.style.borderColor = BW.BoardArt.frame(this.skin.board);   // each board has its own frame
 
     this.fx = new BW.WormArt.Particles();   // crumbs, confetti and the worm's trail
     this.popups = [];                       // words that float up off the board
@@ -73,13 +74,10 @@ BW.Renderer = class Renderer {
     const dt = Math.min(100, now - this.lastDraw);
     this.lastDraw = now;
 
-    // background: a soft checkerboard, like a garden lawn drawn on paper
+    // the board bought in the shop (js/board-art.js) - the garden lawn to start with
     ctx.fillStyle = '#fdf6e8';
     ctx.fillRect(-10, -10, W + 20, H + 20);
-    ctx.fillStyle = 'rgba(140, 190, 120, 0.08)';
-    for (let y = 0; y < rows; y++) {
-      for (let x = (y % 2); x < cols; x += 2) ctx.fillRect(x * cell, y * cell, cell, cell);
-    }
+    BW.BoardArt.draw(ctx, this.skin.board, W, H, cell, now);
 
     this.drawTiles(state);
     this.fx.update(dt);
@@ -172,12 +170,11 @@ BW.Renderer = class Renderer {
     };
 
     for (let i = cells.length - 1; i >= 1; i--) {
-      const label = labels[i];
       const pos = at(i);
-      BW.WormArt.segment(ctx, pos.x, pos.y, cell, i, cells.length, this.skin, now,
-                         label ? label.char : null,
-                         label ? this.posColor(state.pack, label.pos) : null, this.font);
+      BW.WormArt.segment(ctx, pos.x, pos.y, cell, i, cells.length, this.skin, now, !!labels[i]);
     }
+
+    BW.WormArt.words(ctx, this.letterSpots(worm, labels, p, state.pack), cell, this.font);
 
     const h = at(0);
     const gulp = Math.max(0, 1 - (now - (worm.gulpAt || 0)) / 240);
@@ -185,6 +182,35 @@ BW.Renderer = class Renderer {
       neck: cells.length > 1 ? at(1) : null,
       scale: 1 + 0.3 * Math.sin(gulp * Math.PI)
     });
+  }
+
+  /* Where to draw each letter on the body, in order along the body. A letter glides from
+     the square it was on before the last step to the square it is on now - so the words
+     slide along with the worm, and a new letter written in at the neck nudges the sentence
+     back one smooth square at a time. A letter that jumped further than one square (the
+     sentence switched ends, the worm turned round) is simply put in its new place. */
+  letterSpots(worm, labels, p, pack) {
+    if (worm.steps !== this.letterStep || worm.carried !== this.letterWords) {
+      this.letterWas = worm.carried === this.letterWords ? this.letterNow : new Map();
+      this.letterStep = worm.steps;
+      this.letterWords = worm.carried;
+    }
+    this.letterNow = new Map();
+    const cell = this.cell;
+    const spots = [];
+    for (let i = 1; i < worm.cells.length; i++) {
+      const l = labels[i];
+      if (!l) continue;
+      const c = worm.cells[i];
+      this.letterNow.set(l.id, c);
+      const o = this.letterWas && this.letterWas.get(l.id);
+      const glide = o && Math.abs(o.x - c.x) + Math.abs(o.y - c.y) === 1;
+      const x = glide ? o.x + (c.x - o.x) * p : c.x;
+      const y = glide ? o.y + (c.y - o.y) * p : c.y;
+      spots.push({ x: (x + 0.5) * cell, y: (y + 0.5) * cell, char: l.char,
+                   color: this.posColor(pack, l.pos), word: l.word });
+    }
+    return spots;
   }
 
   /* The tail end in pixels - where a trail comes out. */

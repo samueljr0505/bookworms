@@ -17,8 +17,9 @@ On the home page the player also picks **Real** or **Silly**:
   *the*, repeated words and end marks are still checked.
 
 **The worm's body is the sentence.** Every word you eat is written along the body, one letter per
-square, coloured by its part of speech - read your worm from its tail to its head to see what you
-have built. Long words make you long. Crash into a wall or into yourself and those words fall off
+square, coloured by its part of speech, with a little gap between words. Whichever way the worm
+goes, the words read the normal way round - left to right, or top to bottom - and a new word slides
+in a letter at a time as the body grows. Long words make you long. Crash into a wall or into yourself and those words fall off
 the body and scatter back onto the board for you to collect again.
 
 There is no game over. Nobody gets eliminated.
@@ -69,7 +70,7 @@ what each test proves.
 - **Eat a punctuation mark to end the sentence, and it gets checked.** The worm stops while the
   checker reads it, then shows a checklist with a reason for anything that failed. Press an arrow
   key to carry on.
-  - **Right:** it goes up on your list, with points for every word in it.
+  - **Right:** it goes up on your list and scores 20 points.
   - **Not finished yet:** the checker says what is missing ("What happens? Add a Verb."), and the
     words stay on the worm so you can keep building.
   - **Not quite right:** the checker says which word and why, and the words go back on the board
@@ -91,11 +92,12 @@ shop, `shop.html`, on things for the worm to wear:
 | Neckwear | bow tie, bandana, scarf, gold medal |
 | Patterns | stripes, spots, rainbow, shiny gold, galaxy |
 | Trails | sparkles, bubbles, hearts, music notes, confetti puffing out behind the worm |
+| Boards | the garden lawn is free; notebook, chalkboard, candy shop, beach, cozy cabin, snow day (with falling snow) and outer space (with twinkling stars) are bought |
 
 - Tap anything to **try it on** in the dressing room before buying. Buying takes two taps, so
   nothing is bought by accident, and the worm puts it on straight away.
 - Saved points only go up by playing and down by buying - a wrong sentence costs points in the
-  game's score, never in the shop. Prices run from 100 to 1000; a five-word sentence is about 100.
+  game's score, never in the shop. Prices run from 100 to 1000; a correct sentence is worth 20 (more on a streak).
 - The game's sidebar shows the cheapest thing not bought yet, with the worm already wearing it,
   and says when you can afford it.
 - The words written on the body always keep their part-of-speech colours. Patterns show on the
@@ -251,6 +253,7 @@ bookworms/
     closet.js           saved points, what has been bought, what is being worn
     worm-skin.js        which worm and topic were picked (shared by every page)
     worm-art.js         draws the worm and everything it wears, plus particles (shared by every page)
+    board-art.js        draws the boards from the shop (shared by the game and the shop)
     config.js           tweakable numbers: speed, board size, rules, points
     util.js             random-number helpers and the sound effects
     grammar.js          sentence-shape language: which shapes the words fit, what could come next
@@ -375,7 +378,9 @@ as a rim around them.
 
 Add an entry to `data/shop.json` - `slot`, `id`, `name` and `price` - then draw it in
 `js/worm-art.js`: hats in `hat()`, glasses in `glasses()`, neckwear in `neckwear()`, patterns in
-`bodyFill()` / `patternMarks()`, trails as a particle kind in `Particles`. Each drawing is sized as
+`bodyFill()` / `patternMarks()`, trails as a particle kind in `Particles`, and boards in
+`js/board-art.js` (a `paint` for the still part, an optional `move` for what moves, and a `frame`
+colour). Boards are only ever background: tiles and letters keep their colours on all of them. Each drawing is sized as
 a fraction of one body square, so it works on the board and in the shop alike. `node tools/test.js`
 checks that every slot has a free starting item and every price is sensible.
 

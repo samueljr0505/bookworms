@@ -10,7 +10,7 @@ const root = path.join(__dirname, '..');
 global.window = global;   // the game files expect a browser-style global
 global.performance = { now: () => Date.now() };
 for (const f of ['js/config.js', 'js/util.js', 'js/grammar.js', 'js/sense.js', 'js/checker.js', 'js/judge.js',
-                 'js/worm.js', 'js/board.js', 'js/closet.js', 'js/worm-skin.js']) {
+                 'js/worm.js', 'js/board.js', 'js/closet.js', 'js/worm-skin.js', 'js/board-art.js']) {
   eval(fs.readFileSync(path.join(root, f), 'utf8'));
 }
 const NS = global.window.BW;
@@ -142,6 +142,74 @@ for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
   const facing = 'dir (' + dx + ',' + dy + ')';
   check(w.cells.length === 4 + 6, facing + ': body should be start length plus six letters');
   check(spell(w) === 'catran', facing + ': body should read "catran", got "' + spell(w) + '"');
+}
+
+/* --- test 6c: every word reads forwards, around bends and through U-turns --- */
+console.log('Checking the words on the body read forwards wherever the worm goes...');
+{
+  // the words of one word that sit in a straight line, read the way a person reads the screen
+  const wordsOnScreen = worm => {
+    const labels = worm.bodyLabels();
+    const byWord = new Map();
+    worm.cells.forEach((c, i) => {
+      const l = labels[i];
+      if (!l) return;
+      if (!byWord.has(l.word)) byWord.set(l.word, []);
+      byWord.get(l.word).push({ c, l });
+    });
+    return [...byWord].map(([word, ls]) => ({
+      word,
+      straight: ls.every(o => o.c.y === ls[0].c.y) || ls.every(o => o.c.x === ls[0].c.x),
+      reads: ls.slice().sort((a, b) => (a.c.y - b.c.y) || (a.c.x - b.c.x)).map(o => o.l.char).join('')
+    }));
+  };
+
+  // a U-turn: right along the top, down, and back left along the bottom
+  const u = new NS.Worm(60, 40, 4);
+  const path = [{ x: 10, y: 20 }];
+  for (const [dx, dy, n] of [[1, 0, 8], [0, -1, 3], [-1, 0, 7]]) {
+    for (let i = 0; i < n; i++) { const p = path[path.length - 1]; path.push({ x: p.x + dx, y: p.y + dy }); }
+  }
+  u.cells = path;
+  u.dir = { x: -1, y: 0 };
+  for (const w of ['The', 'hungry', 'cat', 'ran']) u.carry(w, 'noun');
+  u.writing = 0;
+  const top = wordsOnScreen(u).find(o => u.carried[o.word].word === 'ran');
+  check(top && top.reads === 'ran', 'the word along the top of a U-turn reads "ran", got "' + (top && top.reads) + '"');
+
+  // a long wander, eating as it goes: no word lying straight ever reads backwards, and a
+  // long sentence never flickers between reading from the head and from the tail (a short
+  // one whipped round a tight corner really does change direction that fast)
+  const words = ['The', 'hungry', 'brown', 'cat', 'quickly', 'ran', 'into', 'the', 'big', 'barn'];
+  const w = new NS.Worm(400, 400, 4);
+  w.cells = w.cells.map(c => ({ x: c.x + 200, y: c.y + 200 }));
+  let backwards = 0, lastFlip = -99, flicker = 0, was = null, eaten = 0;
+  const dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+  for (let stepNo = 0; stepNo < 3000; stepNo++) {
+    if (stepNo % 9 === 0 && eaten < words.length) w.carry(words[eaten++], 'noun');
+    if (eaten === words.length && stepNo % 300 === 0) { w.dropCarried(); eaten = 0; }
+    if (NS.rng.int(4) === 0) { const d = NS.rng.pick(dirs); w.turn(d[0], d[1]); }
+    w.moving = true;
+    w.step(w.nextHead());
+    for (const o of wordsOnScreen(w)) {
+      const word = w.carried[o.word].word;
+      if (o.straight && o.reads.length > 1 && !word.startsWith(o.reads) && !word.endsWith(o.reads)) backwards++;
+    }
+    if (was !== null && w.headFirst !== was) {
+      if (stepNo - lastFlip <= 2 && w.carriedLength() - w.writing >= 8) flicker++;
+      lastFlip = stepNo;
+    }
+    was = w.headFirst;
+  }
+  check(backwards === 0, 'no straight word should ever read backwards, saw ' + backwards);
+  check(flicker === 0, 'the sentence should not flip ends back and forth, saw ' + flicker + ' flickers');
+
+  // a new word is written in one letter per step as the body grows, not all at once
+  const g = new NS.Worm(40, 40, 4);
+  g.carry('cat', 'noun');
+  const counts = [];
+  for (let i = 0; i < 4; i++) { counts.push(g.bodyLabels().filter(Boolean).length); g.step(g.nextHead()); }
+  check(counts.join(',') === '0,1,2,3', 'a new word should be written in a letter a step, got ' + counts.join(','));
 }
 
 /* --- test 7: biting your own body is a crash, the tail square is not --- */
@@ -738,6 +806,12 @@ function checkCloset() {
     seen.add(i.slot + ':' + i.id);
     check(!i.price || (Number.isInteger(i.price) && i.price > 0), i.id + ' has a whole-number price');
   }
+
+  // every board the shop sells has a drawing, and every drawing is for sale
+  const boards = items.filter(i => i.slot === 'board').map(i => i.id).sort();
+  check(boards.join() === NS.BoardArt.ids.slice().sort().join(),
+        'the boards in the shop and in js/board-art.js should match: ' + boards.join() + ' / ' + NS.BoardArt.ids.join());
+  check(new NS.Closet(null).wearing('board') === 'garden', 'every worm starts on the garden lawn');
 
   // a colour from the shop is only picked once it is owned
   const royal = worms.worms.find(w => w.id === 'royal');

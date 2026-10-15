@@ -40,12 +40,12 @@ BW.CONFIG = {
   // back before the worm reaches a punctuation mark. Costs a few extra questions.
   judgeEarly: true,
 
-  // Points come when a sentence is checked: a bonus for finishing, plus some for every word
-  // in it, so a longer correct sentence is worth more. A wrong sentence costs `wrong`.
-  // Correct sentences in a row earn `streak` extra for each one after the first, up to
-  // `maxStreak` in a row. Points from correct sentences are also saved up to spend in the
-  // shop (js/closet.js); a wrong sentence never takes away saved points.
-  points: { word: 10, sentence: 50, wrong: -5, streak: 15, maxStreak: 5 },
+  // Points come when a sentence is checked: `sentence` for every correct one, plus `word` for
+  // each word in it (0, so every sentence is worth the same - raise it to reward longer ones).
+  // A wrong sentence costs `wrong`. Correct sentences in a row earn `streak` extra for each one
+  // after the first, up to `maxStreak` in a row. Points from correct sentences are also saved
+  // up to spend in the shop (js/closet.js); a wrong sentence never takes away saved points.
+  points: { word: 0, sentence: 20, wrong: -5, streak: 5, maxStreak: 5 },
 
   sound: true
 };

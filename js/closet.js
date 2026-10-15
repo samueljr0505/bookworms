@@ -15,7 +15,7 @@ BW.Closet = class Closet {
       bank: 0,          // points ready to spend
       lifetime: 0,      // every point ever earned - never goes down
       owned: [],        // "slot:id" of everything bought
-      equipped: { hat: 'none', glasses: 'none', neck: 'none', pattern: 'plain', trail: 'none' }
+      equipped: { hat: 'none', glasses: 'none', neck: 'none', pattern: 'plain', trail: 'none', board: 'garden' }
     };
   }
 
