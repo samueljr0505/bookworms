@@ -8,9 +8,11 @@ time at all. The last test starts the real server and plays a short race over HT
 """
 import json
 import os
+import shutil
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import unittest
 import urllib.error
@@ -19,6 +21,17 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import classroom  # noqa: E402
+import serve  # noqa: E402
+
+# Plays cloudflared for the tests: says a link, as the real one does, and opens nothing.
+FAKE_CLOUDFLARED = """#!/usr/bin/env python3
+import sys, time
+sys.stderr.write("INF Requesting new quick Tunnel on trycloudflare.com...\\n")
+sys.stderr.write("INF talking to https://api.trycloudflare.com/tunnel\\n")
+sys.stderr.write("INF |  https://happy-test-words.trycloudflare.com  |\\n")
+sys.stderr.flush()
+time.sleep(60)
+"""
 
 
 class Clock:
@@ -213,14 +226,33 @@ class ClassroomTests(unittest.TestCase):
             self.assertEqual(self.post(self.code, "sentence", body)[0], 400, body)
 
 
+class LinkTests(unittest.TestCase):
+    def test_the_link_is_read_from_what_cloudflared_says(self):
+        self.assertEqual(serve.tunnel_url("INF |  https://red-fox-blue-sky.trycloudflare.com  |"),
+                         "https://red-fox-blue-sky.trycloudflare.com")
+        self.assertIsNone(serve.tunnel_url('ERR failed to request: Post "https://api.trycloudflare.com/tunnel"'))
+        self.assertIsNone(serve.tunnel_url("INF Starting tunnel"))
+
+    def test_no_cloudflared_means_no_link(self):
+        link = serve.PublicLink(8000, None)
+        link.open()
+        self.assertEqual(link.status()["state"], "unavailable")
+
+
 class ServerTests(unittest.TestCase):
-    """The real server, started the way serve.sh starts it."""
+    """The real server, started the way serve.sh starts it - with a stand-in for cloudflared."""
 
     def setUp(self):
         with socket.socket() as s:
             s.bind(("127.0.0.1", 0))
             self.port = s.getsockname()[1]
+        self.dir = tempfile.mkdtemp()
+        fake = os.path.join(self.dir, "cloudflared")
+        with open(fake, "w") as f:
+            f.write(FAKE_CLOUDFLARED)
+        os.chmod(fake, 0o755)
         env = {k: v for k, v in os.environ.items() if not k.startswith("ANTHROPIC_")}
+        env["BOOKWORMS_CLOUDFLARED"] = fake
         self.proc = subprocess.Popen([sys.executable, os.path.join(HERE, "serve.py"), str(self.port)],
                                      env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         for _ in range(50):
@@ -233,6 +265,42 @@ class ServerTests(unittest.TestCase):
     def tearDown(self):
         self.proc.terminate()
         self.proc.wait()
+        shutil.rmtree(self.dir)
+
+    def link(self, body=None, headers=None):
+        req = urllib.request.Request("http://127.0.0.1:%d/api/link" % self.port,
+                                     data=None if body is None else json.dumps(body).encode(),
+                                     headers=dict({"Content-Type": "application/json"}, **(headers or {})))
+        try:
+            with urllib.request.urlopen(req) as r:
+                return r.status, json.load(r)
+        except urllib.error.HTTPError as err:
+            return err.code, json.load(err)
+
+    def test_only_this_computer_can_open_the_link(self):
+        status, info = self.link()
+        self.assertEqual((status, info["state"], info["canControl"]), (200, "off", True))
+        # anyone using the link arrives through cloudflared, which runs here - Cloudflare's
+        # headers give them away
+        for header in ("Cf-Connecting-Ip", "Cf-Ray", "X-Forwarded-For"):
+            status, info = self.link(headers={header: "203.0.113.9"})
+            self.assertFalse(info["canControl"], header)
+            self.assertEqual(self.link({"open": True}, {header: "203.0.113.9"})[0], 403, header)
+        self.assertEqual(self.link()[1]["state"], "off")
+
+    def test_making_and_closing_the_link(self):
+        self.assertEqual(self.link({"open": "yes"})[0], 400)
+        status, info = self.link({"open": True})
+        self.assertEqual(status, 200)
+        self.assertIn(info["state"], ("starting", "on"))
+        for _ in range(50):
+            info = self.link()[1]
+            if info["state"] == "on":
+                break
+            time.sleep(0.1)
+        self.assertEqual((info["state"], info["url"]), ("on", "https://happy-test-words.trycloudflare.com"))
+        status, info = self.link({"open": False})
+        self.assertEqual((status, info["state"], info["url"]), (200, "off", None))
 
     def test_only_what_the_game_loads_is_handed_out(self):
         def status(path, method="GET"):

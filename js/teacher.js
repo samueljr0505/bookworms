@@ -18,6 +18,7 @@ window.BW = window.BW || {};
   let mine = null;             // { code, teacher } - the class this page runs
   let view = null;             // the latest look at it
   let addresses = [];          // how other computers reach this server
+  let link = { state: 'off', url: null, canControl: false };   // the public link (tools/serve.py)
   let changing = false;        // the setup panel is changing the open class, not making one
   const opened = new Set();    // students whose sentences are showing
   let drawn = '';              // what the board was last drawn from
@@ -26,8 +27,9 @@ window.BW = window.BW || {};
   /* Anything that cannot be undone asks first - on the button itself, the way the shop's Buy
      button does. Not with confirm(): some browsers never show that box and just answer "no",
      which left these buttons doing nothing at all. The first press asks, the second does it,
-     and if the second does not come the button goes back to normal. */
-  function twoStep(button, ask, action) {
+     and if the second does not come the button goes back to normal. With `when`, it only
+     asks while that says so - the button does something else the rest of the time. */
+  function twoStep(button, ask, action, when) {
     let label = null, timer = null;
     const reset = () => {
       clearTimeout(timer);
@@ -36,6 +38,7 @@ window.BW = window.BW || {};
       button.classList.remove('sure');
     };
     button.addEventListener('click', () => {
+      if (when && !when()) return;
       if (label !== null) { reset(); action(); return; }
       label = button.textContent;
       button.textContent = ask;
@@ -122,6 +125,7 @@ window.BW = window.BW || {};
       if (r.ok) {
         view = r.data;
         $('room-error').textContent = '';
+        if (link.canControl || link.url) refreshLink();     // a link may have opened or stopped
         if (!changing) { $('setup').hidden = true; $('room').hidden = false; }
         draw();
       }
@@ -157,12 +161,52 @@ window.BW = window.BW || {};
     return view.state;
   }
 
-  /* The address students type. A teacher looking at http://localhost sees this computer's
-     address on the network instead - "localhost" on a student's computer is their own. */
+  /* The address students type: the public link while it is open. Otherwise, a teacher looking
+     at http://localhost sees this computer's address on the network instead - "localhost" on a
+     student's computer is their own. Always with its http:// or https://, so no browser has to
+     guess which. */
   function joinAddress() {
+    if (link.url) return link.url + '/join.html';
     const local = ['localhost', '127.0.0.1', '[::1]', '::1'].includes(location.hostname);
     const origin = local && addresses.length ? addresses[0] : location.origin;
-    return (origin + location.pathname.replace(/[^/]*$/, '') + 'join.html').replace(/^https?:\/\//, '');
+    return origin + location.pathname.replace(/[^/]*$/, '') + 'join.html';
+  }
+
+  /* ---------- the public link ---------- */
+
+  /* Some school Wi-Fi will not let one computer reach another, so students cannot open the
+     address above. Then the teacher can make a link that works from any network. It is new and
+     random every time, and it stops working when it is closed or the server stops. Only the
+     computer running Bookworms can open or close it, so the button is only shown there. */
+  async function refreshLink(body) {
+    try {
+      const r = await fetch('api/link', body && {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      });
+      if (r.ok) link = await r.json();
+    } catch (err) { /* the room's own error line says the server is out of reach */ }
+    if (view) draw();
+  }
+
+  const LINK_NOTES = {
+    off: 'Students can\'t connect?',
+    starting: 'Making a link that works from any network...',
+    on: 'This link works from any network, until you close it.',
+    unavailable: 'Students can\'t connect? To make a link that works from any network, ' +
+                 'install cloudflared: brew install cloudflared'
+  };
+
+  function drawLink() {
+    // nothing to show on a computer that cannot open it - unless a link is open
+    $('link-row').hidden = !link.canControl;
+    if (!link.canControl) return;
+    $('link-note').textContent = link.state === 'off' && link.why ? link.why : LINK_NOTES[link.state] || '';
+    const button = $('link-btn');
+    button.hidden = link.state === 'starting' || link.state === 'unavailable';
+    if (!button.classList.contains('sure')) {
+      button.textContent = link.state === 'on' ? 'Close link' : link.why ? 'Try again' : 'Make a link';
+    }
+    button.classList.toggle('stop', link.state === 'on');
   }
 
   function draw() {
@@ -171,6 +215,7 @@ window.BW = window.BW || {};
 
     $('code').textContent = view.code;
     $('address').textContent = joinAddress();
+    drawLink();
     $('joinbox').classList.toggle('small', state !== 'lobby');
     $('settings').textContent = topic.emoji + ' ' + topic.name + ' · ' +
       (view.mode === 'silly' ? '🤪 Silly' : '🌍 Real') + ' sentences · ' +
@@ -349,6 +394,7 @@ window.BW = window.BW || {};
       const r = await BW.Class.call('');
       addresses = (r.ok && r.data.addresses) || [];
     } catch (err) { /* shown when the class is made */ }
+    await refreshLink();
 
     document.querySelectorAll('#modes [data-mode]').forEach(b =>
       b.addEventListener('click', () => { choice.mode = b.dataset.mode; drawSetup(); }));
@@ -365,6 +411,12 @@ window.BW = window.BW || {};
     $('change').addEventListener('click', change);
     $('change-after').addEventListener('click', change);
     $('print').addEventListener('click', () => window.print());
+    // opening the link takes one press; closing it cuts off every student using it, so it asks
+    $('link-btn').addEventListener('click', () => {
+      if (link.state !== 'on') refreshLink({ open: true });
+    });
+    twoStep($('link-btn'), 'Sure? Students using it lose the game',
+            () => refreshLink({ open: false }), () => link.state === 'on');
     // students in this class would need the new code
     twoStep($('new-class'), 'Sure? Everyone needs the new code', () => {
       clearTimeout(timer);

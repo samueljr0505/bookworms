@@ -129,6 +129,14 @@ body {
 .joinbox.small .code { display: inline; font-size: 30px; text-shadow: none; }
 
 .settings { text-align: center; margin: 0 0 4px; font-weight: 800; color: var(--muted); }
+
+/* students can't connect? make a link (see js/teacher.js) */
+.link-row {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 12px;
+  margin: 16px 0 0; font-size: 15px; font-weight: 700; color: var(--muted);
+}
+.joinbox.small .link-row { flex-basis: 100%; margin-top: 6px; font-size: 13px; }
+.btn.small { font-size: 14px; padding: 6px 14px; border-radius: 11px; }
 #lobby h2 { text-align: center; }
 
 /* who has joined, while waiting for Start */

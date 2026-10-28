@@ -162,10 +162,28 @@ join that class. What they cannot do:
 - score for someone else. Each student's browser has its own secret seat.
 
 So the risk is someone on the network joining a class they should not, for example with a silly
-name. The teacher sees every name as it arrives and can remove it. If students cannot
-connect: on a Mac, say **Allow** when asked whether Python may accept incoming connections
-(or allow it in System Settings > Network > Firewall). Some school Wi-Fi stops computers from
-talking to each other; then the game has to be put on a server everyone can reach.
+name. The teacher sees every name as it arrives and can remove it.
+
+**Students can't connect?** First, on a Mac, say **Allow** when asked whether Python may accept
+incoming connections (or allow it in System Settings > Network > Firewall). If it still times
+out ("This site can't be reached"), the Wi-Fi is probably one that will not let computers reach
+each other - most university and many school networks are like that. Then press **Make a link**
+under the code on the teacher's page:
+
+- It opens a link that works from any network, like
+  `https://some-random-words.trycloudflare.com`, and the teacher's page shows it as the address
+  to go to. It is new and random every time, so nobody can find it unless the teacher gives it
+  out.
+- It needs Cloudflare's free `cloudflared` program on the teacher's computer, once:
+  `brew install cloudflared`. The page says so if it is missing.
+- It stays open until the teacher presses **Close link** (twice - it asks, because everyone
+  using it loses their game) or stops the server.
+- Only the computer running Bookworms can open or close it. Nobody on the network, and nobody
+  using the link, can.
+- While it is open, **anyone with the link can open the game** from anywhere, not just the
+  class. They get the same as someone on the Wi-Fi: the game's own files, and joining a class
+  with its code. If the AI judge is on, their sentences use the teacher's API key (at most 30
+  new questions a minute).
 
 **What is kept, and where.** The server keeps each class in memory: the code, the settings, the
 students' first names and their sentences. Nothing is written to disk. A class disappears when
