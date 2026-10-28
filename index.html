@@ -9,92 +9,65 @@
 </head>
 <body>
 
+<header class="top">
+  <a class="help" href="how-to-play.html"><span class="help-icon" aria-hidden="true">?</span>How to play</a>
+  <a id="bank" class="bank" href="shop.html" title="Spend your points in the shop">
+    <span class="bank-star" aria-hidden="true">⭐</span>
+    <span><b id="bank-points">0</b> <small>points</small></span>
+    <span class="bank-go">Shop</span>
+  </a>
+</header>
+
 <main class="home">
 
-  <header class="hero">
-    <a id="bank" class="bank" href="shop.html" title="Spend your points in the shop">
-      <span class="bank-star">⭐</span>
-      <span><b id="bank-points">0</b><small>points</small></span>
-      <span class="bank-go">Shop</span>
-    </a>
+  <div class="hero">
     <h1>Bookworms</h1>
     <p class="tagline">Eat the words in the right order and build a sentence.</p>
-  </header>
+  </div>
 
-  <!-- the worm you are about to play as, wiggling, in everything it is wearing -->
-  <section class="preview" aria-label="Your worm">
-    <canvas id="worm-preview" class="worm" aria-hidden="true"></canvas>
-    <p id="worm-name" class="worm-name">Garden Green</p>
-    <a class="shop-btn" href="shop.html">
-      <span class="shop-btn-icon" aria-hidden="true">🛍️</span>
-      <span><b>Shop</b><small>Hats, glasses, colors and boards</small></span>
-      <span class="shop-btn-go" aria-hidden="true">&rarr;</span>
-    </a>
-  </section>
+  <div class="setup">
 
-  <section class="picker">
-    <h2>Pick your color</h2>
-    <ul id="swatches" class="swatches" role="radiogroup" aria-label="Worm colour"></ul>
-    <p id="picker-error" class="picker-error" hidden>
-      Could not load the worm colours. Start the server with <code>./serve.sh</code>
-      and reload this page.
-    </p>
-  </section>
+    <!-- the worm you are about to play as, wiggling, in everything it is wearing -->
+    <section class="card worm-card" aria-labelledby="worm-label">
+      <h2 id="worm-label" class="label">Your worm</h2>
+      <canvas id="worm-preview" class="worm" aria-hidden="true"></canvas>
+      <p id="worm-name" class="worm-name">Garden Green</p>
+      <ul id="swatches" class="swatches" role="radiogroup" aria-label="Worm colour"></ul>
+      <p id="picker-error" class="picker-error" hidden>
+        Could not load the worm colours. Start the server with <code>./serve.sh</code>
+        and reload this page.
+      </p>
+      <a class="shop-btn" href="shop.html">
+        <span aria-hidden="true">🛍️</span> Hats, glasses and more <span class="go" aria-hidden="true">&rarr;</span>
+      </a>
+    </section>
 
-  <section class="picker">
-    <h2>Pick a topic</h2>
-    <ul id="topics" class="topics" role="radiogroup" aria-label="Topic"></ul>
-  </section>
+    <!-- what to play: the topic, Real or Silly, then go -->
+    <section class="card game-card" aria-labelledby="topic-label">
+      <h2 id="topic-label" class="label">Topic</h2>
+      <ul id="topics" class="chips" role="radiogroup" aria-labelledby="topic-label"></ul>
 
-  <section class="picker">
-    <h2>Real or silly?</h2>
-    <ul id="modes" class="topics" role="radiogroup" aria-label="Kind of sentences">
-      <li><button class="topic" type="button" role="radio" data-mode="real" aria-checked="true">
-        <span>🌍</span><span>Real<small>It has to make sense: a dog can chase a ball</small></span>
-      </button></li>
-      <li><button class="topic" type="button" role="radio" data-mode="silly" aria-checked="false">
-        <span>🤪</span><span>Silly<small>It only has to sound right: a ball can chase a dog</small></span>
-      </button></li>
-    </ul>
-  </section>
+      <h2 id="mode-label" class="label">Sentences</h2>
+      <div id="modes" class="segmented" role="radiogroup" aria-labelledby="mode-label">
+        <button type="button" role="radio" data-mode="real" aria-checked="true"
+                data-note="They have to make sense: a dog can chase a ball.">🌍 Real</button>
+        <button type="button" role="radio" data-mode="silly" aria-checked="false"
+                data-note="They only have to sound right: a ball can chase a dog!">🤪 Silly</button>
+      </div>
+      <p id="mode-note" class="mode-note" aria-live="polite">They have to make sense: a dog can chase a ball.</p>
 
-  <section class="start">
-    <a id="play" class="play" href="game.html">Play</a>
-    <p class="hint">Steer with the <b>arrow keys</b> or <b>W A S D</b></p>
-  </section>
+      <a id="play" class="play" href="game.html">Play</a>
+      <p class="hint">Steer with the <b>arrow keys</b> or <b>W A S D</b></p>
+    </section>
 
-  <section class="learn">
-    <a class="learn-link" href="how-to-play.html">
-      <span class="learn-icon">?</span>
-      <span>
-        <b>How to play</b>
-        <small>New here? Six short steps, with pictures.</small>
-      </span>
-    </a>
-  </section>
+  </div>
 
   <!-- class races: the whole class plays at once, on a shared leaderboard -->
-  <section class="classroom">
-    <h2>Playing with your class?</h2>
-    <div class="class-links">
-      <a class="class-link" href="join.html">
-        <span class="class-icon" aria-hidden="true">🏁</span>
-        <span><b>Join a class race</b><small>Your teacher has a code</small></span>
-      </a>
-      <a class="class-link" href="teacher.html">
-        <span class="class-icon" aria-hidden="true">🏆</span>
-        <span><b>Run a class race</b><small>For teachers: a timed race with a leaderboard</small></span>
-      </a>
-    </div>
-  </section>
-
-  <!-- room to grow: more of these panels go here later -->
-  <section class="soon">
-    <h2>Coming soon</h2>
-    <ul class="soon-list">
-      <li>More word packs to choose from</li>
-    </ul>
-  </section>
+  <nav class="classroom" aria-label="Class races">
+    <span class="classroom-label">With your class:</span>
+    <a href="join.html"><span aria-hidden="true">🏁</span> Join a class race</a>
+    <a href="teacher.html"><span aria-hidden="true">🏆</span> Run one (teachers)</a>
+  </nav>
 
 </main>
 

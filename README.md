@@ -114,8 +114,8 @@ shop, `shop.html`, on things for the worm to wear:
 A whole class plays at once, every child on their own board, racing to build the most correct
 sentences before the time runs out. The teacher puts the leaderboard up on the board.
 
-1. **The teacher** starts the server (`./serve.sh`) on their computer, opens **Run a class race**
-   on the home page (`teacher.html`), and picks a topic, Real or Silly, and how long the race lasts
+1. **The teacher** starts the server (`./serve.sh`) on their computer, clicks **Run one
+   (teachers)** at the bottom of the home page (`teacher.html`), and picks a topic, Real or Silly, and how long the race lasts
    (2, 3, 5 or 10 minutes). The page shows a four-letter code and the address to go to.
 2. **Each student** goes to that address on their own computer - something like
    `192.168.1.23:8000/join.html` - and types the code and their first name. Their game opens and

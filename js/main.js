@@ -338,10 +338,10 @@ window.BW = window.BW || {};
     $('game').hidden = false;
     renderLegend(pack);
     document.title = 'Bookworms - ' + pack.name;
-    const heading = document.querySelector('.tagline');
-    if (heading) heading.textContent = pack.emoji + ' ' + pack.name +
-      (pack.mode === 'silly' ? ' · 🤪 Silly sentences' : ' · 🌍 Real sentences') +
-      ' - eat the words in the right order and build a sentence.';
+    // what is being played, in a word or two: the topic, and Real or Silly
+    $('now-playing').textContent = pack.emoji + ' ' + pack.name +
+      (pack.mode === 'silly' ? ' \u00b7 🤪 Silly' : ' \u00b7 🌍 Real');
+    $('now-playing').hidden = false;
 
     const wardrobe = await loadWardrobe();
     shopItems = wardrobe.items;

@@ -44,10 +44,13 @@ body {
 }
 .brand:hover { color: var(--worm-head); }
 .brand-worm { width: 92px; height: 50px; display: block; }
-.tagline {
-  flex: 1; margin: 0; text-align: center;
-  color: var(--muted); font-weight: 800; font-size: 15px;
+/* what is being played: the topic, Real or Silly */
+.now-playing {
+  margin: 0 auto 0 0; padding: 6px 14px; border-radius: 999px;
+  background: #fff; border: 2px solid var(--line);
+  color: var(--ink); font-weight: 800; font-size: 15px; white-space: nowrap;
 }
+.now-playing[hidden] { display: none; }
 
 .bank {
   display: inline-flex; align-items: center; gap: 10px;
@@ -129,7 +132,8 @@ main {
 .message.bad, .message.warn { color: var(--bad); }
 .message.info { color: var(--muted); }
 
-.buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+.buttons { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+.controls { display: flex; gap: 10px; flex-wrap: wrap; }
 button {
   font: inherit; font-weight: 800; padding: 9px 16px; border-radius: 12px;
   border: 2px solid var(--line); background: #fff; color: var(--ink); cursor: pointer;
@@ -150,8 +154,6 @@ button.primary kbd { background: rgba(255, 255, 255, 0.25); color: #fff; }
   text-decoration: none; display: inline-block; box-shadow: 0 3px 0 var(--line);
 }
 .btn-link:hover { background: #fffaf0; border-color: var(--green); color: var(--ink); }
-.btn-link.shop { background: #f6c544; border-color: #e0a21f; color: #5a3d00; box-shadow: 0 3px 0 #c98f12; }
-.btn-link.shop:hover { background: #f8d061; border-color: #e0a21f; color: #5a3d00; }
 kbd {
   font: inherit; font-size: 11px; background: #efe6d2; border-radius: 5px;
   padding: 1px 5px; margin-left: 4px; color: var(--muted);
@@ -296,7 +298,7 @@ kbd {
 
 @media (max-width: 760px) {
   .topbar { flex-wrap: wrap; }
-  .tagline { order: 3; flex-basis: 100%; }
+  .now-playing { order: 3; margin: 0 auto; }
 }
 
 /* ---------- a class race (js/race.js) ---------- */

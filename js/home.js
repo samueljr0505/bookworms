@@ -10,7 +10,6 @@ window.BW = window.BW || {};
   let skin = BW.skinFor(BW.DEFAULT_WORM);
   let chosenTopic = null;
   let chosenMode = BW.chooseMode();
-  let topicIndex = null;
 
   /* Both choices ride in the link as well as in storage, so they survive a
      private window, blocked site data, or the game opening on another port. */
@@ -71,13 +70,6 @@ window.BW = window.BW || {};
     }
   }
 
-  /* "Billions of sentences" says more to a child than 6989641595 does. */
-  function howMany(n) {
-    if (n >= 1e9) return 'Billions of';
-    if (n >= 1e6) return 'Millions of';
-    return Number(n).toLocaleString();
-  }
-
   /* The topic decides which word lists the game uses. */
   function buildTopics(index, current) {
     const list = $('topics');
@@ -89,10 +81,7 @@ window.BW = window.BW || {};
       button.type = 'button';
       button.setAttribute('role', 'radio');
       button.setAttribute('aria-checked', String(topic.id === current.id));
-      // Silly mode lets every word go anywhere its kind goes, so it has far more sentences
-      const count = chosenMode === 'silly' && topic.sillySentences ? topic.sillySentences : topic.sentences;
-      button.innerHTML = '<span>' + (topic.emoji || '') + '</span><span>' + topic.name +
-                         '<small>' + howMany(count) + ' sentences</small></span>';
+      button.textContent = (topic.emoji ? topic.emoji + ' ' : '') + topic.name;
       button.addEventListener('click', () => {
         BW.saveTopic(topic.id);
         chosenTopic = topic.id;
@@ -105,16 +94,20 @@ window.BW = window.BW || {};
     }
   }
 
-  /* Real or Silly: whether a sentence has to make sense, or only sound right. */
+  /* Real or Silly: whether a sentence has to make sense, or only sound right. Only the chosen
+     one is explained, in one line under the switch. */
   function buildModes() {
     const buttons = document.querySelectorAll('#modes [data-mode]');
-    const show = () => buttons.forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === chosenMode)));
+    const show = () => buttons.forEach(b => {
+      const on = b.dataset.mode === chosenMode;
+      b.setAttribute('aria-checked', String(on));
+      if (on) $('mode-note').textContent = b.dataset.note;
+    });
     buttons.forEach(b => b.addEventListener('click', () => {
       chosenMode = b.dataset.mode;
       BW.saveMode(chosenMode);
       show();
       updatePlayLink();
-      if (topicIndex) buildTopics(topicIndex, { id: chosenTopic });
     }));
     show();
   }
@@ -137,7 +130,6 @@ window.BW = window.BW || {};
         return r.json();
       });
       const topic = BW.chooseTopic(index);
-      topicIndex = index;
       chosenTopic = topic.id;
       updatePlayLink();
       buildTopics(index, topic);

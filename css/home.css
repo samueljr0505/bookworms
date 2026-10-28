@@ -1,4 +1,6 @@
-/* The home page. The game itself is styled by css/style.css. */
+/* The home page: two cards side by side - your worm, and what to play - with Play as the one
+   big button. Everything a player has to choose fits on one screen. The game itself is
+   styled by css/style.css. */
 
 :root {
   --paper: #fdf6e8;
@@ -6,6 +8,9 @@
   --muted: #7b7263;
   --line: #e3d7be;
   --green: #4f8a5b;
+  --green-dark: #3c6b46;
+  --gold: #f2b631;
+  --shadow: 0 5px 0 #e0d2b4;
 
   /* set from js/home.js when a worm is picked */
   --worm-body: #6eb478;
@@ -16,7 +21,6 @@
 
 body {
   margin: 0;
-  padding: 0;
   background-color: #f4ecdb;
   background-image:
     radial-gradient(circle at 20% 30%, rgba(242, 166, 90, 0.10) 0 6px, transparent 7px),
@@ -26,200 +30,90 @@ body {
   font-family: "Nunito", ui-rounded, "Trebuchet MS", system-ui, sans-serif;
 }
 
-.home {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 40px 16px 60px;
-  text-align: center;
+a:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+
+/* ---------- top: how to play, and the points bank ---------- */
+
+.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  max-width: 960px; margin: 0 auto; padding: 16px 16px 0;
+}
+.help {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-weight: 800; font-size: 15px; color: var(--muted); text-decoration: none;
+  padding: 6px 12px 6px 6px; border-radius: 999px;
+}
+.help:hover { color: var(--ink); background: rgba(255, 255, 255, 0.6); }
+.help-icon {
+  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--green); color: #fff; font-weight: 900;
 }
 
-/* ---------- hero ---------- */
-
-.hero h1 {
-  margin: 0;
-  font-size: clamp(42px, 11vw, 76px);
-  letter-spacing: -2px;
-  color: var(--green);
-  text-shadow: 0 3px 0 #e0d2b4;
-}
-.tagline {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 17px;
-}
-
-/* ---------- the points bank ---------- */
-
-.hero { position: relative; }
 .bank {
-  position: absolute; right: 0; top: -22px;
-  display: inline-flex; align-items: center; gap: 7px;
+  display: inline-flex; align-items: center; gap: 8px;
   text-decoration: none; color: var(--ink);
   background: #fff; border: 3px solid #f3d27a; border-radius: 16px;
-  padding: 5px 13px; box-shadow: 0 4px 0 #e6c15f; transition: transform 0.12s;
+  padding: 5px 6px 5px 12px; box-shadow: 0 4px 0 #e6c15f; transition: transform 0.12s;
 }
 .bank:hover { transform: translateY(-2px); }
-.bank-star { font-size: 22px; }
+.bank-star { font-size: 20px; }
+.bank b { font-size: 18px; }
+.bank small { font-size: 12px; font-weight: 800; color: var(--muted); }
 .bank-go {
-  background: var(--gold, #f2b631); color: #5a3d00; font-weight: 900; font-size: 14px;
-  padding: 5px 11px; border-radius: 10px; margin-left: 3px;
+  background: var(--gold); color: #5a3d00; font-weight: 900; font-size: 14px;
+  padding: 5px 11px; border-radius: 10px;
 }
-.bank b { display: block; font-size: 19px; line-height: 1; text-align: left; }
-.bank small { display: block; font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
 
-/* ---------- the wiggling worm ---------- */
+/* ---------- the title ---------- */
 
-.preview {
-  margin: 22px 0 10px;
-  padding: 6px 0 16px;
-  background: radial-gradient(ellipse at 50% 72%, rgba(94, 160, 90, 0.16) 0 34%, transparent 35%);
+.home { max-width: 960px; margin: 0 auto; padding: 4px 16px 48px; }
+
+.hero { text-align: center; margin-bottom: 22px; }
+.hero h1 {
+  margin: 0; font-size: clamp(44px, 9vw, 68px); line-height: 1.05; letter-spacing: -2px;
+  color: var(--green); text-shadow: 0 3px 0 #e0d2b4;
 }
-.worm { display: block; width: 100%; height: 150px; }
+.tagline { margin: 6px 0 0; color: var(--muted); font-weight: 700; font-size: 17px; }
 
+/* ---------- the two cards ---------- */
+
+.setup {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px;
+  align-items: stretch;
+}
+.card {
+  background: #fff; border: 3px solid var(--line); border-radius: 22px;
+  padding: 18px 22px 22px; box-shadow: var(--shadow);
+}
+.label {
+  margin: 0 0 10px; font-size: 12px; font-weight: 800; letter-spacing: 1.2px;
+  text-transform: uppercase; color: var(--muted);
+}
+.label:not(:first-child) { margin-top: 20px; }
+
+/* your worm */
+.worm-card { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.worm-card .label { align-self: flex-start; }
+/* the worm takes whatever room the card has spare (flex-basis 0, so its own size never
+   feeds back into the card's) - a bigger worm when the topics need two rows */
+.worm { display: block; width: 100%; flex: 1 1 0; min-height: 104px; max-height: 170px; }
 .worm-name {
-  margin: 0;
-  font-weight: 900;
-  font-size: 20px;
-  color: var(--worm-head);
-  transition: color 0.25s;
-}
-/* the way into the shop: a chunky white button with a green edge, so it reads as something
-   to press without competing with the green Play button */
-.shop-btn {
-  display: inline-flex; align-items: center; gap: 12px; margin-top: 14px;
-  padding: 10px 18px 10px 14px; text-align: left; text-decoration: none; color: var(--green);
-  background: #fff; border: 3px solid var(--green); border-radius: 18px;
-  box-shadow: 0 5px 0 #3c6b46; transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
-}
-.shop-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #3c6b46; background: #f3faf4; }
-.shop-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #3c6b46; }
-.shop-btn:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
-.shop-btn-icon { font-size: 30px; line-height: 1; }
-.shop-btn b { display: block; font-size: 22px; line-height: 1.05; }
-.shop-btn small { display: block; font-size: 13px; font-weight: 800; color: var(--muted); }
-.shop-btn-go {
-  font-size: 22px; font-weight: 900; margin-left: 4px;
-  transition: transform 0.15s;
-}
-.shop-btn:hover .shop-btn-go { transform: translateX(4px); }
-
-/* ---------- colour picker ---------- */
-
-.picker { margin-top: 26px; }
-
-h2 {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1.4px;
-  color: var(--muted);
-  margin: 0 0 12px;
+  margin: 0 0 14px; font-weight: 900; font-size: 19px;
+  color: var(--worm-head); transition: color 0.25s;
 }
 
 .swatches {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
+  list-style: none; margin: 0 0 16px; padding: 0;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
 }
 .swatch {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  border: 3px solid transparent;
-  background: none;
-  padding: 3px;
-  cursor: pointer;
+  width: 38px; height: 38px; padding: 3px; cursor: pointer;
+  border-radius: 12px; border: 3px solid transparent; background: none;
   transition: transform 0.15s, border-color 0.15s;
 }
-.swatch i {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 11px;
-}
-.swatch:hover { transform: translateY(-3px); }
-.swatch[aria-checked="true"] {
-  border-color: var(--ink);
-  transform: translateY(-3px);
-}
-.swatch:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
-
-.picker-error {
-  color: #c0563f;
-  font-weight: 700;
-  font-size: 14px;
-  max-width: 420px;
-  margin: 12px auto 0;
-}
-.picker-error code {
-  background: #efe6d2;
-  padding: 1px 6px;
-  border-radius: 5px;
-}
-
-/* ---------- play ---------- */
-
-.start { margin-top: 34px; }
-
-.play {
-  display: inline-block;
-  font-size: 26px;
-  font-weight: 800;
-  text-decoration: none;
-  color: #fff;
-  background: var(--green);
-  padding: 14px 54px;
-  border-radius: 16px;
-  box-shadow: 0 5px 0 #3c6b46;
-  transition: transform 0.1s, box-shadow 0.1s;
-}
-.play:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #3c6b46; }
-.play:active { transform: translateY(3px); box-shadow: 0 2px 0 #3c6b46; }
-
-.hint { margin: 12px 0 0; color: var(--muted); font-weight: 700; font-size: 14px; }
-
-/* ---------- class races: join one, or run one ---------- */
-
-.classroom { margin-top: 34px; }
-.class-links { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
-.class-link {
-  display: inline-flex; align-items: center; gap: 12px; text-align: left;
-  text-decoration: none; color: var(--ink); background: #fff;
-  border: 2px solid var(--line); border-radius: 16px; padding: 12px 18px;
-  box-shadow: 0 3px 0 var(--line); transition: transform 0.15s, border-color 0.15s;
-}
-.class-link:hover { transform: translateY(-3px); border-color: var(--green); }
-.class-link:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
-.class-icon { font-size: 28px; line-height: 1; }
-.class-link b { display: block; font-size: 16px; }
-.class-link small { display: block; color: var(--muted); font-weight: 700; font-size: 12px; }
-
-/* ---------- placeholder for later ---------- */
-
-.soon {
-  margin-top: 54px;
-  padding-top: 22px;
-  border-top: 2px dashed var(--line);
-}
-.soon-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 700;
-}
-.soon-list li { padding: 4px 0; opacity: 0.75; }
-
-@media (max-width: 520px) {
-  .bank { position: static; margin-bottom: 14px; }
-  .worm { height: 110px; }
-}
-
+.swatch i { display: block; width: 100%; height: 100%; border-radius: 7px; }
+.swatch:hover { transform: translateY(-2px); }
+.swatch[aria-checked="true"] { border-color: var(--ink); }
 /* the last swatch: a link to the colours you can still buy */
 .swatch.more {
   display: grid; place-items: center; text-decoration: none;
@@ -227,116 +121,87 @@ h2 {
 }
 .swatch.more i {
   display: grid; place-items: center; background: none;
-  font-style: normal; font-weight: 900; color: var(--muted); font-size: 16px;
+  font-style: normal; font-weight: 900; color: var(--muted); font-size: 14px;
 }
 
-/* ---------- topic picker ---------- */
+.picker-error { color: #c0563f; font-weight: 700; font-size: 14px; margin: 0 0 14px; }
+.picker-error code { background: #efe6d2; padding: 1px 6px; border-radius: 5px; }
 
-.topics {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
+/* the way into the shop: an outlined button, so it reads as something to press without
+   competing with Play */
+.shop-btn {
+  margin-top: auto; display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 14px; text-decoration: none;
+  font-weight: 800; font-size: 15px; color: var(--green);
+  background: #fff; border: 2px solid var(--green); box-shadow: 0 3px 0 var(--green-dark);
+  transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
 }
+.shop-btn:hover { background: #f3faf4; transform: translateY(-1px); box-shadow: 0 4px 0 var(--green-dark); }
+.shop-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--green-dark); }
+.shop-btn .go { transition: transform 0.15s; }
+.shop-btn:hover .go { transform: translateX(3px); }
+
+/* what to play */
+.game-card { display: flex; flex-direction: column; }
+
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .topic {
-  font: inherit;
-  font-weight: 800;
-  font-size: 15px;
-  padding: 10px 18px;
-  border-radius: 14px;
-  border: 3px solid var(--line);
-  background: #fff;
-  color: var(--ink);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: transform 0.15s, border-color 0.15s;
+  font: inherit; font-weight: 800; font-size: 15px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 999px;
+  border: 2px solid var(--line); background: #fff; color: var(--ink);
+  transition: border-color 0.15s, background 0.15s;
 }
-.topic small { display: block; font-weight: 700; font-size: 11px; color: var(--muted); }
-.topic:hover { transform: translateY(-3px); }
-.topic[aria-checked="true"] { border-color: var(--green); background: #f3faf4; }
-.topic:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+.topic:hover { border-color: var(--green); }
+.topic[aria-checked="true"] { border-color: var(--green); background: var(--green); color: #fff; }
 
-/* ---------- how a sentence gets built ---------- */
+/* Real or Silly: one switch, and one line saying what the chosen one means */
+.segmented {
+  display: inline-grid; grid-template-columns: 1fr 1fr; gap: 4px; align-self: flex-start;
+  padding: 4px; border-radius: 16px; background: #f1e9d8;
+}
+.segmented button {
+  font: inherit; font-weight: 800; font-size: 15px; cursor: pointer;
+  padding: 8px 22px; border-radius: 12px; border: none; background: transparent; color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+.segmented button:hover { color: var(--ink); }
+.segmented button[aria-checked="true"] { background: #fff; color: var(--ink); box-shadow: 0 2px 0 var(--line); }
+.mode-note { margin: 8px 0 22px; font-size: 14px; font-weight: 700; color: var(--muted); }
 
-.how {
-  margin-top: 46px;
-  padding: 24px 26px;
-  background: #fff;
-  border: 2px solid var(--line);
-  border-radius: 18px;
-  text-align: left;
+.play {
+  margin-top: auto; display: block; text-align: center;
+  font-size: 26px; font-weight: 900; text-decoration: none; color: #fff;
+  background: var(--green); padding: 14px; border-radius: 16px;
+  box-shadow: 0 5px 0 var(--green-dark); transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
 }
-.how h2, .how h3 { text-align: left; }
-.how h3 { margin-top: 22px; }
-.how-lead { margin: 0 0 18px; font-size: 15px; font-weight: 700; color: var(--ink); }
+.play:hover { background: #5a9a66; transform: translateY(-2px); box-shadow: 0 7px 0 var(--green-dark); }
+.play:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--green-dark); }
+.hint { margin: 10px 0 0; text-align: center; color: var(--muted); font-weight: 700; font-size: 13px; }
 
-.how-steps { list-style: none; margin: 0; padding: 0; }
-.how-steps li { display: flex; gap: 12px; padding: 10px 0; font-size: 14.5px; }
-.step-n {
-  flex: none; width: 26px; height: 26px; border-radius: 50%;
-  background: var(--green); color: #fff; font-weight: 800;
-  display: grid; place-items: center; font-size: 14px;
-}
+/* ---------- class races, quietly underneath ---------- */
 
-/* the little worked example */
-.demo { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-.demo i {
-  font-style: normal; font-weight: 800; font-size: 12px;
-  padding: 4px 10px; border-radius: 999px;
-  border: 2px dashed #c9bda3; color: var(--muted); background: #fbf7ee;
+.classroom {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px 10px;
+  margin-top: 26px; font-size: 15px; font-weight: 800;
 }
-.demo i.done { border-style: solid; color: #20242e; }
+.classroom-label { color: var(--muted); }
+.classroom a {
+  color: var(--ink); text-decoration: none; padding: 6px 12px; border-radius: 999px;
+  border: 2px solid var(--line); background: rgba(255, 255, 255, 0.7);
+}
+.classroom a:hover { border-color: var(--green); background: #fff; }
 
-.d-det  { border-color: #9aa7d7; } .d-det.done  { background: #9aa7d7; }
-.d-adj  { border-color: #f2a65a; } .d-adj.done  { background: #f2a65a; }
-.d-noun { border-color: #5ec4a3; } .d-noun.done { background: #5ec4a3; }
-.d-verb { border-color: #e9797a; } .d-verb.done { background: #e9797a; }
-.d-adv  { border-color: #c79ae0; } .d-adv.done  { background: #c79ae0; }
-.d-prep { border-color: #72b6e8; } .d-prep.done { background: #72b6e8; }
-.d-end  { border-color: #f5c26b; } .d-end.done  { background: #f5c26b; }
+/* ---------- small screens: one card under the other ---------- */
 
-.how-pos { list-style: none; margin: 0; padding: 0; }
-.how-pos li {
-  display: flex; align-items: center; gap: 9px;
-  padding: 5px 0; font-size: 14px;
+@media (max-width: 760px) {
+  .setup { grid-template-columns: 1fr; }
+  .hero { margin-bottom: 16px; }
+  .tagline { font-size: 15px; }
 }
-/* the swatch takes the colour of its word kind; currentColor would pick up the
-   list's text colour instead, which is why these are set explicitly */
-.how-pos i {
-  flex: none; width: 15px; height: 15px; border-radius: 5px; border: none;
+@media (max-width: 420px) {
+  .help { font-size: 0; gap: 0; padding: 4px; }     /* just the ? */
+  .help-icon { font-size: 16px; }
+  .card { padding: 16px; }
+  .segmented { align-self: stretch; }
 }
-.how-pos .d-det  { background: #9aa7d7; }
-.how-pos .d-adj  { background: #f2a65a; }
-.how-pos .d-noun { background: #5ec4a3; }
-.how-pos .d-verb { background: #e9797a; }
-.how-pos .d-adv  { background: #c79ae0; }
-.how-pos .d-prep { background: #72b6e8; }
-.how-pos .d-end  { background: #f5c26b; }
-.how-pos em { color: var(--muted); font-style: normal; font-weight: 700; }
-.how-note {
-  margin: 18px 0 0; font-size: 13.5px; color: var(--muted);
-  font-weight: 700; border-top: 2px dashed var(--line); padding-top: 14px;
-}
-
-/* ---------- link to the how-to-play page ---------- */
-
-.learn { margin-top: 34px; }
-.learn-link {
-  display: inline-flex; align-items: center; gap: 14px;
-  text-align: left; text-decoration: none; color: var(--ink);
-  background: #fff; border: 2px solid var(--line); border-radius: 16px;
-  padding: 14px 22px; transition: transform 0.15s, border-color 0.15s;
-}
-.learn-link:hover { transform: translateY(-3px); border-color: var(--green); }
-.learn-icon {
-  flex: none; width: 38px; height: 38px; border-radius: 50%;
-  background: var(--green); color: #fff;
-  display: grid; place-items: center; font-size: 22px; font-weight: 800;
-}
-.learn-link b { display: block; font-size: 17px; }
-.learn-link small { display: block; color: var(--muted); font-weight: 700; font-size: 13px; }

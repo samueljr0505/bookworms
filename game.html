@@ -14,7 +14,7 @@
     <canvas id="brand-worm" class="brand-worm" aria-hidden="true"></canvas>
     <span>Bookworms</span>
   </a>
-  <p class="tagline">Steer the worm. Eat words in the right order. Build a sentence.</p>
+  <p id="now-playing" class="now-playing" hidden></p>
   <a id="bank" class="bank" href="shop.html" title="Spend your points in the shop">
     <span class="bank-star">⭐</span>
     <span><b id="bank-points">0</b><small>to spend</small></span>
@@ -78,13 +78,15 @@
 
     <div id="message" class="message"></div>
 
+    <!-- the game's own controls on the left; the way out on the right. The shop is the
+         points button at the top, and the rules are in the sidebar. -->
     <div class="buttons">
+      <div class="controls">
+        <button id="btn-new">New game <kbd>R</kbd></button>
+        <button id="btn-pause">Pause <kbd>P</kbd></button>
+        <button id="btn-hints">Hints: off</button>
+      </div>
       <a class="btn-link" href="index.html">&larr; Home</a>
-      <a class="btn-link shop" href="shop.html">🛍️ Shop</a>
-      <a class="btn-link" href="how-to-play.html">How to play</a>
-      <button id="btn-new">New game <kbd>R</kbd></button>
-      <button id="btn-pause">Pause <kbd>P</kbd></button>
-      <button id="btn-hints">Hints: off</button>
     </div>
   </section>
 
@@ -115,11 +117,11 @@
       </span>
     </a>
 
-    <h2>Word colors</h2>
-    <ul id="legend" class="legend"></ul>
-
     <h2>Sentences you wrote</h2>
     <ol id="finished" class="finished"><li class="empty">None yet - go get a word!</li></ol>
+
+    <h2>Word colors</h2>
+    <ul id="legend" class="legend"></ul>
 
     <details class="help-box">
       <summary>How to play</summary>
