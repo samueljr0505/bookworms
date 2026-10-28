@@ -15,19 +15,23 @@ works and checks sentences with its own rules.
 
 And it keeps the score for class races at /api/class (tools/classroom.py): the teacher's
 page and every student's game talk to it, so the whole class has to reach this one server.
-It listens on every network card, not just this computer, so students' computers on the
-same network can join - the address to give them is printed when it starts. That means
-anyone on the network can reach it, so it only hands out what a browser needs to play: the
-pages, css/, js/ and data/. The rest of the folder - the .git history, tools/, Docs/ -
-stays on this computer.
+It only listens to this computer. Students' computers come in through a public link that
+opens when the teacher opens a class (see PublicLink below) - school Wi-Fi often will not
+let one computer reach another directly, but it lets everyone reach the internet. Anyone
+with the link can reach this server while it is open, so it only hands out what a browser
+needs to play: the pages, css/, js/ and data/. The rest of the folder - the .git history,
+tools/, Docs/ - stays on this computer.
 
 Usage:  python3 tools/serve.py [port]       (or set PORT; the default is 8000)
 Normally you do not run this directly - ./serve.sh does it for you.
 """
 import json
 import os
-import socket
+import re
+import shutil
+import subprocess
 import sys
+import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs
 
@@ -42,7 +46,9 @@ except Exception as err:          # a broken judge must never stop the game bein
 JUDGE = None
 CLASSROOM = Classroom()
 PUBLIC_DIRS = ("css", "js", "data")    # with the .html pages at the top: everything the game loads
-ADDRESSES = []       # how other computers on the network reach this server
+LINK = None          # the public link (PublicLink), set up in main()
+# Cloudflare adds these to everything that comes in through the public link
+LINK_HEADERS = ("Cf-Connecting-Ip", "Cf-Ray", "X-Forwarded-For")
 
 
 class NoCacheHandler(SimpleHTTPRequestHandler):
@@ -62,16 +68,30 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
             return
         # every game in a class race asks for the board every couple of seconds - thirty
         # children would bury everything else, and the address carries their seats
-        if " /api/class" in line:
+        if " /api/class" in line or " /api/link" in line:
             return
         super().log_message(fmt, *args)
 
+    def through_link(self):
+        """Did this request come in through the public link? cloudflared runs on this computer,
+        so its visitors arrive from 127.0.0.1 like the teacher does - but Cloudflare always adds
+        these headers, and nobody can take them off on the way."""
+        return any(self.headers.get(h) for h in LINK_HEADERS)
+
     def send_head(self):
-        """Serve a file (for GET and HEAD) - but only one the game itself loads. Anyone on the
-        network can reach this server, and the folder it runs in also holds the git history
+        """Serve a file (for GET and HEAD) - but only one the game itself loads. Anyone with the
+        public link can reach this server, and the folder it runs in also holds the git history
         and the tools. The check is on the file that would really be sent, after the address
         has been decoded and any ../ worked out, so no spelling of a path gets round it."""
         rel = os.path.relpath(self.translate_path(self.path), self.directory)
+        if rel == "." and self.through_link():
+            # the link is for joining a class, so on its own it opens the join page - and the
+            # teacher only has to give out the link itself
+            self.send_response(302)
+            self.send_header("Location", "join.html")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return None
         parts = rel.split(os.sep)
         public = rel == "." or (                    # "/" - the home page
             not any(p.startswith(".") for p in parts) and
@@ -88,8 +108,8 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
             status = JUDGE.status() if JUDGE else {"available": False, "model": None,
                                                     "why": "tools/judge.py did not load"}
             return self.send_json(200, status)
-        if path == "/api/class":
-            return self.send_json(200, {"addresses": ADDRESSES})
+        if path == "/api/link":
+            return self.send_json(200, dict(LINK.status(), canControl=not self.through_link()))
         if path.startswith("/api/class/"):
             params = {k: v[0] for k, v in parse_qs(query).items()}
             return self.send_json(*CLASSROOM.handle_get(path[len("/api/class/"):], params))
@@ -109,6 +129,21 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
                 print("  judge: unexpected error: %r" % err, file=sys.stderr)
                 code, reply = 500, {"error": "the judge broke"}
             return self.send_json(code, reply)
+        if path == "/api/link":
+            # opening the server to the internet is for the teacher at this computer only -
+            # not for anyone who came in through the link
+            if self.through_link():
+                return self.send_json(403, {"error": "Only the computer running Bookworms can do that."})
+            ok, body = self.read_json()
+            if not ok:
+                return
+            if not isinstance(body, dict) or not isinstance(body.get("open"), bool):
+                return self.send_json(400, {"error": "send {\"open\": true} or false"})
+            if body["open"]:
+                LINK.open()
+            else:
+                LINK.close()
+            return self.send_json(200, dict(LINK.status(), canControl=True))
         if path == "/api/class" or path.startswith("/api/class/"):
             # /api/class makes a class; /api/class/<code>/<action> does something in one
             rest = path[len("/api/class"):].strip("/")
@@ -155,16 +190,73 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
         self.wfile.write(data)
 
 
-def network_address():
-    """This computer's address on the local network, or None. Nothing is sent: connecting a
-    UDP socket only asks the computer which network card it would use to get there."""
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            s.connect(("10.254.254.254", 1))
-            ip = s.getsockname()[0]
-    except OSError:
-        return None
-    return None if ip.startswith("127.") or ip == "0.0.0.0" else ip
+TUNNEL_URL = re.compile(r"https://(?!api\.)[a-z0-9-]+\.trycloudflare\.com")
+
+
+def tunnel_url(line):
+    """The public link in a line of cloudflared's output, or None. cloudflared also mentions
+    api.trycloudflare.com - where it asks for a link - which is not one."""
+    found = TUNNEL_URL.search(line)
+    return found.group(0) if found else None
+
+
+class PublicLink:
+    """The link students use to reach this server, from whatever network they are on. Cloudflare's
+    free cloudflared program (brew install cloudflared) makes it: a new, random address every
+    time, like https://some-random-words.trycloudflare.com. The teacher's page opens it when the
+    teacher opens a class, and closes it when they close the class; it also stops working the
+    moment this server stops. So it is only ever the link the teacher hands out, while the class
+    is on.
+
+    state: "unavailable" (cloudflared is not installed), "off", "starting", or "on"."""
+
+    def __init__(self, port, program="cloudflared"):
+        self.port = port
+        self.program = program       # looked for each time, so installing it needs no restart
+        self.proc = None
+        self.url = None
+        self.why = None              # why the last try did not work
+        self.lock = threading.Lock()
+
+    def status(self):
+        with self.lock:
+            state = ("starting" if self.proc and not self.url else "on" if self.proc
+                     else "off" if shutil.which(self.program) else "unavailable")
+            return {"state": state, "url": self.url, "why": self.why}
+
+    def open(self):
+        with self.lock:
+            exe = shutil.which(self.program)
+            if exe is None or self.proc is not None:
+                return
+            self.why = None
+            # 127.0.0.1, not localhost: this server does not listen on IPv6
+            self.proc = subprocess.Popen(
+                [exe, "tunnel", "--no-autoupdate", "--url", "http://127.0.0.1:%d" % self.port],
+                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+            threading.Thread(target=self.watch, args=(self.proc,), daemon=True).start()
+
+    def watch(self, proc):
+        """Read cloudflared's chatter until it says the link, and notice when it stops."""
+        for line in proc.stderr:
+            url = tunnel_url(line)
+            with self.lock:
+                if url and self.proc is proc and not self.url:
+                    self.url = url
+                    print("\n  Class link open - students join at:  %s\n" % url, flush=True)
+        proc.wait()
+        with self.lock:
+            if self.proc is proc:    # it stopped by itself, not because it was closed
+                if not self.url:
+                    self.why = "The link could not be made. Is this computer online?"
+                self.proc, self.url = None, None
+
+    def close(self):
+        with self.lock:
+            proc, self.proc, self.url = self.proc, None, None
+        if proc:
+            proc.terminate()
+            print("  Class link closed.", flush=True)
 
 
 def topic_ids():
@@ -178,25 +270,29 @@ def topic_ids():
 
 
 def main():
-    global JUDGE, CLASSROOM
+    global JUDGE, CLASSROOM, LINK
     port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", "8000"))
     # serve the project folder, whichever directory this was started from
     os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     CLASSROOM = Classroom(topic_ids())
-    ip = network_address()
-    if ip:
-        ADDRESSES.append("http://%s:%d" % (ip, port))
-        print("  Class race? Students join at  http://%s:%d/join.html" % (ip, port), flush=True)
+    # BOOKWORMS_CLOUDFLARED is for the tests, which use a stand-in that opens nothing
+    LINK = PublicLink(port, os.environ.get("BOOKWORMS_CLOUDFLARED", "cloudflared"))
+    if not shutil.which(LINK.program):
+        print("  class races: students join through a link, made by cloudflared - install it", file=sys.stderr)
+        print("  class races: with  brew install cloudflared  (no restart needed).", file=sys.stderr)
     if Judge is not None:
         JUDGE = Judge()          # checks the API key in the background and says how it went
         if JUDGE.client is None:
             print("  judge: off - %s." % JUDGE.why, file=sys.stderr)
             print("  judge: the game will check sentences with its own rules.", file=sys.stderr)
-    server = ThreadingHTTPServer(("", port), NoCacheHandler)
+    # this computer only: everyone else comes in through the link
+    server = ThreadingHTTPServer(("127.0.0.1", port), NoCacheHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         print("\nBookworms server stopped.")
+    finally:
+        LINK.close()                 # the link goes when the server does
 
 
 if __name__ == "__main__":

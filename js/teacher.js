@@ -17,7 +17,7 @@ window.BW = window.BW || {};
   let choice = { topic: null, mode: 'real', minutes: 5 };
   let mine = null;             // { code, teacher } - the class this page runs
   let view = null;             // the latest look at it
-  let addresses = [];          // how other computers reach this server
+  let link = { state: 'off', url: null, canControl: false };   // the class link (tools/serve.py)
   let changing = false;        // the setup panel is changing the open class, not making one
   const opened = new Set();    // students whose sentences are showing
   let drawn = '';              // what the board was last drawn from
@@ -122,6 +122,9 @@ window.BW = window.BW || {};
       if (r.ok) {
         view = r.data;
         $('room-error').textContent = '';
+        // an open class needs its link: open it (a new class), or see whether it is ready
+        if (link.canControl && link.state === 'off' && !link.why) refreshLink({ open: true });
+        else refreshLink();
         if (!changing) { $('setup').hidden = true; $('room').hidden = false; }
         draw();
       }
@@ -157,12 +160,50 @@ window.BW = window.BW || {};
     return view.state;
   }
 
-  /* The address students type. A teacher looking at http://localhost sees this computer's
-     address on the network instead - "localhost" on a student's computer is their own. */
-  function joinAddress() {
-    const local = ['localhost', '127.0.0.1', '[::1]', '::1'].includes(location.hostname);
-    const origin = local && addresses.length ? addresses[0] : location.origin;
-    return (origin + location.pathname.replace(/[^/]*$/, '') + 'join.html').replace(/^https?:\/\//, '');
+  /* ---------- the class link ---------- */
+
+  /* Students reach the class through a link, so it works whatever network they are on - school
+     Wi-Fi often will not let one computer reach another. It opens when the class does, it is
+     new and random every time, and it closes when the class is closed or the server stops.
+     The link on its own opens the join page, so it is all the teacher has to give out. */
+  async function refreshLink(body) {
+    try {
+      const r = await fetch('api/link', body && {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      });
+      if (r.ok) link = await r.json();
+    } catch (err) { /* the room's own error line says the server is out of reach */ }
+    if (view) draw();
+  }
+
+  const LINK_NOTES = {
+    starting: 'Making your class link - this takes a few seconds...',
+    unavailable: 'Students join through a link made by a free program, cloudflared. ' +
+                 'Install it on this computer with  brew install cloudflared  then press Try again.'
+  };
+
+  /* The link without its https:// - shorter to read off the board, and browsers add it. The
+     random words and the rest are kept apart, so a narrow screen breaks the line between them
+     rather than in the middle of a word. */
+  function drawLink() {
+    const address = $('address');
+    const host = link.url ? link.url.replace(/^https:\/\//, '') : '';
+    const dot = host.indexOf('.');
+    if (address.dataset.host !== host) {
+      address.dataset.host = host;
+      address.textContent = '';
+      const words = document.createElement('span');
+      const rest = document.createElement('span');
+      words.textContent = host ? host.slice(0, dot) : '...';
+      rest.textContent = host ? host.slice(dot) : '';
+      address.append(words, rest);
+    }
+    address.classList.toggle('waiting', !host);
+    const note = link.url || !link.canControl ? '' : link.why || LINK_NOTES[link.state] || '';
+    $('link-row').hidden = !note;
+    $('link-note').textContent = note;
+    $('link-btn').hidden = !(link.why || link.state === 'unavailable');
+    $('link-btn').textContent = 'Try again';
   }
 
   function draw() {
@@ -170,7 +211,7 @@ window.BW = window.BW || {};
     const topic = topics.find(t => t.id === view.topic) || { emoji: '', name: view.topic };
 
     $('code').textContent = view.code;
-    $('address').textContent = joinAddress();
+    drawLink();
     $('joinbox').classList.toggle('small', state !== 'lobby');
     $('settings').textContent = topic.emoji + ' ' + topic.name + ' · ' +
       (view.mode === 'silly' ? '🤪 Silly' : '🌍 Real') + ' sentences · ' +
@@ -345,10 +386,7 @@ window.BW = window.BW || {};
       showSetup('Could not load the topics. Start the server with ./serve.sh and reload this page.');
       return;
     }
-    try {
-      const r = await BW.Class.call('');
-      addresses = (r.ok && r.data.addresses) || [];
-    } catch (err) { /* shown when the class is made */ }
+    await refreshLink();
 
     document.querySelectorAll('#modes [data-mode]').forEach(b =>
       b.addEventListener('click', () => { choice.mode = b.dataset.mode; drawSetup(); }));
@@ -365,10 +403,12 @@ window.BW = window.BW || {};
     $('change').addEventListener('click', change);
     $('change-after').addEventListener('click', change);
     $('print').addEventListener('click', () => window.print());
-    // students in this class would need the new code
-    twoStep($('new-class'), 'Sure? Everyone needs the new code', () => {
+    $('link-btn').addEventListener('click', () => refreshLink({ open: true }));
+    // closing the class closes its link, so everyone in it stops - it asks first
+    twoStep($('new-class'), 'Sure? Everyone in it stops playing', () => {
       clearTimeout(timer);
       forget();
+      refreshLink({ open: false });
       showSetup();
     });
     setInterval(() => { if (view && !$('room').hidden) draw(); }, 250);
