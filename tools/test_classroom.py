@@ -214,17 +214,49 @@ class ClassroomTests(unittest.TestCase):
 
 
 class ServerTests(unittest.TestCase):
-    """The real server, started the way serve.sh starts it: a teacher makes a class, a student
-    joins and scores, and nobody else can start it."""
+    """The real server, started the way serve.sh starts it."""
 
-    def test_a_race_over_http(self):
+    def setUp(self):
         with socket.socket() as s:
             s.bind(("127.0.0.1", 0))
-            port = s.getsockname()[1]
-        base = "http://127.0.0.1:%d/api/class" % port
+            self.port = s.getsockname()[1]
         env = {k: v for k, v in os.environ.items() if not k.startswith("ANTHROPIC_")}
-        proc = subprocess.Popen([sys.executable, os.path.join(HERE, "serve.py"), str(port)],
-                                env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.proc = subprocess.Popen([sys.executable, os.path.join(HERE, "serve.py"), str(self.port)],
+                                     env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for _ in range(50):
+            try:
+                urllib.request.urlopen("http://127.0.0.1:%d/api/class" % self.port)
+                return
+            except OSError:
+                time.sleep(0.1)
+
+    def tearDown(self):
+        self.proc.terminate()
+        self.proc.wait()
+
+    def test_only_what_the_game_loads_is_handed_out(self):
+        def status(path, method="GET"):
+            req = urllib.request.Request("http://127.0.0.1:%d/%s" % (self.port, path), method=method)
+            try:
+                with urllib.request.urlopen(req) as r:
+                    return r.status
+            except urllib.error.HTTPError as err:
+                return err.code
+        for path in ["", "index.html", "game.html", "teacher.html", "join.html", "js/race.js",
+                     "css/style.css", "data/topics.json", "data/topics/animals.json"]:
+            self.assertEqual(status(path), 200, path)
+        for path in [".git/config", ".git/HEAD", ".gitignore", ".claude/launch.json",
+                     "tools/serve.py", "tools/classroom.py", "Docs/Requirements.md", "README.md",
+                     "serve.sh", "requirements.txt", "js/", "data/topics/",
+                     "css/../.git/config", "js/%2e%2e/.git/config", "%2egit/config",
+                     "js/../tools/judge.py", "no-such-page.html"]:
+            self.assertEqual(status(path), 404, path)
+        self.assertEqual(status(".git/config", "HEAD"), 404)
+
+    def test_a_race_over_http(self):
+        """A teacher makes a class, a student joins and scores, and nobody else can start it."""
+        port = self.port
+        base = "http://127.0.0.1:%d/api/class" % port
 
         def call(path, body=None, kind="application/json"):
             data = None if body is None else json.dumps(body).encode()
@@ -235,37 +267,28 @@ class ServerTests(unittest.TestCase):
             except urllib.error.HTTPError as err:
                 return err.code, json.load(err)
 
-        try:
-            for _ in range(50):
-                try:
-                    status, info = call("")
-                    break
-                except OSError:
-                    time.sleep(0.1)
-            self.assertEqual(status, 200)
-            self.assertIn("addresses", info)
-            self.assertEqual(call("", {"topic": "space", "mode": "real", "minutes": 2})[0], 400)
-            status, made = call("", {"topic": "animals", "mode": "real", "minutes": 2})
-            self.assertEqual(status, 200)
-            code = made["code"]
-            self.assertEqual(call("/%s/join" % code, {"name": "Sam"}, "text/plain")[0], 415)
-            status, joined = call("/%s/join" % code, {"name": "Sam"})
-            self.assertEqual(status, 200)
-            self.assertEqual(call("/%s/start" % code, {})[0], 403)
-            status, view = call("/%s/start" % code, {"teacher": made["teacher"]})
-            self.assertEqual((status, view["state"]), (200, "running"))
-            status, view = call("/%s?me=%s" % (code.lower(), joined["seat"]))
-            self.assertEqual((status, view["me"]["name"]), (200, "Sam"))
-            self.assertEqual(call("/%s/extra/bits" % code, {})[0], 404)
-            for raw, status in ((b"", 413), (b"null", 400), (b"{oops", 400)):
-                req = urllib.request.Request(base + "/%s/join" % code, data=raw, method="POST",
-                                             headers={"Content-Type": "application/json"})
-                with self.assertRaises(urllib.error.HTTPError) as caught:
-                    urllib.request.urlopen(req)
-                self.assertEqual(caught.exception.code, status, raw)   # answered, never dropped
-        finally:
-            proc.terminate()
-            proc.wait()
+        status, info = call("")
+        self.assertEqual(status, 200)
+        self.assertIn("addresses", info)
+        self.assertEqual(call("", {"topic": "space", "mode": "real", "minutes": 2})[0], 400)
+        status, made = call("", {"topic": "animals", "mode": "real", "minutes": 2})
+        self.assertEqual(status, 200)
+        code = made["code"]
+        self.assertEqual(call("/%s/join" % code, {"name": "Sam"}, "text/plain")[0], 415)
+        status, joined = call("/%s/join" % code, {"name": "Sam"})
+        self.assertEqual(status, 200)
+        self.assertEqual(call("/%s/start" % code, {})[0], 403)
+        status, view = call("/%s/start" % code, {"teacher": made["teacher"]})
+        self.assertEqual((status, view["state"]), (200, "running"))
+        status, view = call("/%s?me=%s" % (code.lower(), joined["seat"]))
+        self.assertEqual((status, view["me"]["name"]), (200, "Sam"))
+        self.assertEqual(call("/%s/extra/bits" % code, {})[0], 404)
+        for raw, status in ((b"", 413), (b"null", 400), (b"{oops", 400)):
+            req = urllib.request.Request(base + "/%s/join" % code, data=raw, method="POST",
+                                         headers={"Content-Type": "application/json"})
+            with self.assertRaises(urllib.error.HTTPError) as caught:
+                urllib.request.urlopen(req)
+            self.assertEqual(caught.exception.code, status, raw)   # answered, never dropped
 
 
 if __name__ == "__main__":

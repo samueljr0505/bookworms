@@ -74,6 +74,8 @@ body {
 }
 .btn.go:hover:not(:disabled) { background: #5a9a66; }
 .btn.stop { color: var(--bad); border-color: #ecb0a3; box-shadow: 0 3px 0 #ecb0a3; }
+/* pressed once: press again to do it (see twoStep in js/teacher.js) */
+.btn.sure, .btn.stop.sure { background: var(--bad); border-color: var(--bad); color: #fff; box-shadow: 0 3px 0 #96402e; }
 .btn:focus-visible, .choice:focus-visible, input:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; margin-top: 20px; }
 
@@ -143,6 +145,7 @@ body {
   width: 26px; height: 26px; border-radius: 50%; border: none; background: transparent;
 }
 .remove:hover { background: #fbe3dd; color: var(--bad); }
+.remove.sure { width: auto; padding: 0 9px; border-radius: 13px; background: var(--bad); color: #fff; font-weight: 800; font-size: 13px; }
 
 /* ---------- the teacher's page: the race ---------- */
 

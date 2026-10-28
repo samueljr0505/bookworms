@@ -16,7 +16,10 @@ works and checks sentences with its own rules.
 And it keeps the score for class races at /api/class (tools/classroom.py): the teacher's
 page and every student's game talk to it, so the whole class has to reach this one server.
 It listens on every network card, not just this computer, so students' computers on the
-same network can join - the address to give them is printed when it starts.
+same network can join - the address to give them is printed when it starts. That means
+anyone on the network can reach it, so it only hands out what a browser needs to play: the
+pages, css/, js/ and data/. The rest of the folder - the .git history, tools/, Docs/ -
+stays on this computer.
 
 Usage:  python3 tools/serve.py [port]       (or set PORT; the default is 8000)
 Normally you do not run this directly - ./serve.sh does it for you.
@@ -38,6 +41,7 @@ except Exception as err:          # a broken judge must never stop the game bein
 
 JUDGE = None
 CLASSROOM = Classroom()
+PUBLIC_DIRS = ("css", "js", "data")    # with the .html pages at the top: everything the game loads
 ADDRESSES = []       # how other computers on the network reach this server
 
 
@@ -61,6 +65,22 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
         if " /api/class" in line:
             return
         super().log_message(fmt, *args)
+
+    def send_head(self):
+        """Serve a file (for GET and HEAD) - but only one the game itself loads. Anyone on the
+        network can reach this server, and the folder it runs in also holds the git history
+        and the tools. The check is on the file that would really be sent, after the address
+        has been decoded and any ../ worked out, so no spelling of a path gets round it."""
+        rel = os.path.relpath(self.translate_path(self.path), self.directory)
+        parts = rel.split(os.sep)
+        public = rel == "." or (                    # "/" - the home page
+            not any(p.startswith(".") for p in parts) and
+            not os.path.isdir(os.path.join(self.directory, rel)) and
+            ((len(parts) == 1 and rel.endswith(".html")) or parts[0] in PUBLIC_DIRS))
+        if not public:
+            self.send_error(404, "File not found")
+            return None
+        return super().send_head()
 
     def do_GET(self):
         path, _, query = self.path.partition("?")

@@ -23,6 +23,27 @@ window.BW = window.BW || {};
   let drawn = '';              // what the board was last drawn from
   let timer = null;
 
+  /* Anything that cannot be undone asks first - on the button itself, the way the shop's Buy
+     button does. Not with confirm(): some browsers never show that box and just answer "no",
+     which left these buttons doing nothing at all. The first press asks, the second does it,
+     and if the second does not come the button goes back to normal. */
+  function twoStep(button, ask, action) {
+    let label = null, timer = null;
+    const reset = () => {
+      clearTimeout(timer);
+      if (label !== null) button.textContent = label;
+      label = null;
+      button.classList.remove('sure');
+    };
+    button.addEventListener('click', () => {
+      if (label !== null) { reset(); action(); return; }
+      label = button.textContent;
+      button.textContent = ask;
+      button.classList.add('sure');
+      timer = setTimeout(reset, 4000);
+    });
+  }
+
   /* ---------- 1. setup ---------- */
 
   function choices(list, items, isOn, pick) {
@@ -189,9 +210,7 @@ window.BW = window.BW || {};
       x.textContent = '✕';
       x.title = 'Take ' + row.name + ' out of the class';
       x.setAttribute('aria-label', x.title);
-      x.addEventListener('click', () => {
-        if (confirm('Take ' + row.name + ' out of the class?')) act('remove', { seat: row.seat });
-      });
+      twoStep(x, 'Remove?', () => act('remove', { seat: row.seat }));
       li.append(x);
       list.append(li);
     }
@@ -336,7 +355,7 @@ window.BW = window.BW || {};
     $('make').addEventListener('click', make);
     $('cancel').addEventListener('click', () => { changing = false; $('setup').hidden = true; $('room').hidden = false; });
     $('start').addEventListener('click', () => act('start'));
-    $('end').addEventListener('click', () => { if (confirm('End the race now?')) act('end'); });
+    twoStep($('end'), 'Sure? Press again to end it', () => act('end'));
     $('again').addEventListener('click', () => { opened.clear(); act('again'); });
     const change = () => {
       changing = true;
@@ -346,8 +365,8 @@ window.BW = window.BW || {};
     $('change').addEventListener('click', change);
     $('change-after').addEventListener('click', change);
     $('print').addEventListener('click', () => window.print());
-    $('new-class').addEventListener('click', () => {
-      if (!confirm('Make a new class? Students in this one will need the new code.')) return;
+    // students in this class would need the new code
+    twoStep($('new-class'), 'Sure? Everyone needs the new code', () => {
       clearTimeout(timer);
       forget();
       showSetup();

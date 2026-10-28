@@ -139,12 +139,30 @@ The rules:
 - Students on the board are shown by first name only. Names are cut to 16 letters, and two
   students cannot have the same one ("Add the first letter of your last name").
 - The teacher can take a student out of the class with the **✕** next to their name, before the
-  race starts. That student can join again.
+  race starts (press it twice - the first press asks). That student can join again. **End the
+  race now** and **Make a new class** also ask with a second press, not a pop-up box, because
+  some browsers never show pop-ups and just answer "no".
 - Points a student earns in a race also go into their shop savings, as in an ordinary game.
 
 **The network.** Every computer in the class has to reach the teacher's computer, so they need to
 be on the same network. `serve.sh` listens on the whole network, not just this computer, and
-prints the address students should use; the teacher's page shows it too. If students cannot
+prints the address students should use; the teacher's page shows it too.
+
+That means **anyone on the same network can open the game** while `serve.sh` is running - the
+repository being private on GitHub has nothing to do with it - and anyone who has the code can
+join that class. What they cannot do:
+
+- see anything but the game itself. The server only hands out the pages, `css/`, `js/` and
+  `data/`. The `.git` history, `tools/`, `Docs/` and anything else in the folder get "not
+  found". (The game's own files are visible to every player - a browser has to download a page
+  to show it.)
+- see the API key. It is read from `ANTHROPIC_API_KEY` on the teacher's computer and never sent
+  anywhere but Anthropic.
+- run the race. Only the browser that made the class can start it, end it or remove students.
+- score for someone else. Each student's browser has its own secret seat.
+
+So the risk is someone on the network joining a class they should not, for example with a silly
+name. The teacher sees every name as it arrives and can remove it. If students cannot
 connect: on a Mac, say **Allow** when asked whether Python may accept incoming connections
 (or allow it in System Settings > Network > Firewall). Some school Wi-Fi stops computers from
 talking to each other; then the game has to be put on a server everyone can reach.
