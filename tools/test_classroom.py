@@ -234,7 +234,7 @@ class LinkTests(unittest.TestCase):
         self.assertIsNone(serve.tunnel_url("INF Starting tunnel"))
 
     def test_no_cloudflared_means_no_link(self):
-        link = serve.PublicLink(8000, None)
+        link = serve.PublicLink(8000, "no-such-program-anywhere")
         link.open()
         self.assertEqual(link.status()["state"], "unavailable")
 
@@ -257,7 +257,7 @@ class ServerTests(unittest.TestCase):
                                      env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         for _ in range(50):
             try:
-                urllib.request.urlopen("http://127.0.0.1:%d/api/class" % self.port)
+                urllib.request.urlopen("http://127.0.0.1:%d/api/link" % self.port)
                 return
             except OSError:
                 time.sleep(0.1)
@@ -276,6 +276,31 @@ class ServerTests(unittest.TestCase):
                 return r.status, json.load(r)
         except urllib.error.HTTPError as err:
             return err.code, json.load(err)
+
+    def test_only_this_computer_can_reach_the_server(self):
+        # everyone else comes in through the link - not over the network
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            try:
+                s.connect(("10.254.254.254", 1))       # sends nothing: just picks a network card
+                ip = s.getsockname()[0]
+            except OSError:
+                self.skipTest("this computer is not on a network")
+        if ip.startswith("127."):
+            self.skipTest("this computer is not on a network")
+        with self.assertRaises(OSError):
+            socket.create_connection((ip, self.port), timeout=2).close()
+
+    def test_the_link_on_its_own_opens_the_join_page(self):
+        class Stay(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, *args):
+                return None
+        opener = urllib.request.build_opener(Stay)
+        req = urllib.request.Request("http://127.0.0.1:%d/" % self.port, headers={"Cf-Ray": "abc123"})
+        with self.assertRaises(urllib.error.HTTPError) as caught:
+            opener.open(req)
+        self.assertEqual((caught.exception.code, caught.exception.headers["Location"]), (302, "join.html"))
+        with urllib.request.urlopen("http://127.0.0.1:%d/" % self.port) as r:   # the teacher: home
+            self.assertIn("Bookworms", r.read().decode())
 
     def test_only_this_computer_can_open_the_link(self):
         status, info = self.link()
@@ -335,9 +360,6 @@ class ServerTests(unittest.TestCase):
             except urllib.error.HTTPError as err:
                 return err.code, json.load(err)
 
-        status, info = call("")
-        self.assertEqual(status, 200)
-        self.assertIn("addresses", info)
         self.assertEqual(call("", {"topic": "space", "mode": "real", "minutes": 2})[0], 400)
         status, made = call("", {"topic": "animals", "mode": "real", "minutes": 2})
         self.assertEqual(status, 200)

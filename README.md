@@ -115,11 +115,12 @@ A whole class plays at once, every child on their own board, racing to build the
 sentences before the time runs out. The teacher puts the leaderboard up on the board.
 
 1. **The teacher** starts the server (`./serve.sh`) on their computer, clicks **Run one
-   (teachers)** at the bottom of the home page (`teacher.html`), and picks a topic, Real or Silly, and how long the race lasts
-   (2, 3, 5 or 10 minutes). The page shows a four-letter code and the address to go to.
-2. **Each student** goes to that address on their own computer - something like
-   `192.168.1.23:8000/join.html` - and types the code and their first name. Their game opens and
-   waits, and their name pops up on the teacher's screen.
+   (teachers)** at the bottom of the home page (`teacher.html`), and picks a topic, Real or
+   Silly, and how long the race lasts (2, 3, 5 or 10 minutes). Opening the class makes a
+   **link** for it, and the page shows the link and a four-letter code.
+2. **Each student** goes to the link on their own computer - something like
+   `butler-wrist-sisters-soft.trycloudflare.com` - and types the code and their first name. Their
+   game opens and waits, and their name pops up on the teacher's screen.
 3. The teacher presses **Start the race**. Every game counts down together, then the clock runs.
    Nobody can pause it or start over.
 4. Each student plays on their own board, exactly as in an ordinary game. Every sentence the
@@ -140,50 +141,40 @@ The rules:
   students cannot have the same one ("Add the first letter of your last name").
 - The teacher can take a student out of the class with the **✕** next to their name, before the
   race starts (press it twice - the first press asks). That student can join again. **End the
-  race now** and **Make a new class** also ask with a second press, not a pop-up box, because
+  race now** and **Close this class** also ask with a second press, not a pop-up box, because
   some browsers never show pop-ups and just answer "no".
 - Points a student earns in a race also go into their shop savings, as in an ordinary game.
 
-**The network.** Every computer in the class has to reach the teacher's computer, so they need to
-be on the same network. `serve.sh` listens on the whole network, not just this computer, and
-prints the address students should use; the teacher's page shows it too.
+**The link.** Students reach the teacher's computer through a link, because school Wi-Fi often
+will not let one computer reach another - but it lets everyone reach the internet. Cloudflare's
+free `cloudflared` program makes the link; the teacher's computer needs it once:
+`brew install cloudflared`. (If it is missing, the teacher's page says so and has a **Try
+again** button - no restart needed after installing it.)
 
-That means **anyone on the same network can open the game** while `serve.sh` is running - the
-repository being private on GitHub has nothing to do with it - and anyone who has the code can
-join that class. What they cannot do:
+- The link opens when the teacher opens a class. It is new and random every time, so nobody can
+  find it unless the teacher gives it out, and on its own it opens the join page.
+- It closes when the teacher presses **Close this class**, or stops the server. After that it
+  never works again; the next class gets a new one.
+- Only the computer running Bookworms can open or close it. Nobody using the link can.
+- The server itself only listens to the teacher's computer. Nothing on the Wi-Fi can reach it
+  directly - only through the link.
+
+While a link is open, **anyone who has it can open the game** - the repository being private on
+GitHub has nothing to do with it - and anyone who also has the code can join that class. What
+they cannot do:
 
 - see anything but the game itself. The server only hands out the pages, `css/`, `js/` and
   `data/`. The `.git` history, `tools/`, `Docs/` and anything else in the folder get "not
   found". (The game's own files are visible to every player - a browser has to download a page
   to show it.)
 - see the API key. It is read from `ANTHROPIC_API_KEY` on the teacher's computer and never sent
-  anywhere but Anthropic.
+  anywhere but Anthropic. If the AI judge is on, though, sentences from the link use it (at most
+  30 new questions a minute).
 - run the race. Only the browser that made the class can start it, end it or remove students.
 - score for someone else. Each student's browser has its own secret seat.
 
-So the risk is someone on the network joining a class they should not, for example with a silly
-name. The teacher sees every name as it arrives and can remove it.
-
-**Students can't connect?** First, on a Mac, say **Allow** when asked whether Python may accept
-incoming connections (or allow it in System Settings > Network > Firewall). If it still times
-out ("This site can't be reached"), the Wi-Fi is probably one that will not let computers reach
-each other - most university and many school networks are like that. Then press **Make a link**
-under the code on the teacher's page:
-
-- It opens a link that works from any network, like
-  `https://some-random-words.trycloudflare.com`, and the teacher's page shows it as the address
-  to go to. It is new and random every time, so nobody can find it unless the teacher gives it
-  out.
-- It needs Cloudflare's free `cloudflared` program on the teacher's computer, once:
-  `brew install cloudflared`. The page says so if it is missing.
-- It stays open until the teacher presses **Close link** (twice - it asks, because everyone
-  using it loses their game) or stops the server.
-- Only the computer running Bookworms can open or close it. Nobody on the network, and nobody
-  using the link, can.
-- While it is open, **anyone with the link can open the game** from anywhere, not just the
-  class. They get the same as someone on the Wi-Fi: the game's own files, and joining a class
-  with its code. If the AI judge is on, their sentences use the teacher's API key (at most 30
-  new questions a minute).
+So the risk is someone who has the link joining a class they should not, for example with a
+silly name. The teacher sees every name as it arrives and can remove it.
 
 **What is kept, and where.** The server keeps each class in memory: the code, the settings, the
 students' first names and their sentences. Nothing is written to disk. A class disappears when

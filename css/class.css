@@ -117,8 +117,9 @@ body {
 .joinbox .address {
   display: inline-block; margin: 6px 0 14px; padding: 6px 16px; border-radius: 12px;
   background: #faf5ea; font-size: clamp(18px, 3.6vw, 30px); font-weight: 900; color: var(--ink);
-  word-break: break-all;
 }
+.joinbox .address span { white-space: nowrap; }
+.joinbox .address span + span { font-weight: 700; color: var(--muted); }
 .joinbox .code {
   display: block; font-size: clamp(64px, 16vw, 130px); line-height: 1; font-weight: 900;
   letter-spacing: 0.18em; margin-right: -0.18em; color: var(--green); text-shadow: 0 5px 0 #e0d2b4;
@@ -136,6 +137,7 @@ body {
   margin: 16px 0 0; font-size: 15px; font-weight: 700; color: var(--muted);
 }
 .joinbox.small .link-row { flex-basis: 100%; margin-top: 6px; font-size: 13px; }
+.joinbox .address.waiting { color: var(--muted); min-width: 4em; }
 .btn.small { font-size: 14px; padding: 6px 14px; border-radius: 11px; }
 #lobby h2 { text-align: center; }
 

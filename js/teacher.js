@@ -17,8 +17,7 @@ window.BW = window.BW || {};
   let choice = { topic: null, mode: 'real', minutes: 5 };
   let mine = null;             // { code, teacher } - the class this page runs
   let view = null;             // the latest look at it
-  let addresses = [];          // how other computers reach this server
-  let link = { state: 'off', url: null, canControl: false };   // the public link (tools/serve.py)
+  let link = { state: 'off', url: null, canControl: false };   // the class link (tools/serve.py)
   let changing = false;        // the setup panel is changing the open class, not making one
   const opened = new Set();    // students whose sentences are showing
   let drawn = '';              // what the board was last drawn from
@@ -27,9 +26,8 @@ window.BW = window.BW || {};
   /* Anything that cannot be undone asks first - on the button itself, the way the shop's Buy
      button does. Not with confirm(): some browsers never show that box and just answer "no",
      which left these buttons doing nothing at all. The first press asks, the second does it,
-     and if the second does not come the button goes back to normal. With `when`, it only
-     asks while that says so - the button does something else the rest of the time. */
-  function twoStep(button, ask, action, when) {
+     and if the second does not come the button goes back to normal. */
+  function twoStep(button, ask, action) {
     let label = null, timer = null;
     const reset = () => {
       clearTimeout(timer);
@@ -38,7 +36,6 @@ window.BW = window.BW || {};
       button.classList.remove('sure');
     };
     button.addEventListener('click', () => {
-      if (when && !when()) return;
       if (label !== null) { reset(); action(); return; }
       label = button.textContent;
       button.textContent = ask;
@@ -125,7 +122,9 @@ window.BW = window.BW || {};
       if (r.ok) {
         view = r.data;
         $('room-error').textContent = '';
-        if (link.canControl || link.url) refreshLink();     // a link may have opened or stopped
+        // an open class needs its link: open it (a new class), or see whether it is ready
+        if (link.canControl && link.state === 'off' && !link.why) refreshLink({ open: true });
+        else refreshLink();
         if (!changing) { $('setup').hidden = true; $('room').hidden = false; }
         draw();
       }
@@ -161,23 +160,12 @@ window.BW = window.BW || {};
     return view.state;
   }
 
-  /* The address students type: the public link while it is open. Otherwise, a teacher looking
-     at http://localhost sees this computer's address on the network instead - "localhost" on a
-     student's computer is their own. Always with its http:// or https://, so no browser has to
-     guess which. */
-  function joinAddress() {
-    if (link.url) return link.url + '/join.html';
-    const local = ['localhost', '127.0.0.1', '[::1]', '::1'].includes(location.hostname);
-    const origin = local && addresses.length ? addresses[0] : location.origin;
-    return origin + location.pathname.replace(/[^/]*$/, '') + 'join.html';
-  }
+  /* ---------- the class link ---------- */
 
-  /* ---------- the public link ---------- */
-
-  /* Some school Wi-Fi will not let one computer reach another, so students cannot open the
-     address above. Then the teacher can make a link that works from any network. It is new and
-     random every time, and it stops working when it is closed or the server stops. Only the
-     computer running Bookworms can open or close it, so the button is only shown there. */
+  /* Students reach the class through a link, so it works whatever network they are on - school
+     Wi-Fi often will not let one computer reach another. It opens when the class does, it is
+     new and random every time, and it closes when the class is closed or the server stops.
+     The link on its own opens the join page, so it is all the teacher has to give out. */
   async function refreshLink(body) {
     try {
       const r = await fetch('api/link', body && {
@@ -189,24 +177,33 @@ window.BW = window.BW || {};
   }
 
   const LINK_NOTES = {
-    off: 'Students can\'t connect?',
-    starting: 'Making a link that works from any network...',
-    on: 'This link works from any network, until you close it.',
-    unavailable: 'Students can\'t connect? To make a link that works from any network, ' +
-                 'install cloudflared: brew install cloudflared'
+    starting: 'Making your class link - this takes a few seconds...',
+    unavailable: 'Students join through a link made by a free program, cloudflared. ' +
+                 'Install it on this computer with  brew install cloudflared  then press Try again.'
   };
 
+  /* The link without its https:// - shorter to read off the board, and browsers add it. The
+     random words and the rest are kept apart, so a narrow screen breaks the line between them
+     rather than in the middle of a word. */
   function drawLink() {
-    // nothing to show on a computer that cannot open it - unless a link is open
-    $('link-row').hidden = !link.canControl;
-    if (!link.canControl) return;
-    $('link-note').textContent = link.state === 'off' && link.why ? link.why : LINK_NOTES[link.state] || '';
-    const button = $('link-btn');
-    button.hidden = link.state === 'starting' || link.state === 'unavailable';
-    if (!button.classList.contains('sure')) {
-      button.textContent = link.state === 'on' ? 'Close link' : link.why ? 'Try again' : 'Make a link';
+    const address = $('address');
+    const host = link.url ? link.url.replace(/^https:\/\//, '') : '';
+    const dot = host.indexOf('.');
+    if (address.dataset.host !== host) {
+      address.dataset.host = host;
+      address.textContent = '';
+      const words = document.createElement('span');
+      const rest = document.createElement('span');
+      words.textContent = host ? host.slice(0, dot) : '...';
+      rest.textContent = host ? host.slice(dot) : '';
+      address.append(words, rest);
     }
-    button.classList.toggle('stop', link.state === 'on');
+    address.classList.toggle('waiting', !host);
+    const note = link.url || !link.canControl ? '' : link.why || LINK_NOTES[link.state] || '';
+    $('link-row').hidden = !note;
+    $('link-note').textContent = note;
+    $('link-btn').hidden = !(link.why || link.state === 'unavailable');
+    $('link-btn').textContent = 'Try again';
   }
 
   function draw() {
@@ -214,7 +211,6 @@ window.BW = window.BW || {};
     const topic = topics.find(t => t.id === view.topic) || { emoji: '', name: view.topic };
 
     $('code').textContent = view.code;
-    $('address').textContent = joinAddress();
     drawLink();
     $('joinbox').classList.toggle('small', state !== 'lobby');
     $('settings').textContent = topic.emoji + ' ' + topic.name + ' · ' +
@@ -390,10 +386,6 @@ window.BW = window.BW || {};
       showSetup('Could not load the topics. Start the server with ./serve.sh and reload this page.');
       return;
     }
-    try {
-      const r = await BW.Class.call('');
-      addresses = (r.ok && r.data.addresses) || [];
-    } catch (err) { /* shown when the class is made */ }
     await refreshLink();
 
     document.querySelectorAll('#modes [data-mode]').forEach(b =>
@@ -411,16 +403,12 @@ window.BW = window.BW || {};
     $('change').addEventListener('click', change);
     $('change-after').addEventListener('click', change);
     $('print').addEventListener('click', () => window.print());
-    // opening the link takes one press; closing it cuts off every student using it, so it asks
-    $('link-btn').addEventListener('click', () => {
-      if (link.state !== 'on') refreshLink({ open: true });
-    });
-    twoStep($('link-btn'), 'Sure? Students using it lose the game',
-            () => refreshLink({ open: false }), () => link.state === 'on');
-    // students in this class would need the new code
-    twoStep($('new-class'), 'Sure? Everyone needs the new code', () => {
+    $('link-btn').addEventListener('click', () => refreshLink({ open: true }));
+    // closing the class closes its link, so everyone in it stops - it asks first
+    twoStep($('new-class'), 'Sure? Everyone in it stops playing', () => {
       clearTimeout(timer);
       forget();
+      refreshLink({ open: false });
       showSetup();
     });
     setInterval(() => { if (view && !$('room').hidden) draw(); }, 250);
