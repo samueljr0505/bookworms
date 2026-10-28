@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bookworms - Join a Class</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%9B%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/class.css" />
+</head>
+<body>
+
+<main class="page narrow">
+
+  <header class="top">
+    <a class="back" href="index.html">&larr; Home</a>
+    <h1>Join a class</h1>
+    <span class="spacer"></span>
+  </header>
+
+  <form id="join" class="panel join-form" autocomplete="off" novalidate>
+    <p class="lead">Your teacher is running a class race. Who can build the most correct sentences?</p>
+    <label class="field">
+      <span>Class code</span>
+      <input id="code" class="code" type="text" inputmode="text" autocapitalize="characters"
+             spellcheck="false" maxlength="4" required />
+    </label>
+    <label class="field">
+      <span>Your first name</span>
+      <input id="name" type="text" autocapitalize="words" spellcheck="false" maxlength="16" required />
+    </label>
+    <button id="go" class="btn go" type="submit">Join</button>
+    <p id="error" class="error" role="alert"></p>
+  </form>
+
+  <p class="note">Your teacher has the code: four letters, on their screen.<br />
+     You will play on your own board, and see where you are on the class leaderboard.</p>
+
+</main>
+
+<script src="js/classroom.js"></script>
+<script src="js/join.js"></script>
+</body>
+</html>

@@ -4,21 +4,21 @@ window.BW = window.BW || {};
 (function () {
   const $ = id => document.getElementById(id);
 
-  /* Load the topic the player picked on the home page. Each topic is a set of
-     sentences written out by hand, so everything it can produce has been read
-     by a person first. */
-  async function loadPack() {
+  /* Load the topic the player picked on the home page - or, in a class race, the one the
+     teacher picked. Each topic is a set of sentences written out by hand, so everything it
+     can produce has been read by a person first. */
+  async function loadPack(topicId, mode) {
     const index = await fetch('data/topics.json').then(r => {
       if (!r.ok) throw new Error('topics.json: HTTP ' + r.status);
       return r.json();
     });
-    const topic = BW.chooseTopic(index);
+    const topic = BW.chooseTopic(index, topicId);
     const pack = await fetch('data/' + topic.file).then(r => {
       if (!r.ok) throw new Error(topic.file + ': HTTP ' + r.status);
       return r.json();
     });
     // Real (it has to make sense) or Silly (it only has to sound right), from the home page
-    return BW.Grammar.forMode(pack, BW.chooseMode());
+    return BW.Grammar.forMode(pack, mode || BW.chooseMode());
   }
 
   /* Players only ever see the family a part of speech belongs to. The fine-grained
@@ -316,9 +316,14 @@ window.BW = window.BW || {};
   }
 
   async function boot() {
+    // game.html?class=BCDF is a class race (js/race.js): the teacher picked the topic
+    const race = BW.Race.fromUrl();
+    const room = race && await race.connect();
+    if (race && !room) return;            // sent off to join, or told what went wrong
+
     let pack;
     try {
-      pack = await loadPack();
+      pack = await loadPack(room && room.topic, room && room.mode);
     } catch (err) {
       $('loading').hidden = true;
       $('error').hidden = false;
@@ -357,10 +362,17 @@ window.BW = window.BW || {};
       onChange: renderHud,
       onMessage: showMessage,
       onEarn: earned,
-      onReport: report => renderReport(game, report)
-    });
+      onReport: report => renderReport(game, report),
+      onSentence: race ? (verdict, text) => race.report(verdict, text) : null
+    }, { race: !!race });
 
     game.attachInput(window);
+    if (race) {
+      // the class shares one clock: no pausing it, and no starting over
+      $('btn-new').hidden = true;
+      $('btn-pause').hidden = true;
+      race.attach(game);
+    }
 
     $('btn-new').addEventListener('click', () => { game.newGame(); window.focus(); });
     $('btn-pause').addEventListener('click', () => {

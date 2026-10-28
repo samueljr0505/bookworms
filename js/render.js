@@ -89,8 +89,9 @@ BW.Renderer = class Renderer {
 
     if (state.mode === 'countdown') this.drawCountdown(state, W, H);
     if (state.mode === 'paused') this.drawBanner('Paused', 'press P to keep going', W, H);
-    // the sentence check sits on top of the board (an HTML card, see js/main.js)
-    if (state.mode === 'checking' || state.mode === 'checked') this.drawVeil(W, H);
+    // the sentence check sits on top of the board (an HTML card, see js/main.js), and so do a
+    // class race's "waiting for your teacher" and "time's up" (js/race.js)
+    if (['checking', 'checked', 'waiting', 'over'].includes(state.mode)) this.drawVeil(W, H);
     if (state.flash) this.drawFlash(state.flash, W, H);
   }
 

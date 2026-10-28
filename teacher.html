@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bookworms - Class Race</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%86%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/class.css" />
+</head>
+<body>
+
+<main class="page">
+
+  <header class="top">
+    <a class="back" href="index.html">&larr; Home</a>
+    <h1>Class race</h1>
+    <span class="spacer"></span>
+  </header>
+
+  <!-- 1. pick the topic, the mode and the time (js/teacher.js) -->
+  <section id="setup" class="panel" hidden>
+    <p class="lead">Every student plays on their own board. The leaderboard shows who builds the
+       most correct sentences before the time runs out.</p>
+
+    <h2>Topic</h2>
+    <ul id="topics" class="choices" role="radiogroup" aria-label="Topic"></ul>
+
+    <h2>Real or silly?</h2>
+    <ul id="modes" class="choices" role="radiogroup" aria-label="Kind of sentences">
+      <li><button class="choice" type="button" role="radio" data-mode="real">
+        <span>🌍</span><span>Real<small>It has to make sense</small></span></button></li>
+      <li><button class="choice" type="button" role="radio" data-mode="silly">
+        <span>🤪</span><span>Silly<small>It only has to sound right</small></span></button></li>
+    </ul>
+
+    <h2>How long?</h2>
+    <ul id="times" class="choices" role="radiogroup" aria-label="Time limit"></ul>
+
+    <div class="actions">
+      <button id="make" class="btn go" type="button">Open the class</button>
+      <button id="cancel" class="btn" type="button" hidden>Cancel</button>
+    </div>
+    <p id="setup-error" class="error" role="alert"></p>
+  </section>
+
+  <!-- 2. the class: who has joined, then the race, then the results -->
+  <section id="room" hidden>
+    <div id="joinbox" class="panel joinbox">
+      <p class="how">Students: go to</p>
+      <span id="address" class="address"></span>
+      <p class="how">and type the code</p>
+      <span id="code" class="code"></span>
+    </div>
+
+    <div class="panel">
+      <p id="settings" class="settings"></p>
+
+      <div id="lobby">
+        <h2>Who is here (<span id="count">0</span>)</h2>
+        <ul id="names" class="names"></ul>
+        <div class="actions">
+          <button id="start" class="btn go" type="button">Start the race</button>
+          <button id="change" class="btn" type="button">Change topic or time</button>
+        </div>
+      </div>
+
+      <div id="race">
+        <div id="clock-box" class="clock"><small id="clock-label">Time left</small><b id="clock"></b></div>
+        <ol id="podium" class="podium" hidden></ol>
+        <p class="board-key">Correct sentences</p>
+        <ol id="board" class="board"></ol>
+        <div class="actions">
+          <button id="end" class="btn stop" type="button">End the race now</button>
+          <button id="again" class="btn go" type="button">Race again</button>
+          <button id="change-after" class="btn" type="button">Change topic or time</button>
+          <button id="print" class="btn" type="button">🖨️ Print what the class wrote</button>
+        </div>
+      </div>
+
+      <p id="room-error" class="error" role="alert"></p>
+    </div>
+
+    <p class="note"><span id="open-hint">Click a name to see that student's sentences.</span>
+       <button id="new-class" class="btn" type="button">Make a new class</button></p>
+  </section>
+
+  <!-- only on paper: every student's sentences -->
+  <section id="printout" class="print-only"></section>
+
+</main>
+
+<script src="js/worm-skin.js"></script>
+<script src="js/classroom.js"></script>
+<script src="js/teacher.js"></script>
+</body>
+</html>

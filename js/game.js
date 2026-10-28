@@ -2,10 +2,13 @@
 window.BW = window.BW || {};
 
 BW.Game = class Game {
-  constructor(pack, canvas, hooks) {
+  /* options.race: this is a class race (js/race.js). The class shares one clock, so there is
+     no pausing and no starting over - the teacher says when it starts and when it ends. */
+  constructor(pack, canvas, hooks, options) {
     this.pack = pack;
     this.cfg = BW.CONFIG;
     this.hooks = hooks || {};
+    this.race = !!(options && options.race);
     this.renderer = new BW.Renderer(canvas, this.cfg);
     this.board = new BW.Board(this.cfg.grid.cols, this.cfg.grid.rows,
                               text => this.renderer.measureCells(text));
@@ -29,6 +32,7 @@ BW.Game = class Game {
     this.crashMs = 0;
     this.mode = 'countdown';
     this.lastBeep = null;
+    this.over = false;          // a class race whose time has run out
     this.checkId++;             // a check still waiting on the judge belongs to the old game
     this.pending = null;
     this.report = null;
@@ -56,12 +60,13 @@ BW.Game = class Game {
     }
     if (key === 'p' || key === ' ') {
       e.preventDefault();
+      if (this.race) return;      // the class clock does not stop, so neither does the worm
       if (this.mode === 'playing') this.mode = 'paused';
       else if (this.mode === 'paused') { this.mode = 'playing'; this.last = performance.now(); }
       this.notify();
       return;
     }
-    if (key === 'r') { e.preventDefault(); this.newGame(); return; }
+    if (key === 'r') { e.preventDefault(); if (!this.race) this.newGame(); return; }
 
     const dir = BW.Game.KEYS[key];
     if (!dir) return;
@@ -71,6 +76,7 @@ BW.Game = class Game {
     if (this.mode === 'crashed') return;        // and while the crash is on screen
     if (this.mode === 'checking') return;       // and while the sentence is being read
     if (this.mode === 'paused') return;
+    if (this.mode === 'waiting' || this.mode === 'over') return;   // a class race not running
     this.worm.turn(dir[0], dir[1]);
   }
 
@@ -300,13 +306,16 @@ BW.Game = class Game {
     this.pending = null;
     const final = BW.Checker.decide(report, verdict);
     if (final.verdict === 'correct') this.finishSentence(final, mark);
-    else this.wrongSentence(final);
+    else this.wrongSentence(final, mark);
+    // the class race ran out while this one was being checked - it still counted
+    if (this.over) this.stop();
   }
 
   finishSentence(report, mark) {
     const words = this.sentence.tokens.length;
     this.sentence.end(mark);
     this.finished.push(this.sentence.text());
+    if (this.hooks.onSentence) this.hooks.onSentence('correct', this.sentence.text());
     const pts = this.cfg.points;
     this.streak++;
     const bonus = pts.streak * (Math.min(this.streak, pts.maxStreak) - 1);
@@ -337,7 +346,8 @@ BW.Game = class Game {
   /* A sentence that is not right cannot be mended - a worm only eats forwards. So, as after
      a crash, the words drop off the body and go back on the board, and the player builds
      the same recipe again with the reason in front of them. */
-  wrongSentence(report) {
+  wrongSentence(report, mark) {
+    if (this.hooks.onSentence) this.hooks.onSentence('wrong', this.sentence.text(mark));
     this.score = Math.max(0, this.score + this.cfg.points.wrong);
     this.streak = 0;
     this.flash = { kind: 'bad', life: 0.7 };
@@ -366,6 +376,41 @@ BW.Game = class Game {
     this.worm.prev = null;      // start gliding from where the worm stopped
     if (dir) this.worm.turn(dir[0], dir[1]);
     else this.worm.moving = true;
+    this.notify();
+  }
+
+  /* ---------- a class race (js/race.js) ---------- */
+
+  /* Stand still on the board until the teacher presses Start. */
+  hold() {
+    this.mode = 'waiting';
+    this.worm.moving = false;
+    this.notify();
+  }
+
+  /* The teacher pressed Start: count down to the moment the whole class sets off together. */
+  startIn(ms) {
+    if (this.mode !== 'waiting') return;
+    this.mode = 'countdown';
+    this.countdownMs = ms;
+    this.lastBeep = null;
+    this.notify();
+  }
+
+  /* The class's time is up. A sentence already being checked still counts - its ending mark
+     was eaten in time - so in that case the game stops once the check is done (settle). */
+  timeUp() {
+    if (this.over) return;
+    this.over = true;
+    if (this.mode !== 'checking') this.stop();
+  }
+
+  stop() {
+    this.mode = 'over';
+    this.worm.moving = false;
+    this.worm.pendingDir = null;
+    this.report = null;
+    if (this.hooks.onReport) this.hooks.onReport(null);
     this.notify();
   }
 

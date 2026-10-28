@@ -34,6 +34,13 @@
   <p class="small" id="error-detail"></p>
 </div>
 
+<!-- a class race that could not start: no such class, or no server (js/race.js) -->
+<div id="race-error" class="card notice error" hidden>
+  <h2 id="race-error-title"></h2>
+  <p id="race-error-text"></p>
+  <p><a href="join.html">Join a class</a> &middot; <a href="index.html">Play on your own</a></p>
+</div>
+
 <main id="game" hidden>
   <section class="stage">
     <div class="sentence-strip">
@@ -58,6 +65,15 @@
         <button id="report-go" class="primary" type="button">Keep going <kbd>arrow key</kbd></button>
         <p id="report-by" class="report-by"></p>
       </section>
+
+      <!-- a class race: waiting for the teacher, and time's up (js/race.js fills it in) -->
+      <section id="race-card" class="report race-card" hidden aria-live="polite">
+        <h2 id="race-card-title"></h2>
+        <p id="race-card-text" class="report-headline"></p>
+        <ol id="race-card-podium" class="race-podium" hidden></ol>
+        <p id="race-card-more" class="report-after race-more"></p>
+        <a id="race-card-go" class="race-go" href="join.html" hidden></a>
+      </section>
     </div>
 
     <div id="message" class="message"></div>
@@ -73,6 +89,16 @@
   </section>
 
   <aside class="sidebar">
+    <!-- a class race: the class code, the time left and the mini leaderboard (js/race.js) -->
+    <section id="race" class="race" hidden>
+      <div class="race-head">
+        <span class="race-class"><small>Class</small><b id="race-code"></b></span>
+        <span id="race-clock-box" class="race-clock"><small id="race-clock-label">Time left</small><b id="race-clock"></b></span>
+      </div>
+      <ol id="race-board" class="race-board" aria-label="Who has the most correct sentences"></ol>
+      <p id="race-note" class="race-note" aria-live="polite"></p>
+    </section>
+
     <div class="scores">
       <div class="stat"><span id="score">0</span><label>points</label></div>
       <div class="stat"><span id="count">0</span><label>sentences</label></div>
@@ -128,6 +154,8 @@
 <script src="js/sense.js"></script>
 <script src="js/checker.js"></script>
 <script src="js/judge.js"></script>
+<script src="js/classroom.js"></script>
+<script src="js/race.js"></script>
 <script src="js/worm.js"></script>
 <script src="js/board.js"></script>
 <script src="js/render.js"></script>

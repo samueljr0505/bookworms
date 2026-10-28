@@ -298,3 +298,49 @@ kbd {
   .topbar { flex-wrap: wrap; }
   .tagline { order: 3; flex-basis: 100%; }
 }
+
+/* ---------- a class race (js/race.js) ---------- */
+
+/* the class code, the clock and the mini leaderboard, at the top of the sidebar */
+.race {
+  margin: -4px -6px 14px; padding: 10px 12px 8px;
+  background: #f3faf4; border: 2px solid #b9dcc0; border-radius: 16px;
+}
+.race[hidden] { display: none; }
+.race-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; }
+.race-head small {
+  display: block; font-size: 10px; font-weight: 800; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.8px;
+}
+.race-class b { font-size: 20px; letter-spacing: 3px; color: var(--green); }
+.race-clock { text-align: right; }
+.race-clock b { font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink); }
+.race-clock.hurry b { color: var(--bad); animation: flicker 1s ease-in-out infinite; }
+
+.race-board { list-style: none; margin: 8px 0 0; padding: 0; }
+.race-board li {
+  display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 6px;
+  padding: 4px 8px; border-radius: 10px; font-size: 14px; font-weight: 700;
+}
+.race-board .place { color: var(--muted); font-size: 12px; font-weight: 800; }
+.race-board .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.race-board b { font-size: 16px; color: var(--green); }
+.race-board li.you { background: #fff; box-shadow: 0 0 0 2px var(--green) inset; }
+.race-board li.gap { display: block; text-align: center; color: var(--muted); padding: 0; line-height: 1; }
+.race-board li.empty { display: block; color: var(--muted); font-weight: 400; }
+.race-note { margin: 4px 0 0; font-size: 12px; font-weight: 700; color: var(--bad); min-height: 0; }
+.race-note:empty { display: none; }
+
+/* the card on the board: waiting for Start, time's up */
+.race-more { white-space: pre-line; }
+.race-podium { list-style: none; margin: 4px 0 12px; padding: 0; display: grid; gap: 4px; font-size: 17px; }
+.race-podium[hidden] { display: none; }
+.race-podium li { padding: 4px 10px; border-radius: 10px; }
+.race-podium li.you { background: #f3faf4; box-shadow: 0 0 0 2px #b9dcc0 inset; }
+.race-podium span { color: var(--muted); font-size: 14px; font-weight: 700; }
+.race-go {
+  display: inline-block; margin-top: 4px; padding: 9px 18px; border-radius: 12px;
+  background: var(--green); color: #fff; font-weight: 800; text-decoration: none;
+  box-shadow: 0 4px 0 #3c6b46;
+}
+.race-go[hidden] { display: none; }

@@ -36,20 +36,23 @@ Then open <http://localhost:8000>.
 You need the little web server because Bookworms reads its words from JSON files, and browsers
 refuse to read local files when you just double-click `index.html`. `serve.sh` starts
 `tools/serve.py`, a small Python server (Python is already on every Mac), which also answers the
-optional sentence judge - see [The sentence checker](#the-sentence-checker).
+optional sentence judge - see [The sentence checker](#the-sentence-checker) - and keeps the score
+for [class races](#class-races).
 
 ## Run the tests
 
 ```bash
 node tools/test.js
 python3 tools/test_judge.py
+python3 tools/test_classroom.py
 ```
 
 `test.js` plays several thousand games with no browser involved and checks the rules hold - most
 importantly that the checker never passes a sentence that breaks the topic's sentence shapes,
 even when the player eats words at random, and that every refusal comes with a reason.
 `test_judge.py` checks the judge's server side with a stand-in for the AI, so it needs no API key
-and costs nothing. See [Docs/How-Requirements-Are-Met.md](Docs/How-Requirements-Are-Met.md) for
+and costs nothing. `test_classroom.py` plays class races against the server with a pretend clock,
+so a five-minute race takes no time. See [Docs/How-Requirements-Are-Met.md](Docs/How-Requirements-Are-Met.md) for
 what each test proves.
 
 ## How to play
@@ -105,6 +108,55 @@ shop, `shop.html`, on things for the worm to wear:
 - Everything is saved in the browser (`localStorage`), so it belongs to that browser on that
   computer. To give a player points for testing, run this in the browser console:
   `BW.closet.earn(500)`.
+
+## Class races
+
+A whole class plays at once, every child on their own board, racing to build the most correct
+sentences before the time runs out. The teacher puts the leaderboard up on the board.
+
+1. **The teacher** starts the server (`./serve.sh`) on their computer, opens **Run a class race**
+   on the home page (`teacher.html`), and picks a topic, Real or Silly, and how long the race lasts
+   (2, 3, 5 or 10 minutes). The page shows a four-letter code and the address to go to.
+2. **Each student** goes to that address on their own computer - something like
+   `192.168.1.23:8000/join.html` - and types the code and their first name. Their game opens and
+   waits, and their name pops up on the teacher's screen.
+3. The teacher presses **Start the race**. Every game counts down together, then the clock runs.
+   Nobody can pause it or start over.
+4. Each student plays on their own board, exactly as in an ordinary game. Every sentence the
+   checker passes moves them up the board. The sidebar shows the time left and a **mini
+   leaderboard**: the top five, and the student's own place if they are further down.
+5. The teacher's screen shows the **class leaderboard** live, biggest score first, with a bar for
+   each student. Click a name to see every sentence that student wrote, right and not quite.
+6. When the time is up every game stops. A sentence whose ending mark was eaten before the bell
+   still counts. The teacher sees the top three on a podium and can **print what the class
+   wrote**, then **race again** (same class, everyone back to nought) or change the topic or time.
+
+The rules:
+
+- The leaderboard counts **correct sentences**. A wrong sentence never costs a place. Two
+  students on the same score share the place, and the one who got there first is listed first.
+  Nobody has a place until they have a correct sentence.
+- Students on the board are shown by first name only. Names are cut to 16 letters, and two
+  students cannot have the same one ("Add the first letter of your last name").
+- The teacher can take a student out of the class with the **✕** next to their name, before the
+  race starts. That student can join again.
+- Points a student earns in a race also go into their shop savings, as in an ordinary game.
+
+**The network.** Every computer in the class has to reach the teacher's computer, so they need to
+be on the same network. `serve.sh` listens on the whole network, not just this computer, and
+prints the address students should use; the teacher's page shows it too. If students cannot
+connect: on a Mac, say **Allow** when asked whether Python may accept incoming connections
+(or allow it in System Settings > Network > Firewall). Some school Wi-Fi stops computers from
+talking to each other; then the game has to be put on a server everyone can reach.
+
+**What is kept, and where.** The server keeps each class in memory: the code, the settings, the
+students' first names and their sentences. Nothing is written to disk. A class disappears when
+the server stops, or after 12 hours without anyone looking at it. Each browser remembers its own
+seat (or, for the teacher, the class's key) so a reload carries on where it was.
+
+**Cheating.** Each student's browser reports its own sentences, so a student who knows how to
+use the browser's console could send made-up ones. The teacher would see them: every sentence on
+the board can be read by clicking the student's name.
 
 ## The sentence checker
 
@@ -228,8 +280,10 @@ is playing. The API key stays in the terminal running `serve.sh` and is never se
 ```
 bookworms/
   index.html            the home page: pick your worm and a topic, then play
-  game.html             the game itself
+  game.html             the game itself (game.html?class=BCDF is a class race)
   shop.html             the worm shop: spend points on hats, glasses, colours and more
+  join.html             a student joins a class race with the teacher's code
+  teacher.html          the teacher runs a class race: the code, Start, the leaderboard
   how-to-play.html      how to play, for the players
   serve.sh              starts the local web server
   requirements.txt      the one Python package the (optional) judge needs
@@ -241,6 +295,7 @@ bookworms/
   css/style.css         styling for the game
   css/how.css           styling for the how-to-play page
   css/shop.css          styling for the shop
+  css/class.css         styling for the join page and the teacher's page
   data/
     topics.json         the topics offered on the home page
     topics/*.json       THE WORDS AND SENTENCE SHAPES, one file per topic (from tools/build-topics.py)
@@ -265,11 +320,17 @@ bookworms/
     render.js           the game board: tiles, the gliding worm, pop-ups and confetti
     game.js             the game loop and all the rules
     main.js             loads the JSON, starts the game, updates the panels and the check card
+    classroom.js        class races: talking to the server, the class clock, remembering your seat
+    race.js             a class race in the game: waits for Start, sends sentences, the mini leaderboard
+    join.js             the join page
+    teacher.js          the teacher's page: setup, who is here, the leaderboard, the podium, printing
   tools/
-    serve.py            the local web server, with the judge at /api/judge
+    serve.py            the local web server, with the judge at /api/judge and class races at /api/class
     judge.py            the sentence judge: asks Claude, saves the answers
+    classroom.py        class races: codes, who has joined, the clock and the leaderboard
     test.js             headless checks of the game, no browser needed
     test_judge.py       checks of the judge, no API key needed
+    test_classroom.py   checks of class races, with a pretend clock
     build-topics.py     writes the topic files
     list-sentences.py   prints a sample of a topic's sentences for a person to read
 ```
@@ -392,7 +453,7 @@ grows, how many words are on the board at once, points, sound on or off, and wha
 ## Ideas for the next version
 
 - Two players on one board.
-- Save finished sentences so a teacher can print what the class wrote.
+- Keep a class's results after the server stops, so a teacher can look back over the week.
 
 ## Documentation
 

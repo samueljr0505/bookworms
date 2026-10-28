@@ -115,6 +115,11 @@ announces that something changed - `onReport` hands over the checker's report, o
 it away - and `main.js` decides what that looks like on screen. You can drive the whole game from
 `tools/test.js` with no hooks at all and nothing complains.
 
+Class races are the proof that this pays. The game had to start telling a server about every
+sentence it checked, and the rules did not learn about the network to do it: there is one more
+hook, `onSentence(verdict, text)`, and in a class race `main.js` points it at `js/race.js`, which
+does the sending. In an ordinary game the hook is empty and nothing is sent.
+
 **Known limit, and the next thing to fix.** Sound is *not* routed this way - `game.js` calls
 `BW.Sound.correct()` directly, so the rules engine knows about audio. Every new reaction (score
 popups, a streak counter, logging which words a student keeps getting wrong) would mean another
@@ -133,8 +138,9 @@ bend as the project grows.
 
 **Where:** `this.mode` in `js/game.js`, switched in `frame()` and guarded in `handleKey()`.
 
-Six modes: `countdown`, `playing`, `crashed`, `paused`, `checking`, `checked`. Each one answers
-two questions differently - what happens on a tick, and what a key press does.
+Eight modes: `countdown`, `playing`, `crashed`, `paused`, `checking`, `checked`, and for a class
+race `waiting` (for the teacher to press Start) and `over` (the time is up). Each one answers two
+questions differently - what happens on a tick, and what a key press does.
 
 The crash delay is why this pattern earned its place. A crash is deliberately **two beats**:
 
@@ -153,9 +159,13 @@ has answered or given up. `settle()` then acts on the verdict and enters `checke
 stays up until the child presses a key - reading the reason is the point, so the game waits for
 them rather than for a timer.
 
+A class race's bell works the same way. `timeUp()` stops the game at once - unless a sentence is
+in `checking`, because its ending mark was eaten in time. Then the game only notes that the time
+is up, lets the check finish and count, and `settle()` stops it.
+
 The modes are still a string plus conditionals. This doc said to convert them to a map of
-`{ enter, update, handleKey }` objects when a fifth mode arrived; with six, that conversion is now
-due, and is the next tidy-up for `game.js`.
+`{ enter, update, handleKey }` objects when a fifth mode arrived; with eight, that conversion is
+now overdue, and is the next tidy-up for `game.js`.
 
 ---
 

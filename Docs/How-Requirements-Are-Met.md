@@ -287,3 +287,9 @@ Small things added because the game needed them to be playable for 3rd-5th grade
 - **The board is always winnable.** Every disperse guarantees at least two words that keep the
   sentence on track, and ending marks to finish with.
 - **No game over.** Crashes and wrong sentences cost progress, never the session.
+- **Class races.** A teacher runs a timed race for the whole class from `teacher.html`; every
+  student plays on their own board and sees a mini leaderboard, and the teacher's screen shows
+  the full one and can print every sentence written. The server keeps the score
+  (`tools/classroom.py`), the game reports each checked sentence through its `onSentence` hook
+  (`js/race.js`), and both are tested: `python3 tools/test_classroom.py` and the "A class race"
+  checks in `node tools/test.js`. See [Class races](../README.md#class-races).

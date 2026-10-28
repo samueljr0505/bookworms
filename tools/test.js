@@ -10,7 +10,8 @@ const root = path.join(__dirname, '..');
 global.window = global;   // the game files expect a browser-style global
 global.performance = { now: () => Date.now() };
 for (const f of ['js/config.js', 'js/util.js', 'js/grammar.js', 'js/sense.js', 'js/checker.js', 'js/judge.js',
-                 'js/worm.js', 'js/board.js', 'js/closet.js', 'js/worm-skin.js', 'js/board-art.js']) {
+                 'js/worm.js', 'js/board.js', 'js/closet.js', 'js/worm-skin.js', 'js/board-art.js',
+                 'js/classroom.js', 'js/game.js']) {
   eval(fs.readFileSync(path.join(root, f), 'utf8'));
 }
 const NS = global.window.BW;
@@ -823,6 +824,119 @@ function checkCloset() {
   console.log('  closet checks done');
 }
 
+/* A class race. js/race.js drives the game from the class clock; here the clock is played by
+   hand. The game must wait for Start, count down, report every sentence it checks, refuse to
+   pause or start over, and stop when the time is up - except that a sentence already being
+   checked at the bell still counts. The drawing is swapped for a stand-in. */
+async function checkRace() {
+  console.log('\n=== A class race ===');
+  NS.Renderer = class {
+    constructor() { this.skin = {}; this.fx = { trail() {} }; }
+    measureCells(text) { return measure(text); }
+    draw() {} burst() {} popup() {} bump() {}
+    posColor() { return '#000'; }
+    tailPoint() { return { x: 0, y: 0 }; }
+  };
+  global.requestAnimationFrame = () => 0;
+
+  const animals = loadTopic('animals');
+  const said = [];
+  const game = new NS.Game(animals, null, { onSentence: (verdict, text) => said.push(verdict + ': ' + text) },
+                           { race: true });
+  let t = performance.now();
+  const run = ms => { for (let i = 0; i < ms; i += 50) game.frame(t += 50); };
+  const key = k => game.handleKey({ key: k, preventDefault() {} });
+  const write = words => {
+    for (const w of words) {
+      const pos = NS.Grammar.posOfWord(animals, w);
+      game.sentence.add(w, pos);
+      game.worm.carry(w, pos);
+    }
+  };
+  const checkIt = async mark => {
+    game.check(mark);
+    await new Promise(done => setTimeout(done, 0));     // the judge (off here) answers
+    run(NS.CONFIG.checkMs + 100);
+  };
+
+  game.hold();
+  const worm = game.worm;
+  run(5000);
+  key('ArrowUp');
+  key('r');
+  key('p');
+  check(game.mode === 'waiting' && game.worm === worm, 'the worm waits for the teacher, whatever is pressed');
+
+  game.startIn(1500);
+  check(game.mode === 'countdown', 'Start begins a countdown');
+  run(1600);
+  check(game.mode === 'playing', 'the race starts when the countdown ends');
+  key('p');
+  check(game.mode === 'playing', 'there is no pausing a class race');
+
+  write(['The', 'dog', 'ran']);
+  await checkIt('.');
+  check(game.mode === 'checked' && said[0] === 'correct: The dog ran.',
+        'a correct sentence is reported with its words: ' + said[0]);
+  key('ArrowRight');
+  write(['The', 'mouse', 'carried', 'the', 'horse']);
+  await checkIt('.');
+  check(said[1] === 'wrong: The mouse carried the horse.', 'a wrong sentence is reported too: ' + said[1]);
+  key('ArrowRight');
+
+  write(['A', 'cat', 'hid']);
+  game.check('.');
+  game.timeUp();
+  check(game.mode === 'checking', 'the bell waits for a sentence that is already being checked');
+  await checkIt('.');
+  check(game.mode === 'over' && said[2] === 'correct: A cat hid.', 'it still counts, and then the game stops');
+  key('ArrowUp');
+  run(1000);
+  check(game.mode === 'over' && !game.worm.moving, 'after the bell the worm stays still');
+  check(said.length === 3, 'every checked sentence was reported once');
+
+  game.newGame();
+  game.hold();
+  game.startIn(0);
+  run(100);
+  game.timeUp();
+  check(game.mode === 'over', 'the bell stops a worm that is out playing');
+
+  const solo = new NS.Game(animals, null, {});
+  solo.countdownMs = 0;
+  solo.frame(performance.now() + 50);
+  solo.handleKey({ key: 'p', preventDefault() {} });
+  check(solo.mode === 'paused', 'an ordinary game can still be paused');
+
+  // the helpers the race pages share (js/classroom.js)
+  const C = NS.Class;
+  check([1, 2, 3, 4, 11, 12, 13, 21, 22, 101, 111].map(C.ordinal).join() ===
+        '1st,2nd,3rd,4th,11th,12th,13th,21st,22nd,101st,111th', 'places read 1st, 2nd, 3rd... 11th');
+  check(C.clock(65000) === '1:05' && C.clock(59001) === '1:00' && C.clock(-5) === '0:00', 'the clock reads m:ss');
+  check(C.place({ correct: 0, rank: 1 }) === '\u2013' && C.place({ correct: 2, rank: 3 }) === '3rd',
+        'nobody is 1st with no sentences');
+  check(C.cleanCode(' zc-cx9 ') === 'ZCCX', 'a code is tidied as it is typed');
+  const board = ['Ana', 'Ben', 'Cal', 'Dee', 'Eli', 'Sam', 'Fay'].map((name, i) =>
+    ({ name, correct: 7 - i, rank: i + 1, you: name === 'Sam' }));
+  check(C.nearTop(board, 5).map(r => r.gap ? '...' : r.name).join() === 'Ana,Ben,Cal,Dee,Eli,...,Sam',
+        'the mini leaderboard shows the top five, then you');
+  check(C.nearTop(board, 6).length === 6, 'with you in the top rows, there is no gap');
+
+  let sent = null;
+  C.setFetch(async (url, init) => {
+    sent = { url, init };
+    return { ok: true, status: 200, json: async () => ({ now: Date.now() + 60000 }) };
+  });
+  await C.call('/BCDF/join', { name: 'Sam' });
+  check(sent.url === 'api/class/BCDF/join' && sent.init.method === 'POST' &&
+        sent.init.headers['Content-Type'] === 'application/json', 'answers go to the server as JSON');
+  check(Math.abs(C.now() - (Date.now() + 60000)) < 1000, 'every computer keeps to the server\'s clock');
+  C.setFetch(async () => ({ ok: false, status: 404, json: async () => { throw new Error('not JSON'); } }));
+  const r = await C.call('/BCDF');
+  check(!r.ok && r.status === 404 && typeof r.data === 'object', 'no class server is an answer, not a crash');
+  console.log('  class race checks done');
+}
+
 (async function main() {
   /* Every topic the game offers gets the full run. Whether its sentences MAKE SENSE is
      the judge's job (tools/judge.py) - or a person's, reading the output of
@@ -840,6 +954,7 @@ function checkCloset() {
   checkSyntheticPack();
   checkCloset();
   await checkJudgeClient();
+  await checkRace();
 
   console.log(failures === 0 ? '\nAll checks passed.' : '\n' + failures + ' CHECK(S) FAILED');
   process.exit(failures === 0 ? 0 : 1);
