@@ -11,10 +11,12 @@
    - after a part or a group: `?` optional, `*` any number of times, `+` one or more times
 
    Each shape is turned into a little state machine. A sentence runs every shape in the topic
-   side by side while the player eats: any word goes onto the worm, and each machine says
-   whether the words so far could still become a sentence of its shape. The strip, the hints
-   and the checker (js/checker.js) are all built on that. Nothing here decides whether a
-   finished sentence is right - the checker does, when punctuation is eaten (Req 4, Req 6).
+   side by side while the player eats, and each machine says whether the words so far could
+   still become a sentence of its shape. That is what keeps a sentence on its structure: the
+   game only lets the worm eat a word that fits() - the right kind of word for the next spot,
+   with the right capital letter, that makes sense with the words before it - and the
+   checker (js/checker.js) says why when a word does not. The strip and the hints are built
+   on the same machines.
    The old list form, ["determiner", "adjective?", "noun"], still works too. */
 window.BW = window.BW || {};
 
@@ -192,8 +194,9 @@ window.BW = window.BW || {};
   }
 
   /* Shortest list of things still to eat before a machine can stop - a 0-1 search, where
-     free edges cost nothing and eating a word costs one. */
-  function shortestRest(nfa, states) {
+     free edges cost nothing and eating a word costs one. `avoid` skips some kinds of tile;
+     null when the machine cannot stop without them. */
+  function shortestRest(nfa, states, avoid) {
     const best = new Map();
     const deque = [];
     for (const id of states) { best.set(id, []); deque.push(id); }
@@ -206,11 +209,12 @@ window.BW = window.BW || {};
         if (!best.has(to) || best.get(to).length > path.length) { best.set(to, path); deque.unshift(to); }
       }
       for (const e of n.edges) {
+        if (avoid && avoid(e.m)) continue;
         const p = path.concat([e.m]);
         if (!best.has(e.to) || best.get(e.to).length > p.length) { best.set(e.to, p); deque.push(e.to); }
       }
     }
-    return [];
+    return null;
   }
 
   const compiled = new WeakMap();
@@ -278,8 +282,8 @@ window.BW = window.BW || {};
       return lost;
     }
 
-    /* Free building: every word goes onto the worm. A shape the words no longer fit drops
-       out quietly; whether the sentence is right is decided when it is checked. */
+    /* Put a word on the sentence. The game only does this for a word that fits(); a shape
+       the words no longer fit drops out quietly. */
     add(word, pos) {
       this.tokens.push({ word, pos });
       for (const t of this.tracks) t.states = advance(t.nfa, t.states, word, pos);
@@ -287,7 +291,7 @@ window.BW = window.BW || {};
       this.ahead = null;
     }
 
-    /* Guided building, for the tests: add the word only if it keeps the sentence on track. */
+    /* Add the word only if it keeps the sentence on track. */
     accept(word, pos) {
       if (!this.fits(word, pos)) return false;
       this.add(word, pos);
@@ -379,7 +383,8 @@ window.BW = window.BW || {};
       return !capital || word === 'I' || !!(this.pack.pos[pos] && this.pack.pos[pos].proper);
     }
 
-    /* Would eating this word keep the sentence on track? That is what the hints outline. */
+    /* Would eating this word keep the sentence on track? Only a word that does is eaten, and
+       it is what the hints outline. */
     fits(word, pos) {
       if (!this.allows(word, pos)) return false;
       return this.leadsOn(word, pos);
@@ -491,7 +496,9 @@ window.BW = window.BW || {};
     /* A little roadmap for the HUD: the words eaten so far, then what the guide shape
        still has room for. A shape that is a plain row of slots shows every slot left,
        optional ones included, so the player can see where an Adjective could still go;
-       a fancier shape shows its quickest way to the end. Off track, just the words. */
+       a fancier shape shows its quickest way to the end - through a Noun rather than a
+       Pronoun where it can, because "Determiner + Noun" shows how a block is built and
+       "He" does not. Off track, just the words. */
     outline() {
       const out = this.tokens.map(t => ({ pos: t.pos, word: t.word, state: 'done' }));
       const g = this.guide();
@@ -499,8 +506,10 @@ window.BW = window.BW || {};
 
       const slot = (m, optional) => ({ pos: m.pos || posOfWord(this.pack, m.word), word: null,
                                        literal: m.word || null, optional });
+      const pronoun = m => familyOf(this.pack, m.pos || posOfWord(this.pack, m.word)) === 'pronoun';
+      const route = shortestRest(g.nfa, g.states, pronoun) || shortestRest(g.nfa, g.states) || [];
       const rest = g.nfa.slots ? this.slotsLeft(g.nfa.slots).map(s => slot(s, s.optional))
-                               : shortestRest(g.nfa, g.states).map(m => slot(m, false));
+                               : route.map(m => slot(m, false));
       // everything up to and including the first slot that must be filled could come next
       let next = true;
       for (const r of rest) {
@@ -520,7 +529,78 @@ window.BW = window.BW || {};
       }
       return slots.slice(Math.min(k, slots.length));
     }
+
+    /* The outline cut into the building blocks of a sentence, for the strip: each block is
+       { block, slots, state, optional }, where `state` is 'done', 'next' (the next word goes
+       here) or 'todo'. Blocks the shape has room for but the outline skips - an optional
+       Modifier, a second Object - are added at the end with no slots, marked optional. */
+    segments() {
+      const outline = this.outline();
+      const out = [];
+      blocksOf(this.pack, outline).forEach((b, i) => {
+        if (b.fresh || !out.length) out.push({ block: b.block, slots: [], optional: false });
+        out[out.length - 1].slots.push(outline[i]);
+      });
+      for (const seg of out) {
+        seg.state = seg.slots.some(s => s.state === 'next') ? 'next'
+                  : seg.slots.every(s => s.state === 'done') ? 'done' : 'todo';
+      }
+      const g = this.guide();
+      const have = name => out.filter(seg => seg.block === name).length;
+      for (const b of (g && g.pattern.blocks) || []) {
+        const name = b.replace('?', '');
+        const room = g.pattern.blocks.filter(x => x.replace('?', '') === name).length;
+        if (b.endsWith('?') && have(name) < room) out.push({ block: name, slots: [], optional: true, state: 'todo' });
+      }
+      return out;
+    }
+
+    /* Which block a tile wanted now ({ pos } or { word }) would go in, if it were eaten next. */
+    blockOfNext(matcher) {
+      const pos = matcher.pos || posOfWord(this.pack, matcher.word);
+      return blocksOf(this.pack, this.tokens.concat([{ pos, word: matcher.word || null }])).pop().block;
+    }
   }
+
+  /* The building block each word of a sentence belongs to, read off the kinds of word and
+     where they sit - the way a teacher marks up a sentence:
+
+       Subject      everything before the Verb (but an Adverb)       The big dog
+       Verb         what happens                                      ran, was, tastes
+       Object       after an action Verb, each Noun or Pronoun        found the map,
+                    phrase - giving verbs take two, or "to" someone   gave him a sword
+       Complement   the first phrase after was / tastes / looks       was happy, was a cat
+       Modifier     an Adverb, or a Preposition and its place         quickly, into the barn
+
+     `items` are { pos, word } or outline slots ({ pos, literal }). Each comes back as
+     { block, fresh }, where `fresh` means it starts a new block rather than carrying on
+     the one before it ("gave him | a sword" is two Objects). */
+  const LINKING = ['be', 'taste', 'smell', 'look'];
+  function blocksOf(pack, items) {
+    const out = [];
+    let verb = null;          // the verb, once there is one
+    let open = null;          // the block a Determiner or Adjective would carry on
+    let complement = false;   // the Complement has been given
+    for (const item of items) {
+      const fam = familyOf(pack, item.pos);
+      let block, fresh = true;
+      if (fam === 'verb') { block = 'Verb'; verb = item; }
+      else if (fam === 'adverb') block = 'Modifier';
+      else if (!verb) { block = 'Subject'; fresh = !out.length || out[out.length - 1].block !== 'Subject'; }
+      else if (fam === 'preposition') {
+        block = verb.pos === 'give' ? 'Object' : LINKING.includes(verb.pos) && !complement ? 'Complement' : 'Modifier';
+      } else if (open) { block = open; fresh = false; }
+      else block = LINKING.includes(verb.pos) && !complement ? 'Complement' : 'Object';
+
+      if (block === 'Complement') complement = true;
+      // a Noun or Pronoun closes its phrase; a Preposition, Determiner or Adjective leaves it open
+      open = verb && !['verb', 'adverb'].includes(fam) && roleOf(pack, item.pos) !== 'naming' ? block : null;
+      out.push({ block, fresh });
+    }
+    return out;
+  }
+
+  function familyOf(pack, pos) { return pack.pos[pos] && pack.pos[pos].family; }
 
   /* Word -> part of speech, built once per pack (a word lives in only one list). */
   const posIndex = new WeakMap();

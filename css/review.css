@@ -1,0 +1,116 @@
+/* The grammar review page. It sits on top of css/how.css (the same paper, cards and
+   numbered steps) and adds the sentence diagrams - words in their blocks, coloured by
+   part of speech, the way the game's strip shows them - and the quick check. */
+
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 14px; }
+
+/* ---------- jump to a section ---------- */
+
+.jump {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  margin: -14px 0 24px;
+}
+.jump a {
+  font-size: 13px; font-weight: 800; color: var(--green); text-decoration: none;
+  padding: 5px 11px; border-radius: 999px; background: #fff; border: 2px solid var(--line);
+}
+.jump a:hover { border-color: var(--green); }
+
+/* ---------- sentence or not ---------- */
+
+.compare { display: grid; gap: 6px; margin-top: 12px; }
+.compare p {
+  margin: 0 !important; padding: 8px 12px; border-radius: 10px;
+  display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline;
+}
+.compare b { font-size: 17px; }
+.compare span { font-size: 14px; font-weight: 700; color: var(--muted); }
+.compare .yes { background: #f2faf3; }
+.compare .yes b::before { content: "✓ "; color: var(--green); }
+.compare .no { background: #fbebe6; }
+.compare .no b::before { content: "✗ "; color: #c0563f; }
+
+/* ---------- the kinds of word ---------- */
+
+.card .test { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); font-weight: 700; }
+.card .test i { font-weight: 800; color: var(--ink); }
+.card .test a { color: var(--green); }
+
+/* ---------- words in their blocks ---------- */
+
+.w {
+  display: inline-block;
+  font-size: 14px; font-weight: 800; color: #20242e;
+  padding: 3px 10px; border-radius: 999px;
+}
+.w.det  { background: var(--c-det); }
+.w.adj  { background: var(--c-adj); }
+.w.noun { background: var(--c-noun); }
+.w.verb { background: var(--c-verb); }
+.w.adv  { background: var(--c-adv); }
+.w.pron { background: var(--c-pron); }
+.w.prep { background: var(--c-prep); }
+.w.end  { background: var(--c-end); min-width: 28px; text-align: center; }
+.w.optional { background: #fff; border: 2px dashed var(--c-adj); padding: 1px 8px; }
+
+/* a sentence cut into its blocks (.blk, from css/how.css); the extras are dashed */
+.diagrams { display: grid; gap: 10px; margin: 16px 0 14px; }
+.diagram {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end;
+  background: #faf5ea; border: 2px solid var(--line); border-radius: 12px; padding: 10px;
+}
+.blk.extra { border-style: dashed; border-color: #c9b994; }
+
+.recipe { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0 14px; }
+.plus, .eq, .or-word { font-weight: 900; color: var(--muted); }
+.eq { margin: 0 6px; }
+.or-word { margin: 0 6px; font-size: 14px; }
+
+/* ---------- little rules ---------- */
+
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.rule { background: #faf5ea; border-radius: 12px; padding: 10px 12px; }
+.rule h3 { margin: 0 0 4px; font-size: 16px; color: var(--green); }
+.rule p { margin: 0 !important; font-size: 15px; }
+.rule s { color: #c0563f; }
+
+/* ---------- end marks ---------- */
+
+.marks { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 8px; }
+.marks li {
+  display: grid; grid-template-columns: 30px auto 1fr; gap: 10px; align-items: center;
+}
+.marks li > span:last-child { color: var(--muted); font-size: 15px; font-weight: 700; }
+.marks i { color: var(--ink); font-style: normal; font-weight: 800; }
+
+@media (max-width: 480px) {
+  .marks li { grid-template-columns: 30px 1fr; }
+  .marks li > span:last-child { grid-column: 2; }
+}
+
+/* ---------- the quick check ---------- */
+
+.questions { margin: 0; padding-left: 22px; display: grid; gap: 14px; }
+.questions li { font-weight: 800; }
+.answers { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.answers button {
+  font: inherit; font-size: 15px; font-weight: 800; cursor: pointer;
+  padding: 7px 14px; border-radius: 12px;
+  border: 2px solid var(--line); background: #fff; color: var(--ink);
+  box-shadow: 0 3px 0 var(--line);
+}
+.answers button:hover:not(:disabled) { border-color: var(--green); }
+.answers button:disabled { cursor: default; box-shadow: none; transform: translateY(3px); }
+.answers button.right { background: #e3f4e6; border-color: var(--green); color: #2f6b3d; }
+.answers button.wrong { background: #fbebe6; border-color: #c0563f; color: #a2442f; }
+.why { margin: 6px 0 0 !important; font-size: 14px; font-weight: 700; color: var(--muted); }
+.why.right::before { content: "✓ "; color: var(--green); }
+.why.wrong::before { content: "Not quite. "; color: #c0563f; }
+.quiz-score {
+  margin: 16px 0 0 !important; padding: 10px 14px; border-radius: 12px;
+  background: #f2faf3; color: var(--green); font-weight: 900; font-size: 18px; text-align: center;
+}
+.quiz-score[hidden] { display: none; }
+
+.keys-note a { color: var(--green); font-weight: 800; }

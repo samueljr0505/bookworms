@@ -1,28 +1,30 @@
 /* The sentence checker (Req 4, Req 6).
 
-   Punctuation ends a sentence, and that is the moment it gets checked - the way a teacher
-   checks a sentence on a worksheet:
+   A sentence is built on a structure: Subject, Verb, then an Object, a Complement or
+   Modifiers, each made of the right kinds of word (js/grammar.js). The worm only eats a word
+   that fits where the sentence is up to, so this file has two jobs.
+
+   refuse() is the moment a word does NOT fit. The worm leaves it on the board, and the
+   player is told why, pinned to that word - "ran" is a Verb, and after "The" the sentence
+   needs an Adjective or a Noun. A punctuation mark is refused the same way until the
+   sentence is whole ("Not finished yet! What happens? Add a Verb.").
+
+   check() is the moment a sentence is finished: punctuation was eaten, and the sentence is
+   read out against the list a teacher uses for a complete sentence -
 
      Capital letter   does it start with one?
-     Noun             is there a who or what?
+     Subject          is there a who or what?
      Verb             is there something that happens?
      Sounds right     are the words in an order that works?
      Makes sense      do the words fit together?
      End mark         is it the right mark for this kind of sentence?
 
-   Every line comes back with a note in plain words, so a wrong sentence gets a reason a
-   child can act on rather than a red cross.
+   - every line with a note in plain words. check() can mark any list of words, right or
+   wrong, but a sentence the worm built always passes: every word was checked on the way in.
 
-   Two things do the checking. check() is the game's own rules: it compares the words with
-   the topic's sentence shapes (js/grammar.js). That is instant, works with no internet,
-   and is never wrong about a shape it knows. But rules only know shapes. They cannot tell
-   "The hungry bird jumped quickly." from "The quick bird jumped quickly." - the second says
-   the same thing twice - unless the topic lists that pair as a clash, and they turn down good English the recipe never taught, like "The big
-   brown dog ran." So decide() folds in a second opinion from the judge (js/judge.js) when
-   there is one, and the judge gets the last word on "sounds right" and "makes sense".
-
-   Capital letters, repeated words and end marks stay the rules' call whatever the judge
-   says. They are the game's rules about its own tiles, and there is no grey area in them.
+   decide() folds in a second reader, the judge (js/judge.js), when there is one. It cannot
+   fail a sentence the structure built. It can tick "Makes sense", which the rules otherwise
+   leave for the child to read out loud, and praise the sentence or leave a tip.
 
    Like the rest of the model, this file never touches the page, so tools/test.js can
    check thousands of sentences with no browser. */
@@ -54,12 +56,20 @@ window.BW = window.BW || {};
     return items.slice(0, -1).join(', ') + ' or ' + items[items.length - 1];
   }
 
-  /* What a set of wanted tiles is, in words: "a Noun or a Verb", or "the word "and"". */
+  /* What a set of wanted tiles is, in words: "a Noun or a Verb", "the word "was"", or when
+     only some words of a kind fit, "an Adjective ("sweet", "fresh" or "warm")". */
   function wantedText(pack, wanted) {
-    const out = [];
+    const out = [], some = new Map();
     for (const m of wanted) {
-      const t = m.word ? 'the word "' + m.word + '"' : an(labelOf(pack, m.pos));
-      if (!out.includes(t)) out.push(t);
+      if (m.word) {
+        const label = labelOf(pack, BW.Grammar.posOfWord(pack, m.word));
+        some.set(label, (some.get(label) || []).concat('"' + m.word + '"'));
+      } else if (!out.includes(an(labelOf(pack, m.pos)))) {
+        out.push(an(labelOf(pack, m.pos)));
+      }
+    }
+    for (const [label, words] of some) {
+      out.push(words.length === 1 ? 'the word ' + words[0] : an(label) + ' (' + orList(words) + ')');
     }
     return orList(out);
   }
@@ -105,71 +115,22 @@ window.BW = window.BW || {};
     return BW.Grammar.posOfWord(pack, flip) ? flip : null;
   }
 
-  /* Would these words pass the rules as they stand? */
-  function passes(pack, tokens) {
-    if (!tokens.length) return null;
-    const s = BW.Grammar.newSentence(pack, BW.rng);
-    for (const t of tokens) s.add(t.word, t.pos);
-    return s.canEnd() && capitalTrouble(s) < 0 && !repeatedWord(s) && !clashIn(pack, s) &&
-           !BW.Sense.problem(pack, s.tokens) ? s : null;
-  }
-
-  /* A corrected sentence to try, built from the topic's own tiles, so a wrong sentence always
-     comes back with an example and not only a reason. It changes as little as it can at the
-     first word that went wrong: add a word there, swap that word, or drop it - and if the
-     words were already a whole sentence before it, just stop there. When there is more than
-     one mistake, it keeps the words before the first one and finishes the sentence the
-     shortest way it can. */
-  function suggest(pack, sentence, mark, at, finished) {
-    const toks = sentence.tokens;
-    const tiles = [];
-    for (const pos of Object.keys(pack.words)) for (const word of pack.words[pos]) tiles.push({ word, pos });
-    const tries = [];
-    // "A rice": nothing wrong with "rice" - it is the word before it that has to change
-    const note = toks[at] && pack.pos[toks[at].pos] && pack.pos[toks[at].pos].note;
-    if (note && at > 0) for (const t of tiles) tries.push([...toks.slice(0, at - 1), t, ...toks.slice(at)]);
-    for (const t of tiles) tries.push([...toks.slice(0, at), t, ...toks.slice(at)]);
-    for (const t of tiles) tries.push([...toks.slice(0, at), t, ...toks.slice(at + 1)]);
-    tries.push([...toks.slice(0, at), ...toks.slice(at + 1)]);
-    if (finished) tries.push(toks.slice(0, at));
-    let fixed = null;
-    for (const t of tries) if ((fixed = passes(pack, t))) break;
-    // keep the words before the mistake and finish the sentence; if those words cannot be
-    // finished either ("swam across a muddy..." - only a pool fits, and a pool is not muddy),
-    // give back one word at a time until they can
-    for (let cut = at; !fixed && cut >= 0; cut--) {
-      for (let depth = 0; !fixed && depth <= 4; depth++) fixed = finishOff(pack, toks.slice(0, cut), depth);
-    }
-    if (!fixed) return '';
-    return fixed.text(fixed.endMarks().includes(mark) ? mark : fixed.endMarks()[0]);
-  }
-
-  /* Add at most `depth` words to these so they pass the rules; null if that cannot be done. */
-  function finishOff(pack, tokens, depth) {
-    const done = passes(pack, tokens);
-    if (done || depth === 0) return done;
-    const s = BW.Grammar.newSentence(pack, BW.rng);
-    for (const t of tokens) s.add(t.word, t.pos);
-    for (const m of s.wants()) {
-      const pos = m.pos || BW.Grammar.posOfWord(pack, m.word);
-      for (const w of m.word ? [m.word] : (pack.words[m.pos] || [])) {
-        if (!s.fits(w, pos)) continue;
-        const found = finishOff(pack, [...tokens, { word: w, pos }], depth - 1);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
-  /* Why the words stopped fitting every shape, pinned to the word where it happened. */
-  function explain(pack, sentence, trace) {
+  /* Why the words stopped fitting every shape, pinned to the word where it happened.
+     `asked` is given when the word was refused rather than eaten - { before, ends }: the
+     sentence as it reads without the word, and the marks that could end it now - and the
+     reason then says what to find instead. */
+  function explain(pack, sentence, trace, asked) {
     const tokens = sentence.tokens;
     const words = sentence.displayWords();
     const i = trace.at;
     const cur = tokens[i];
     const prev = tokens[i - 1];
     const word = '"' + words[i] + '"';
+    const lead = quote(asked ? asked.before : words.slice(0, i));
 
+    // what a refused word is, and what the sentence needs instead
+    const is = asked ? word + ' is ' + an(labelOf(pack, cur.pos)) + '. ' : '';
+    const needs = 'After ' + lead + ', the sentence needs ' + wantedText(pack, trace.wanted) + '.';
     if (i === 0) {
       // say it by kind of word, with real capitalised examples: "a Determiner or a Pronoun"
       const kinds = [], like = [];
@@ -181,31 +142,55 @@ window.BW = window.BW || {};
           if (w[0] !== w[0].toLowerCase() && !like.includes(w) && like.length < 4) like.push(w);
         }
       }
-      return 'A sentence here starts with ' + orList(kinds) +
+      return is + 'A sentence here starts with ' + orList(kinds) +
              (like.length ? ', like ' + orList(like.map(w => '"' + w + '"')) : '') + '.';
     }
     const family = t => pack.pos[t.pos] && pack.pos[t.pos].family;
     const wantsFamily = f => trace.wanted.some(m => family({ pos: m.pos || BW.Grammar.posOfWord(pack, m.word) }) === f);
+    // the verb this word would follow - not "was", which props up a description
+    const doing = roleOf(pack, prev.pos) === 'action' && !BW.Grammar.isScaffold(prev.pos);
     // "The knight walked the cave": walking does not take an object - it goes somewhere
     const placeWord = (family(cur) === 'determiner' || roleOf(pack, cur.pos) === 'naming') &&
                       sentence.capitalFits(cur.word, cur.pos, i);
-    if (placeWord && wantsFamily('preposition') && roleOf(pack, prev.pos) === 'action') {
+    if (placeWord && wantsFamily('preposition') && doing) {
       const prep = trace.wanted.map(m => m.word || (pack.words[m.pos] || [])[0])
                         .find(w => w && family({ pos: BW.Grammar.posOfWord(pack, w) }) === 'preposition');
+      const place = (pack.words.place || [])[0];
+      const spot = !place ? words[i] : family(cur) === 'determiner' ? words[i] + ' ' + place : 'the ' + place;
       return '"' + words[i - 1] + '" needs a Preposition to say where, like "' + words[i - 1] + ' ' +
-             prep + ' ' + words[i] + '".';
+             prep + ' ' + spot + '".';
+    }
+    if (trace.finished && asked) {
+      return lead + ' is already a whole sentence, so ' + word + ' does not fit after it. End it with ' +
+             orList(asked.ends.map(m => '"' + m + '"')) +
+             (trace.wanted.length ? ', or add ' + wantedText(pack, trace.wanted) : '') + '.';
+    }
+    // "rolled kitten": a Noun needs its Determiner first - "rolled the kitten"
+    const dets = !asked || family(cur) !== 'noun' || wantsFamily('noun') ? []
+      : (pack.words.determiner || []).filter(d => {
+          if (!sentence.capitalFits(d, 'determiner', i)) return false;
+          const t = BW.Grammar.newSentence(pack, BW.rng);
+          for (const x of tokens.slice(0, i)) t.add(x.word, x.pos);
+          t.add(d, 'determiner');
+          t.add(cur.word, cur.pos);
+          return t.onTrack();
+        });
+    if (dets.length) {
+      return is + 'It needs a Determiner in front of it first, like ' +
+             orList(dets.slice(0, 3).map(d => '"' + d + ' ' + words[i] + '"')) + '.';
     }
     if (trace.finished) {
       return quote(words.slice(0, i)) + ' was already a whole sentence, so ' + word +
              ' does not fit after it. You could have ended it there!';
     }
-    if (roleOf(pack, prev.pos) === 'naming' && roleOf(pack, cur.pos) === 'describing') {
+    if (family(prev) === 'noun' && roleOf(pack, cur.pos) === 'describing') {
       return cap(an(labelOf(pack, cur.pos))) + ' goes before the ' + labelOf(pack, prev.pos) +
              ' it describes: "' + words[i] + ' ' + words[i - 1] + '", not "' +
              words[i - 1] + ' ' + words[i] + '".';
     }
     if (family(prev) && family(prev) === family(cur)) {
       const pair = '"' + words[i - 1] + ' ' + words[i] + '" is two ' + labelOf(pack, cur.pos) + 's in a row';
+      if (asked) return pair + '. ' + needs;
       switch (roleOf(pack, cur.pos)) {
         case 'describing': return pair + ', and this sentence shape has room for one.';
         case 'naming':     return pair + '. Which one is the sentence about?';
@@ -237,21 +222,102 @@ window.BW = window.BW || {};
         }
       }
       const kind = labelOf(pack, cur.pos);
-      return word + ' does not go with "' + words[i - 1] + '". ' + cap(kind) + 's that do: ' +
+      // "read the busy...": after "the", it is the verb the word has to suit
+      const anchor = family(prev) === 'determiner'
+        ? tokens.slice(0, i).reverse().find(t => roleOf(pack, t.pos) === 'action') || prev : prev;
+      return word + ' does not go with "' + anchor.word + '". ' + cap(kind) + 's that do: ' +
              orList(fits.slice(0, 4).map(w => '"' + w + '"')) + '.';
     }
     // "The knight carried quickly": carried what?
-    const verb = tokens.slice(0, i).reverse().find(t => roleOf(pack, t.pos) === 'action');
-    if (verb && roleOf(pack, prev.pos) === 'action' && (wantsFamily('determiner') || wantsFamily('pronoun'))) {
-      return '"' + verb.word + '" needs an object first: ' + verb.word + ' what? Put a Noun or a ' +
-             'Pronoun before ' + word + '.';
+    if (doing && (wantsFamily('determiner') || wantsFamily('pronoun'))) {
+      return asked ? is + '"' + prev.word + '" needs an object first: ' + prev.word + ' what? Find ' +
+                     wantedText(pack, trace.wanted) + '.'
+                   : '"' + prev.word + '" needs an object first: ' + prev.word + ' what? Put a Noun or a ' +
+                     'Pronoun before ' + word + '.';
     }
     if (/^[A-Z]/.test(words[i]) && roleOf(pack, cur.pos) !== 'naming') {
       return word + ' has a capital letter because it starts a sentence, so it does not ' +
              'fit in the middle of one.';
     }
-    return 'After ' + quote(words.slice(0, i)) + ', ' + word + ' does not fit. The sentence ' +
+    if (asked) return is + needs;
+    return 'After ' + lead + ', ' + word + ' does not fit. The sentence ' +
            'needed ' + wantedText(pack, trace.wanted) + ' there.';
+  }
+
+  /* Why the worm cannot eat this tile now, or null when it can. The worm only eats a word
+     that keeps the sentence on its structure (Sentence.fits), and a punctuation mark only
+     once the sentence is whole. Anything else stays on the board, and this is what the
+     player is told about it: { short, reason } - a few words to pop up over the worm, and
+     the whole reason for the strip.
+
+     The checks go in the order a teacher's would: is it the right kind of word for this
+     spot, does it have the right capital letter, is it new, does it go with the words
+     before it - and last, could the sentence still be finished after it. */
+  function refuse(pack, sentence, word, pos) {
+    if (pos === 'punctuation') return cannotEnd(pack, sentence, word);
+    if (sentence.fits(word, pos)) return null;
+
+    const at = sentence.tokens.length;
+    const kind = labelOf(pack, pos);
+    const tokens = sentence.tokens.concat([{ word, pos }]);
+    const trial = BW.Grammar.newSentence(pack, BW.rng);
+    for (const t of tokens) trial.add(t.word, t.pos);
+    const trace = trial.trace();
+
+    if (trace.at === at) {
+      const kinds = [];
+      for (const m of trace.wanted) {
+        const label = labelOf(pack, m.pos || BW.Grammar.posOfWord(pack, m.word));
+        if (!kinds.includes(label)) kinds.push(label);
+      }
+      const short = trace.finished ? 'End it here!'
+        : kinds.includes(kind) ? 'Not that ' + kind + '!'
+        : kinds.length <= 2 ? 'Need ' + an(kinds.join(' or ')) + '!'
+        : 'Not here!';
+      return { short, reason: explain(pack, trial, trace,
+                                      { before: sentence.displayWords(), ends: sentence.endMarks() }) };
+    }
+    if (!sentence.capitalFits(word, pos, at)) {
+      const fix = otherCase(pack, word);
+      return {
+        short: fix ? 'Use "' + fix + '"!' : 'Capital letter!',
+        reason: at === 0
+          ? 'A sentence starts with a capital letter, and "' + word + '" does not have one' +
+            (fix ? ' - look for "' + fix + '".' : '.')
+          : '"' + word + '" has a capital letter, so it starts a sentence. In the middle of one, ' +
+            (fix ? 'look for "' + fix + '".' : 'use a word with a small letter.')
+      };
+    }
+    if (sentence.repeats(word, pos)) {
+      return { short: 'Used already!', reason: '"' + word + '" is already in your sentence. Find a different ' + kind + '.' };
+    }
+    const clash = sentence.clashWith(word);
+    if (clash) {
+      return { short: 'Does not fit!', reason: '"' + clash.other + '" and "' + word + '" do not go together' +
+                                                (clash.why ? ': ' + clash.why + '.' : '.') };
+    }
+    const odd = BW.Sense.problem(pack, tokens);
+    if (odd && odd.at === at) {
+      return { short: 'No sense!', reason: '"' + odd.words[0] + '" and "' + odd.words[1] + '" do not go together: ' +
+                                           odd.why + '.' };
+    }
+    return { short: 'Dead end!', reason: '"' + word + '" fits here, but then nothing could come after it and still ' +
+                                         'make sense. Find a different ' + kind + '.' };
+  }
+
+  /* A punctuation mark ends the sentence only once the sentence is whole, and only a mark
+     that suits it: null when this one can, otherwise why not. */
+  function cannotEnd(pack, sentence, mark) {
+    if (!sentence.tokens.length) {
+      return { short: 'No words yet!', reason: 'Eat some words first, then end the sentence with "' + mark + '".' };
+    }
+    if (!sentence.canEnd()) return { short: 'Not finished!', reason: 'Not finished yet! ' + nextStep(pack, sentence) };
+    const marks = sentence.endMarks();
+    if (marks.includes(mark)) return null;
+    const these = orList(marks.map(m => '"' + m + '"'));
+    return { short: 'Use ' + these + '!',
+             reason: (marks.includes('?') ? 'A question ends with ' : 'This kind of sentence ends with ') +
+                     these + ', not "' + mark + '".' };
   }
 
   /* For a sentence that is not finished: the next thing it needs, as a question. */
@@ -278,10 +344,16 @@ window.BW = window.BW || {};
     }
     const label = labelOf(pack, need.pos) + (need.literal && last ? ' that goes with "' + last.word + '"' : '');
     const noun = sentence.tokens.slice().reverse().find(t => roleOf(pack, t.pos) === 'naming');
+    // "What is the dog like?", but "What were they like?"
+    const who = noun && (pack.pos[noun.pos].family !== 'pronoun' ? 'the ' + noun.word
+                         : noun.word === 'I' ? 'I' : noun.word.toLowerCase());
+    const what = !noun ? 'What is it like?'
+      : pack.pos[noun.pos].family === 'pronoun' ? 'What ' + (doing || last).word + ' ' + who + ' like?'
+      : 'What is ' + who + ' like?';
     switch (role) {
       case 'naming':     return 'Who or what is it about? Add ' + an(label) + '.';
       case 'action':     return 'What happens? Add ' + an(label) + '.';
-      case 'describing': return 'What is ' + (noun ? 'the ' + noun.word : 'it') + ' like? Add ' + an(label) + '.';
+      case 'describing': return what + ' Add ' + an(label) + '.';
       default:           return 'Add ' + an(label) + ' next.';
     }
   }
@@ -292,7 +364,7 @@ window.BW = window.BW || {};
                   (null means "not checked" - Makes sense, until a judge has looked)
        headline   the one thing to tell the player
        at         the index of the word where it went wrong, or -1
-       text, words, mark, shape, by, rescued, suggestion */
+       text, words, mark, shape, by, and from the judge: praise, tip, suggestion */
   function check(pack, sentence, mark) {
     const tokens = sentence.tokens;
     const words = sentence.displayWords();
@@ -377,57 +449,41 @@ window.BW = window.BW || {};
       items: ORDER.filter(id => items[id]).map(id => ({ id, title: titles[id], ...items[id] })),
       by: 'rules',
       silly: pack.mode === 'silly',
-      rescued: false,
-      suggestion: '',
-      praise: ''
+      praise: '',
+      tip: '',
+      suggestion: ''
     });
-    if (report.verdict === 'wrong') {
-      // fix the first thing that went wrong: the word that broke the shape, else the word
-      // said twice, else the word that clashes; a wrong end mark just needs the right one
-      const problems = [trace.at, capAt, twice ? twice.at : -1, clash ? clash.at : -1, odd ? odd.at : -1]
-        .filter(i => i >= 0);
-      const at = problems.length ? Math.min(...problems) : sentence.tokens.length;
-      report.suggestion = suggest(pack, sentence, mark, at, trace.finished && at === trace.at);
-    }
     return report;
   }
 
-  /* Fold the judge's answer into a report from check(). `verdict` is what the judge - or a
-     teacher, through the answer key - said: { grammatical, makes_sense, feedback,
-     suggestion, by }. With no verdict the rules stand on their own. */
-  function decide(report, verdict) {
-    if (report.verdict === 'unfinished') return report;
-    const out = { ...report, items: report.items.map(i => ({ ...i })) };
-    if (!verdict) return finish(out);
+  /* Fold the judge's answer into the report on a finished sentence. `verdict` is what the
+     judge - or a teacher, through the answer key - said: { grammatical, makes_sense,
+     feedback, suggestion, by }. With no verdict the rules stand on their own.
 
+     The sentence was built word by word on the topic's structure, so it is right, and the
+     judge cannot take that away. What it adds is a second reader: it can tick "Makes sense",
+     which the rules leave for the child to read out loud, and praise the sentence - or, when
+     it thinks the sentence sounds odd ("The quick bird jumped quickly." says the same thing
+     twice), leave a tip and its own version to try next time. */
+  function decide(report, verdict) {
+    if (report.verdict !== 'correct' || !verdict) return report;
+    const out = { ...report, items: report.items.map(i => ({ ...i })) };
     out.by = verdict.by === 'teacher' ? 'teacher' : 'judge';
-    const order = out.items.find(i => i.id === 'order');
-    const sense = out.items.find(i => i.id === 'sense');
     const feedback = String(verdict.feedback || '').trim();
 
-    if (verdict.grammatical && order.ok === false) {
-      // good English the recipe never taught - "The big brown dog ran."
-      order.ok = true;
-      order.note = 'It is not one of the recipe shapes, but it is a real sentence!';
-      out.rescued = true;
-    } else if (!verdict.grammatical && order.ok !== false) {
-      // a shape the rules allow, with something else wrong in it
-      order.ok = false;
-      order.note = feedback || 'Something about the words does not sound right.';
+    const sense = out.items.find(i => i.id === 'sense');
+    if (sense.ok === null && verdict.makes_sense) {
+      sense.ok = true;
+      sense.note = 'The words fit together.';
     }
-    // When both say no, the rules' reason stays: it points at the exact word.
-
-    if (sense.ok !== false && !out.silly) {    // a word said twice stays a problem; Silly needs no sense
-      sense.ok = !!verdict.makes_sense;
-      sense.note = verdict.makes_sense ? 'The words fit together.'
-                 : verdict.grammatical ? (feedback || 'The words do not fit together.')
-                 : 'Fix how it sounds first, then check what it means.';
+    if (verdict.grammatical && verdict.makes_sense) {
+      out.praise = feedback;
+    } else if (!verdict.grammatical || !out.silly) {
+      // (Silly mode does not have to make sense, so the judge saying so is no tip there)
+      out.tip = feedback || 'Read it out loud. Could it sound better?';
+      const suggestion = String(verdict.suggestion || '').trim();
+      if (suggestion && suggestion !== report.text) out.suggestion = suggestion;
     }
-    // the judge's corrected sentence when it gave one, otherwise the rules' own
-    const suggestion = String(verdict.suggestion || '').trim();
-    if (suggestion && suggestion !== report.text) out.suggestion = suggestion;
-    // in Silly mode the judge's word on meaning ("a pencil cannot eat") is not praise
-    out.praise = out.silly && !verdict.makes_sense ? '' : feedback;
     return finish(out);
   }
 
@@ -436,7 +492,6 @@ window.BW = window.BW || {};
     const ok = id => !get(id) || get(id).ok !== false;
     if (r.unfinished && ok('capital') && ok('sense')) r.verdict = 'unfinished';
     else r.verdict = r.items.every(i => i.ok !== false) ? 'correct' : 'wrong';
-    if (r.verdict !== 'wrong') r.suggestion = '';
     r.headline = headline(r, get);
     return r;
   }
@@ -444,9 +499,7 @@ window.BW = window.BW || {};
   /* The one thing to say. For a wrong sentence, the most basic problem first: a sentence
      that starts wrong, then a missing Noun or Verb, then the order, and so on down. */
   function headline(r, get) {
-    if (r.verdict === 'correct') {
-      return r.praise || (r.rescued ? 'That is a real sentence!' : 'That is a complete sentence!');
-    }
+    if (r.verdict === 'correct') return r.praise || 'That is a complete sentence!';
     if (r.verdict === 'unfinished') return 'Not finished yet! ' + r.next;
     const order = get('order');
     if (order && order.ok === false && r.at === 0) return order.note;
@@ -457,5 +510,5 @@ window.BW = window.BW || {};
     return 'Something is not quite right.';
   }
 
-  BW.Checker = { check, decide };
+  BW.Checker = { check, decide, refuse };
 })();

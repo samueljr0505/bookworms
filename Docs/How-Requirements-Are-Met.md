@@ -45,9 +45,10 @@ touching **any** square of a tile selects that whole tile, and never a neighbour
   with the tile it found.
 - `js/board.js` `place()` / `findSpot()` keep a one-square gap around every tile, so two words
   can never share or touch a square and there is no ambiguity about which one you ate.
-- `eat()` in `js/game.js` - the word is added to the sentence and written onto the worm,
-  whatever it is, and the message strip names its kind ("dog" - a Noun). Whether it was the
-  right word is decided once, when the sentence is checked (Req 4).
+- `eat()` in `js/game.js` - a word that fits the next spot of the sentence is added to it and
+  written onto the worm, and the message strip names its kind ("dog" - a Noun). A word that does
+  not fit is selected all the same, but refused: it stays on the board and the strip says why
+  (Req 4). The head crossing the rest of a refused tile does not refuse it again.
 
 **Check it:** eat a long word from its left end, its middle, and its right end - the same word
 is selected every time. Automated: test 3 in `tools/test.js` asserts that tiles never overlap,
@@ -75,60 +76,64 @@ sentence before they have looked at the board.
 
 ## Req 4 - The sentences that are formulated are grammatically correct
 
-**Status: done - every sentence is checked when punctuation ends it, and only a correct one
-counts.**
+**Status: done - the worm only eats a word that keeps the sentence on its structure, so every
+sentence it finishes is correct.**
 
 Every topic shares one grammar, built from the blocks of a sentence: a **Subject** (a Noun or a
-Pronoun), a **Verb**, and optionally an **Object** and **Modifiers** (Adverbs, prepositional
-phrases, complements after *was*). It is written as **shapes** in a small shape language - parts
+Pronoun), a **Verb**, and optionally an **Object**, a **Complement** after *was*, and **Modifiers**
+(Adverbs, prepositional phrases). It is written as **shapes** in a small shape language - parts
 of speech, exact words, optional parts (`?`), choices (`|`) and reusable phrases (`<subject>`) - in
 `tools/build-topics.py`, which writes the topic files in `data/topics/`.
 
-The player can eat any word - it goes onto the worm whatever it is. When they eat a punctuation
-mark, the sentence is checked against the list a teacher uses for a complete sentence:
+The sentence is checked one word at a time, as it is built. Before the worm eats a word,
+`refuse()` in `js/checker.js` asks the grammar engine (`js/grammar.js`) whether it fits, in the
+order a teacher would go:
 
-| Line | What is checked | By |
+| Check | What it asks | Example reason when it fails |
 | --- | --- | --- |
-| Capital letter | the first word starts with one, and only "I" keeps one in the middle | rules |
-| Subject | there is a who or what - a Noun or a Pronoun | rules |
-| Verb | something happens | rules |
-| Sounds right | the words are in an order one of the topic's shapes allows | rules, then the judge |
-| Makes sense | the words fit together: no word used twice, no pair the topic says clash | rules for those, then the judge |
-| End mark | the right mark for that kind of sentence - questions take `?` | rules |
+| Sounds right | is it the right kind of word for the next spot of some shape the topic knows? | "ran" is a Verb. After "The", the sentence needs a Noun or an Adjective. |
+| Capital letter | "The" starts a sentence, "the" goes in the middle; only "I" and names keep a capital | "The" has a capital letter, so it starts a sentence. In the middle of one, look for "the". |
+| Makes sense | not a word used already, not a pair the topic says clash, and in Real mode nothing the `meaning` section rules out | "small" and "tall" do not go together: someone cannot be tall and small at once. |
+| Can finish | after it, there is still a way to end the sentence | "in" fits here, but then nothing could come after it and still make sense. |
+| Subject, Verb, End mark | a punctuation mark only once the sentence is whole, and only one that suits it | Not finished yet! What happens? Add a Verb. |
 
-1. **The rules** (`check()` in `js/checker.js`) run first, instantly and with no internet. The
-   grammar engine (`js/grammar.js`) runs every shape side by side, so it knows whether the words
-   make a whole sentence of some shape, whether they could still become one, or exactly which
-   word broke every shape. That gives three verdicts:
-   - **correct** - it fits a shape and every line passes;
-   - **unfinished** - every word fits so far, but something is missing. The words stay on the
-     worm and the player is told what to add ("What happens? Add a Verb.");
-   - **wrong** - with a reason pinned to the word: "An Adjective goes before the Noun it
-     describes: "big dog", not "dog big".", ""dog cat" is two Nouns in a row", ""The dog ran"
-     was already a whole sentence, so "slowly" does not fit after it".
-2. **The judge** (`tools/judge.py`, optional) is then asked the two questions shapes cannot
-   answer: does it sound right, and does it make sense? `decide()` folds its answer in. It
-   catches sentences the topic's word lists did not foresee ("The quick bird jumped quickly.") and
-   rescues good English the shapes do not include ("The big fluffy dog
-   ran."). It never overrules capital letters, repeated words or end marks.
-3. **A teacher** can overrule both by editing `data/verdicts.json`.
+A word that fails is **not eaten**: it stays on the board, the tile shakes, a short pop-up says
+what was wrong ("Need a Noun!"), and the strip above the board gives the whole reason until the
+next word is eaten. The sentence is left exactly as it was. A word that passes is eaten, so a
+sentence can only ever grow along one of the topic's shapes.
 
-A wrong sentence cannot be mended - a worm only eats forwards - so its words go back on the board
-and the player builds the same recipe again, with the reason in front of them. Only a correct
-sentence goes on the list. `text()` turns "a" into "an" before a vowel and attaches commas to the
-word before them, but leaves capital letters exactly as the tiles have them, so a missing
-capital is something the checker points out rather than something quietly fixed.
+The strip shows the shape as **blocks** - Subject, Verb, Object, Complement, Modifier - each
+holding its words in their part-of-speech colours. `segments()` in `js/grammar.js` cuts the
+sentence (and the route still ahead of it) into blocks; the block the next word goes in is
+outlined in green and names every kind of word that fits there.
 
-**Check it:** eat "The", "dog", then a punctuation mark - the card says the sentence is not
-finished and asks for a Verb. Automated: `tools/test.js` plays 2000 sentences per topic with good
-picks (every one must be marked correct) and 2000 with random picks, checking every time a mark is
-eaten. Every sentence the rules pass is independently re-parsed against the shapes (walking the
-shape trees directly, not the game's state machine), with its capital letter, end mark, a/an and
-repeated words checked too; every "unfinished" verdict must be words that can still grow into a
-sentence; every "wrong" verdict must come with a reason, pointing at a word when the shape is the
-problem. A table of real sentences per topic pins down the exact verdict and reason for each kind
-of mistake, a made-up pack with a question shape proves `?` is required where it belongs, and
-`decide()` is tested against every way the rules and the judge can agree or disagree.
+When punctuation completes a sentence, `check()` reads it back as a checklist (capital letter,
+subject, verb, sounds right, makes sense, end mark) on the card. A sentence the worm built always
+passes; "Makes sense" is left for the child to check by reading aloud, unless the judge has looked.
+The judge (`tools/judge.py`, optional) is a second reader: `decide()` lets it tick "Makes sense",
+praise the sentence, or leave a tip with its own version ("The quick bird jumped quickly." says
+the same thing twice). It cannot fail a sentence the structure built. A teacher can write the
+judge's answer for any sentence in `data/verdicts.json`.
+
+`text()` turns "a" into "an" before a vowel and attaches commas to the word before them, but
+leaves capital letters exactly as the tiles have them.
+
+**The trade-off, on purpose:** good English the shapes do not include is refused too - "The big
+fluffy dog ran." has room for one Adjective. The structure is what keeps every sentence the game
+can make countable and checkable offline; the creativity comes from the topics and from longer
+sentences.
+
+**Check it:** eat "The", then drive into a Verb - it stays on the board and the strip says the
+sentence needs a Noun or an Adjective. Eat "dog", then a punctuation mark - it is refused, and the
+strip asks for a Verb. Automated: `tools/test.js` plays 2000 sentences per topic with good picks
+(every one must finish and be marked correct) and 2000 driving into random tiles: every refused
+word must come with a reason that says what to find instead and must leave the sentence as it
+was, every word eaten must keep the sentence on a shape, and every sentence finished is
+independently re-parsed against the shapes (walking the shape trees directly, not the game's state
+machine), with its capital letter, end mark, a/an and repeated words checked too. A table per topic
+pins down the exact reason for the words a child is likely to try, another the checklist for real
+sentences, a made-up pack with a question shape proves `?` is required where it belongs, and
+`decide()` is tested to show the judge can add a note but never fail a sentence.
 `tools/test_judge.py` tests the judge's server with a stand-in for the AI, so no API key is needed.
 
 Sample output:
@@ -192,24 +197,22 @@ the drop and the self-bite rule (the tail square is safe, because it moves away 
 
 ## Req 6 - Punctuation ends the current sentence
 
-**Status: done - and punctuation is also the moment the sentence is checked.**
+**Status: done - punctuation completes the sentence, once the sentence is whole.**
 
 - Punctuation marks are data, not code - each topic lists its marks, and each shape says which
   of them may end it (`end`, default `.` and `!`; a question shape takes `?`).
-- `disperse()` in `js/board.js` keeps ending marks on the board the whole time, so a player can
-  finish whenever they think the sentence is done. Once it really can end, a mark that suits it
-  is guaranteed to be out there.
-- `check()` in `js/game.js` - eating a mark stops the worm and checks the sentence (Req 4). The
-  card stays up until the player presses a key, so there is time to read it.
-  - **Correct:** `finishSentence()` adds it to the "Sentences you wrote" list, scores its points
-    (`points` in `js/config.js`), plays a jingle, clears the words off the worm's body (leaving one
-    trophy square behind), speeds the game up slightly, and draws a brand new recipe.
-  - **Not finished:** nothing is lost. The mark is not added, the words stay on the worm, and the
-    card says what is still needed.
-  - **Wrong:** `wrongSentence()` sends the words back to the board, with the reason on the card.
-- The wrong end mark is caught too: a question ending in `.` fails the "End mark" line.
-- The in-game instructions say it in as many words: *"Eat a punctuation mark (. or !) to end the
-  sentence. That is when it gets checked."*
+- `disperse()` in `js/board.js` keeps ending marks on the board the whole time. Once the sentence
+  really can end, a mark that suits it is guaranteed to be out there.
+- A mark eaten too early is refused like any word that does not fit (Req 4): it stays on the board
+  and the strip says what is still needed ("Not finished yet! What happens? Add a Verb."). So is
+  the wrong mark - a question takes `?`.
+- `complete()` in `js/game.js` - eating a mark that fits stops the worm and reads the sentence back
+  on the card (Req 4), which stays up until the player presses a key. `finishSentence()` then adds
+  it to the "Sentences you wrote" list, scores its points (`points` in `js/config.js`), plays a
+  jingle, clears the words off the worm's body (leaving one trophy square behind), speeds the game
+  up slightly, and draws a brand new recipe.
+- The in-game instructions say it in as many words: *"When the sentence is whole, eat a
+  punctuation mark (. or !) to finish it."*
 - Commas are not ending marks: they are tiles eaten mid-sentence wherever the shape has a `,`.
 
 **Check it:** build a sentence until the strip's last chip, `. !`, glows, then eat a mark.
@@ -225,9 +228,8 @@ keep in sync, and the whole thing is about 30 lines.
 
 - `js/util.js` - `BW.Sound` with one function per moment:
   - `eat()` - a short chirp for every word eaten.
-  - `sentence()` - a four-note fanfare when a sentence passes the check.
-  - `hmm()` - two soft notes when a sentence is not finished yet.
-  - `wrong()` - a short low buzz when a sentence is not right.
+  - `sentence()` - a four-note fanfare when a sentence is complete.
+  - `hmm()` - two soft notes when the worm will not eat a word.
   - `bonk()` - a dull thud when you crash.
   - `tick()` / `go()` - the countdown beeps and the starting chime.
 - The audio context is created on the first sound and resumed if the browser suspended it, which
@@ -275,21 +277,25 @@ This makes three rules obvious without anyone explaining them:
 
 Small things added because the game needed them to be playable for 3rd-5th graders:
 
-- **Hints.** Tiles that would keep the sentence on track get an animated dashed outline. Toggle
-  with the "Hints" button (`js/render.js` `drawTiles`, `js/main.js`).
-- **The recipe on the strip.** The strip shows every slot the sentence shape still has room for,
-  with optional ones dashed, and switches to another shape if the player's words turn into one.
+- **Hints.** Tiles the worm would eat get an animated dashed outline. Toggle with the "Hints"
+  button (`js/render.js` `drawTiles`, `js/main.js`).
+- **The blocks on the strip.** The strip shows the sentence block by block, with the kinds of
+  word each block still needs, optional blocks dashed, and switches to another shape if the
+  player's words turn into one.
+- **A grammar review.** `review.html` goes over the kinds of word, the blocks of a sentence and
+  the little rules (capitals, a / an, he / him, was / were), with a short quick check. It is linked
+  from the home page, the game's sidebar and the how-to-play page.
 - **Labels and colours are data.** The kinds of word, their names and colours come from the topic
   file (`families` and `pos` in the JSON), not from code.
-- **A wrong sentence teaches.** The check card names the word and the reason, and the judge, when
-  it is on, its own correction; with or without it, the rules build a corrected sentence from
-  the topic's tiles ("Try: The dog ran."), changing as little as possible.
+- **A refused word teaches.** The reason names the word, what kind of word it is, and what the
+  sentence needs instead, at the moment the child tried it.
 - **The board is always winnable.** Every disperse guarantees at least two words that keep the
   sentence on track, and ending marks to finish with.
-- **No game over.** Crashes and wrong sentences cost progress, never the session.
+- **No game over.** Crashes cost the sentence being built, and a refused word costs the streak,
+  never the session.
 - **Class races.** A teacher runs a timed race for the whole class from `teacher.html`; every
   student plays on their own board and sees a mini leaderboard, and the teacher's screen shows
   the full one and can print every sentence written. The server keeps the score
-  (`tools/classroom.py`), the game reports each checked sentence through its `onSentence` hook
+  (`tools/classroom.py`), the game reports each finished sentence through its `onSentence` hook
   (`js/race.js`), and both are tested: `python3 tools/test_classroom.py` and the "A class race"
   checks in `node tools/test.js`. See [Class races](../README.md#class-races).

@@ -319,7 +319,7 @@ window.BW = window.BW || {};
     }
     const tally = document.createElement('li');
     tally.className = 'tally';
-    tally.textContent = row.correct + ' correct, ' + row.wrong + ' not quite right';
+    tally.textContent = row.correct + ' correct' + (row.wrong ? ', ' + row.wrong + ' not quite right' : '');
     ul.append(tally);
     return ul;
   }

@@ -43,21 +43,28 @@ choices (`|`) and named phrases from the pack's `rules` (`<subject>`). `parse()`
 tree and `compile()` turns the tree into a small state machine (a Thompson NFA). A `Sentence`
 runs one machine per shape in the topic, side by side, as the player eats: `add()` moves them
 all on, `live()` says which shapes the words could still become, `wants()` and `fits()` say what
-would keep the sentence on track (the hints), `outline()` lays out the strip, and `trace()`
-finds the first word no shape could take (the checker's explanation).
+would keep the sentence on track (the hints, and the gate on what the worm eats), `outline()` and
+`segments()` lay out the strip block by block, and `trace()` finds the first word no shape could
+take (the checker's explanation).
 
-**This used to be "correct by construction", and it no longer is - on purpose.** The interpreter
-was once the only door into a sentence: a word that did not move the machine forward bounced off,
-so a finished sentence could not be wrong and there was no checker at all. That had three costs:
+**This is "correct by construction" - again, on purpose.** The interpreter is the only door into
+a sentence: a word that does not move some machine forward is not eaten, so a finished sentence
+cannot be wrong. An earlier version did exactly this, then moved to letting every word onto the
+worm and judging the sentence when punctuation ended it, for three reasons. Here is what changed
+about each:
 
-- A child was marked wrong one word at a time and never got to finish a thought.
-- It passed sentences that fit a shape and still made no sense - "The apple tastes big." is a
-  perfectly good Determiner Noun Verb Adjective.
-- It refused good English the shapes did not happen to include - "The big fluffy dog ran."
+- *A child was marked wrong one word at a time, with no reason.* Now every refused word comes
+  with one, pinned to that word - what kind of word it is and what the sentence needs instead
+  (`refuse()` in `js/checker.js`) - which is the moment the child can still act on it.
+- *It passed sentences that fit a shape and still made no sense ("The apple tastes big.").* The
+  topics now say which words fit where, list clashes, and carry a `meaning` section
+  (`js/sense.js`), and `fits()` asks all of them before a word is eaten.
+- *It refused good English the shapes did not include ("The big fluffy dog ran.").* Still true,
+  and now the point: a structure the child can see and follow, and a world of sentences small
+  enough to count and check offline. The creativity comes from the topics and longer sentences.
 
-So now every word goes onto the worm, and the sentence is judged once, when punctuation ends it
-(pattern 11). The interpreter's job changed from gatekeeper to ruler: it measures the sentence
-against the shapes, and the checker decides what that measurement means.
+Free building had a cost of its own: a sentence could go wrong at word two and the child only
+found out at the end, then had to rebuild it from scratch.
 
 It is still what makes the game extensible by a child: a new sentence shape is one line of JSON
 and no JavaScript.
@@ -153,11 +160,14 @@ Doing both in the same instant was too fast to follow - words teleported before 
 register what they had hit. Steering is locked in between so nobody drives into the same wall
 twice.
 
-The sentence check is the same idea. Eating punctuation enters `checking`: the worm stops and the
-card shows the sentence with its checklist pending, for at least `checkMs` and until the judge
-has answered or given up. `settle()` then acts on the verdict and enters `checked`, where the card
-stays up until the child presses a key - reading the reason is the point, so the game waits for
-them rather than for a timer.
+Finishing a sentence is the same idea. Eating punctuation enters `checking`: the worm stops and
+the card shows the sentence with its checklist pending, for at least `checkMs` and until the judge
+has answered or given up. `settle()` then finishes the sentence and enters `checked`, where the
+card stays up until the child presses a key - the game waits for them rather than for a timer.
+
+A refused word is deliberately *not* a mode. The worm keeps moving over it, because stopping the
+game for every bump would make exploring the board feel like a punishment; the reason waits on
+the strip instead, until the next word is eaten.
 
 A class race's bell works the same way. `timeUp()` stops the game at once - unless a sentence is
 in `checking`, because its ending mark was eaten in time. Then the game only notes that the time
@@ -225,23 +235,21 @@ is the usual source of maddening bugs in a first game. At 34x22 squares it costs
 
 ---
 
-## 11. Layered judgment (rules first, then a judge, then a teacher)
+## 11. Layered judgment (rules decide, then a judge and a teacher add notes)
 
-**Where:** `js/checker.js` (`check()` and `decide()`), `js/judge.js`, `tools/judge.py`,
+**Where:** `js/checker.js` (`refuse()`, `check()` and `decide()`), `js/judge.js`, `tools/judge.py`,
 `data/verdicts.json`.
 
-A sentence is checked when punctuation ends it, by three sources of judgment, each trusted for
-what it is actually good at:
+A sentence is judged by three sources, each trusted for what it is actually good at:
 
 | Who | Good at | Never trusted with |
 | --- | --- | --- |
-| The rules (`check()`) | Shapes: a missing Noun or Verb, a word out of place, a word said twice, capital letters, end marks. Instant, offline, exact about *which* word. | Meaning, and English the shapes do not include |
-| The judge (Claude, via `tools/judge.py`) | Does it sound right? Does it make sense? Explains in a child's words and suggests a fix from the topic's tiles. | Capital letters, repeated words, end marks - the game's own rules about its own tiles |
-| A teacher (`data/verdicts.json`) | The final say on any sentence | - |
+| The rules (`refuse()`, `check()`) | Shapes: the kind of word for each spot, capital letters, a word said twice, clashes, the topic's meaning table, end marks. Instant, offline, exact about *which* word. They decide what the worm eats. | Meaning the topic did not foresee |
+| The judge (Claude, via `tools/judge.py`) | Reading a finished sentence like a teacher: ticks "Makes sense", praises it, or leaves a tip with its own version. | Failing a sentence the structure built |
+| A teacher (`data/verdicts.json`) | The judge's answer for any sentence, written by hand | - |
 
-`check()` always runs and produces a complete report on its own. `decide()` folds a verdict into
-it when there is one, and only touches "Sounds right" and "Makes sense". When the rules and the
-judge both say no, the rules' reason stays, because it points at the exact word.
+`refuse()` runs before every word is eaten and `check()` when a sentence is finished; together
+they make the decision. `decide()` only adds the judge's note to the finished sentence's card.
 
 The judge's answers reach the game through a chain where each link can be missing:
 `data/verdicts.json` (a teacher's ruling, or a saved answer) is tried first, then this session's
@@ -292,13 +300,13 @@ That single decision makes three separate rules obvious without any explaining:
 - **A DI container.** One injected function (pattern 7) does not need a framework.
 - **An abstract `Entity` base class.** The worm and a word tile have nothing meaningful in common;
   a shared base class would invent a relationship that does not exist.
-- **Word-by-word rejection.** It used to be the whole design (pattern 2). It made wrong
-  sentences unconstructable, but it marked children wrong before they had finished a thought, and
-  it could not see meaning. The checker replaced it; the hints still show which words would keep
-  a sentence on track, for players who want that help.
-- **Letting the AI decide everything.** The judge does not get a say on capital letters, repeated
-  words or end marks. Those are fixed rules about the game's own tiles, the rules are never wrong
-  about them, and a rule a child can learn should not depend on a model's mood.
+- **Free building, judged at the end.** Every word went onto the worm and the sentence was checked
+  when punctuation ended it. It let a child finish a thought, but a sentence could go wrong at
+  word two with nobody saying so until the end, and the judge had to rescue good English the
+  shapes did not include. Word-by-word refusal, with a reason for each word, replaced it (pattern 2).
+- **Letting the AI decide.** The judge cannot fail or rescue a sentence. What the worm eats is a
+  fixed rule about the game's own tiles, the rules are never wrong about them, and a rule a child
+  can learn should not depend on a model's mood.
 - **Calling the AI from the browser.** The API key would have to be in the page, where anyone can
   read it. The browser asks `tools/serve.py`, which holds the key and only accepts sentences made
   of the topic's word tiles.

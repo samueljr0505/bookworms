@@ -36,6 +36,8 @@ BW.Game = class Game {
     this.checkId++;             // a check still waiting on the judge belongs to the old game
     this.pending = null;
     this.report = null;
+    this.refusal = null;        // why the last word bumped into was not eaten, for the strip
+    this.refused = null;        // that tile, while the head is still on it
     if (this.hooks.onReport) this.hooks.onReport(null);
     this.refill();
     this.notify();
@@ -140,8 +142,7 @@ BW.Game = class Game {
     };
   }
 
-  /* Would this tile keep the sentence on track? Only the hints use this - every tile can
-     be eaten, and the sentence is judged when it is finished. */
+  /* Would the worm eat this tile right now? The hints outline the ones it would. */
   isTileValid(tile) {
     if (tile.kind === 'punct') {
       return this.sentence.canEnd() && this.sentence.endMarks().includes(tile.word);
@@ -182,6 +183,7 @@ BW.Game = class Game {
     // Req 2: the head landing on any square of a tile selects that exact word.
     const tile = this.board.tileAt(next.x, next.y);
     if (tile) this.eat(tile);
+    else this.refused = null;
   }
 
   /* Req 5: crashing into a wall - or into your own body - costs you the sentence you were
@@ -200,6 +202,7 @@ BW.Game = class Game {
 
     this.mode = 'crashed';
     this.crashMs = this.cfg.crashDelayMs;
+    this.refusal = null;
 
     const bump = reason === 'self' ? 'Oops, you bit your own tail!' : 'Bonk, that was the wall!';
     this.say(this.worm.carried.length
@@ -225,17 +228,22 @@ BW.Game = class Game {
     this.notify();
   }
 
+  /* The worm only eats a word that fits where the sentence is up to - the right kind of
+     word for the next spot in its structure - and a punctuation mark only once the
+     sentence is whole. Anything else is refused: it stays on the board, and the player is
+     told why. */
   eat(tile) {
-    this.board.remove(tile);
+    if (tile === this.refused) return;        // still crossing a word it was told about
+    const no = BW.Checker.refuse(this.pack, this.sentence, tile.word, tile.pos);
+    if (no) { this.refuse(tile, no); return; }
 
+    this.board.remove(tile);
+    this.refusal = null;
     if (tile.kind === 'punct') {
-      this.check(tile.word);
+      this.complete(tile.word);
       return;
     }
 
-    // Every word goes onto the worm, whether it fits the recipe or not. Right or wrong is
-    // decided once, when punctuation ends the sentence - so a child gets to finish a
-    // thought before anyone marks it.
     this.sentence.add(tile.word, tile.pos);
     this.worm.carry(tile.word, tile.pos);      // the word becomes part of the body
     this.worm.gulpAt = performance.now();
@@ -255,6 +263,21 @@ BW.Game = class Game {
     this.notify();
   }
 
+  /* A word that does not fit is not eaten. The worm slides over it, the tile shakes, and
+     the reason goes up on the strip - right at the word, while the child still has it in
+     mind. It costs no points, but it does end a streak: the streak counts sentences built
+     without a word bounced. */
+  refuse(tile, why) {
+    this.refused = tile;
+    this.refusal = { word: tile.word, ...why };
+    tile.refusedAt = performance.now();
+    this.streak = 0;
+    BW.Sound.hmm();
+    const h = this.worm.head();
+    this.renderer.popup(why.short, h.x, h.y, '#c0563f');
+    this.notify();
+  }
+
   /* Put a fresh set of words out. The board always carries a couple of words that would
      keep the sentence on track (while it is on track), and ending marks to finish with. */
   refill(returnWords) {
@@ -263,36 +286,20 @@ BW.Game = class Game {
 
   /* ---------- the check (Req 4, Req 6) ---------- */
 
-  /* Punctuation ends the sentence, and that is the moment it is checked. The worm stops
-     while its sentence is read: the game's rules first (instant), then the judge, if there
-     is one. A sentence that is right so far but not finished is not marked wrong - the
-     player is told what it still needs, and carries on building. */
-  check(mark) {
-    const s = this.sentence;
-    if (s.tokens.length === 0) {
-      this.say('Eat some words first, then end the sentence with "' + mark + '".', 'warn');
-      this.refill();
-      this.notify();
-      return;
-    }
-
+  /* A punctuation mark was eaten, so the sentence is complete - every word in it fitted the
+     structure on the way in. The worm stops while it is read out against the checklist, and
+     while the judge, if there is one, has a look too. */
+  complete(mark) {
     this.worm.moving = false;
     this.worm.pendingDir = null;
-    const report = BW.Checker.check(this.pack, s, mark);
-
-    if (report.verdict === 'unfinished') {
-      BW.Sound.hmm();
-      this.refill();
-      this.show(report);
-      return;
-    }
+    const report = BW.Checker.check(this.pack, this.sentence, mark);
 
     BW.Sound.tick();
     this.mode = 'checking';
     this.checkMs = this.cfg.checkMs;
     this.pending = { report, mark, verdict: undefined };
     const id = ++this.checkId;
-    BW.Judge.ask(this.pack, s, this.cfg.judgeWaitMs).then(verdict => {
+    BW.Judge.ask(this.pack, this.sentence, this.cfg.judgeWaitMs).then(verdict => {
       if (id === this.checkId && this.pending) this.pending.verdict = verdict;
     });
     this.report = { ...report, phase: 'checking' };
@@ -300,13 +307,11 @@ BW.Game = class Game {
     this.notify();
   }
 
-  /* The judge has answered, or there was none to ask: fold it in and act on the result. */
+  /* The judge has answered, or there was none to ask: fold it in and finish the sentence. */
   settle() {
     const { report, mark, verdict } = this.pending;
     this.pending = null;
-    const final = BW.Checker.decide(report, verdict);
-    if (final.verdict === 'correct') this.finishSentence(final, mark);
-    else this.wrongSentence(final, mark);
+    this.finishSentence(BW.Checker.decide(report, verdict), mark);
     // the class race ran out while this one was being checked - it still counted
     if (this.over) this.stop();
   }
@@ -341,21 +346,6 @@ BW.Game = class Game {
     this.sentence = BW.Grammar.newSentence(this.pack, BW.rng);
     this.refill();
     this.show({ ...report, points, bonus, streak: this.streak });
-  }
-
-  /* A sentence that is not right cannot be mended - a worm only eats forwards. So, as after
-     a crash, the words drop off the body and go back on the board, and the player builds
-     the same recipe again with the reason in front of them. */
-  wrongSentence(report, mark) {
-    if (this.hooks.onSentence) this.hooks.onSentence('wrong', this.sentence.text(mark));
-    this.score = Math.max(0, this.score + this.cfg.points.wrong);
-    this.streak = 0;
-    this.flash = { kind: 'bad', life: 0.7 };
-    BW.Sound.wrong();
-    const lost = this.sentence.reset();
-    this.worm.dropCarried();
-    this.refill(lost);
-    this.show({ ...report, points: this.cfg.points.wrong });
   }
 
   /* Hold the checked sentence on screen until the player moves on. */

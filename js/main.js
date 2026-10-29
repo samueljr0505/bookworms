@@ -58,6 +58,21 @@ window.BW = window.BW || {};
     }
   }
 
+  /* What each building block of a sentence answers - shown in an empty block, and on hover. */
+  const ASKS = {
+    Subject: 'who or what?', Verb: 'what happens?', Object: 'who or what gets it?',
+    Complement: 'what is it like?', Modifier: 'how? where?'
+  };
+
+  function chip(pack, text, pos, state) {
+    const el = document.createElement('span');
+    el.className = 'chip ' + state;
+    if (pos) el.style.borderColor = posColor(pack, pos);
+    if (pos && state === 'done') el.style.background = posColor(pack, pos);
+    el.textContent = text;
+    return el;
+  }
+
   function renderHud(game) {
     const pack = game.pack;
     const s = game.sentence;
@@ -75,68 +90,73 @@ window.BW = window.BW || {};
       : guide.pattern === s.pattern ? 'Build ' + article(name) + ' ' + name
       : 'Now it is ' + article(name) + ' ' + name;
 
-    // the building blocks of that shape: Subject, Verb, Object, Modifier...
-    const blocks = $('blocks');
-    blocks.textContent = '';
-    (guide && guide.pattern.blocks || []).forEach((b, i) => {
-      if (i) blocks.append(' + ');
-      const el = document.createElement('span');
-      el.className = 'block' + (b.endsWith('?') ? ' optional' : '');
-      el.textContent = b.replace('?', '');
-      blocks.append(el);
-    });
-
-    // the words so far, then the slots the shape still has room for
+    // The sentence, block by block: Subject, Verb, then an Object, a Complement or a
+    // Modifier, each holding its words. A block still to come shows the kinds of word it
+    // is made of; the block the next word goes in shows every kind that would fit there.
+    const wanted = s.wants();
+    const nextBlock = new Map(wanted.map(m => [m, s.blockOfNext(m)]));
+    const kindsOf = ms => [...new Set(ms.map(m => posLabel(pack, m.pos || BW.Grammar.posOfWord(pack, m.word))))].join(' or ');
+    const segments = s.segments();
     const building = $('building');
-    building.innerHTML = '';
-    for (const slot of s.outline()) {
-      const el = document.createElement('span');
-      el.className = 'chip ' + slot.state;
-      el.style.borderColor = posColor(pack, slot.pos);
-      if (slot.state === 'done') {
-        el.style.background = posColor(pack, slot.pos);
-        el.textContent = slot.word;
-      } else {
-        // Show what KIND of word is needed, never a specific word.
-        el.textContent = posLabel(pack, slot.pos);
-        // a slot you are allowed to skip should not look compulsory
-        if (slot.optional) el.classList.add('optional');
+    building.textContent = '';
+    let nextFound = segments.some(seg => seg.state === 'next');
+    for (const seg of segments) {
+      const fits = wanted.filter(m => nextBlock.get(m) === seg.block);
+      // with nothing left that must be added, an optional block the next word fits is next
+      const state = seg.state === 'todo' && !nextFound && fits.length ? 'next' : seg.state;
+      if (state === 'next') nextFound = true;
+      const box = document.createElement('div');
+      box.className = 'seg ' + state + (seg.optional ? ' optional' : '');
+      box.title = seg.block + ': ' + ASKS[seg.block];
+      const head = document.createElement('small');
+      head.textContent = seg.block + (seg.optional ? ' (optional)' : '');
+      const row = document.createElement('div');
+      row.className = 'seg-words';
+      let asked = false;     // the first slot to fill shows every kind that fits: "Adjective or Noun"
+      for (const slot of seg.slots) {
+        if (slot.state === 'done') row.append(chip(pack, slot.word, slot.pos, 'done'));
+        else if (slot.state === 'next' && fits.length) {
+          if (!asked) row.append(chip(pack, kindsOf(fits), slot.pos, 'next'));
+          asked = true;
+        } else row.append(chip(pack, posLabel(pack, slot.pos), slot.pos, slot.state));
       }
-      building.appendChild(el);
+      if (!seg.slots.length) {
+        row.append(state === 'next' ? chip(pack, kindsOf(fits), null, 'next')
+                                    : chip(pack, ASKS[seg.block], null, 'todo ask'));
+      }
+      box.append(head, row);
+      building.append(box);
     }
-    if (!guide && s.tokens.length) {
-      const el = document.createElement('span');
-      el.className = 'chip lost';
-      el.textContent = '?';
-      el.title = 'These words do not fit one of the recipe shapes';
-      building.appendChild(el);
-    }
-    // the ending mark is the last piece of every shape
-    const end = document.createElement('span');
-    end.className = 'chip ' + (s.canEnd() ? 'next' : 'todo');
-    end.style.borderColor = '#f5c26b';
-    end.textContent = s.endMarks().join(' ');
-    building.appendChild(end);
+    // the ending mark is the last piece of every sentence
+    const end = document.createElement('div');
+    end.className = 'seg end ' + (s.canEnd() ? 'next' : 'todo');
+    end.title = 'Punctuation ends the sentence';
+    const endHead = document.createElement('small');
+    endHead.textContent = 'End';
+    const endRow = document.createElement('div');
+    endRow.className = 'seg-words';
+    endRow.append(chip(pack, s.endMarks().join(' '), 'punctuation', s.canEnd() ? 'next' : 'todo'));
+    end.append(endHead, endRow);
+    building.append(end);
 
-    // what to hunt for next
+    // what to hunt for next: grouped by kind, and a kind where only certain words fit says
+    // so ("an Adjective that goes with tasted"), since not every Adjective will do
     const marks = '<b>' + s.endMarks().join('</b> or <b>') + '</b>';
-    if (guide || !s.tokens.length) {
-      // group what is wanted by kind; a kind where only certain words fit says so
-      // ("an Adjective that goes with tasted"), since not every Adjective will do
-      const kinds = new Map();
-      for (const m of s.wants()) {
-        const label = posLabel(pack, m.pos || BW.Grammar.posOfWord(pack, m.word));
-        kinds.set(label, (kinds.get(label) !== false) && !!m.word);
-      }
-      const last = s.tokens.length ? s.tokens[s.tokens.length - 1].word : null;
-      const parts = [...kinds].map(([label, onlySome]) => article(label) + ' <b>' + label + '</b>' +
-        (onlySome && last ? ' that goes with "' + last + '"' : ''));
-      if (s.canEnd()) parts.push('a punctuation mark (' + marks + ') to finish');
-      $('next-up').innerHTML = 'Find ' + parts.join(' or ');
-    } else {
-      $('next-up').innerHTML = 'That is not one of the recipe shapes. Finish with ' + marks +
-        ' and the checker will tell you if it still works!';
+    const kinds = new Map();
+    for (const m of wanted) {
+      const label = posLabel(pack, m.pos || BW.Grammar.posOfWord(pack, m.word));
+      kinds.set(label, (kinds.get(label) !== false) && !!m.word);
     }
+    const last = s.tokens.length ? s.tokens[s.tokens.length - 1].word : null;
+    const parts = [...kinds].map(([label, onlySome]) => article(label) + ' <b>' + label + '</b>' +
+      (onlySome && last ? ' that goes with "' + last + '"' : ''));
+    if (s.canEnd()) parts.push('a punctuation mark (' + marks + ') to finish');
+    $('next-up').innerHTML = 'Find ' + parts.join(' or ');
+
+    // the word the worm just bumped into and would not eat, and why
+    const no = $('refusal');
+    no.hidden = !game.refusal;
+    no.textContent = game.refusal ? game.refusal.reason : '';
 
     $('btn-pause').innerHTML = (game.mode === 'paused' ? 'Resume' : 'Pause') + ' <kbd>P</kbd>';
 
@@ -173,26 +193,16 @@ window.BW = window.BW || {};
     card.className = 'report ' + (checking ? 'checking' : report.verdict);
 
     $('report-title').textContent = checking ? 'Checking your sentence...'
-      : report.verdict === 'correct' ? CHEERS[game.finished.length % CHEERS.length]
-      : report.verdict === 'wrong' ? 'Not quite!'
-      : 'Not finished yet';
+      : CHEERS[game.finished.length % CHEERS.length];
 
-    // the sentence, with the word where it went wrong marked
     const line = $('report-sentence');
     line.textContent = '';
     report.words.forEach((w, i) => {
       if (i > 0 && w !== ',') line.append(' ');
       const span = document.createElement('span');
       span.textContent = w;
-      if (!checking && report.verdict === 'wrong' && i === report.at && !report.rescued) span.className = 'oops';
       line.append(span);
     });
-    if (report.verdict === 'unfinished') {
-      const gap = document.createElement('span');
-      gap.className = 'gap';
-      gap.textContent = ' ___';
-      line.append(gap);
-    }
     line.append(report.mark);
 
     const items = $('report-items');
@@ -216,19 +226,18 @@ window.BW = window.BW || {};
     const judging = BW.Judge.status().state === 'on';
     $('report-headline').textContent = checking ? (judging ? 'The judge is reading it...' : '')
                                                 : report.headline;
+    // the judge's tip, when it thinks the sentence could sound better
     const tip = $('report-tip');
-    tip.hidden = checking || !report.suggestion;
-    tip.textContent = report.suggestion ? 'Try: ' + report.suggestion : '';
+    tip.hidden = checking || !report.tip;
+    tip.textContent = report.tip ? '💡 ' + report.tip + (report.suggestion ? ' Try: ' + report.suggestion : '') : '';
 
     const streak = $('report-streak');
-    streak.hidden = checking || !(report.verdict === 'correct' && report.streak >= 2);
+    streak.hidden = checking || !(report.streak >= 2);
     if (!streak.hidden) {
       streak.textContent = '🔥 ' + report.streak + ' in a row! +' + report.bonus + ' streak bonus';
     }
     $('report-after').textContent = checking ? ''
-      : report.verdict === 'correct' ? '+' + report.points + ' points - it is on your list, and saved for the shop!'
-      : report.verdict === 'wrong' ? 'The words go back on the board. Try again!'
-      : 'Your words are still on the worm. Keep building!';
+      : '+' + report.points + ' points - it is on your list, and saved for the shop!';
     $('report-go').hidden = checking;
     $('report-by').textContent = checking ? '' : BY[report.by] || '';
   }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the topic packs.
 
-Every topic shares ONE grammar, built from the four blocks of a sentence:
+Every topic shares ONE grammar, built from the blocks of a sentence:
 
     Subject     a Noun (with a Determiner, and maybe an Adjective) or a Pronoun
                     "The brave knight", "She"
@@ -9,9 +9,14 @@ Every topic shares ONE grammar, built from the four blocks of a sentence:
                     "flew", "found", "was"
     Object      optional - who or what the action is done to; giving verbs take two
                     "found the map", "gave him a sword", "gave a sword to the elf"
-    Modifiers   optional - an Adverb (before or after the verb), a Preposition
-                    and a place, or a complement after was / were
-                    "quickly", "into the dark cave", "was a wise wizard", "was in the tower"
+    Complement  after was / were (or tastes, looks) - what the subject is like
+                    "was a wise wizard", "was in the tower", "tastes sweet"
+    Modifiers   optional - an Adverb (before or after the verb), or a Preposition
+                    and a place
+                    "quickly", "into the dark cave"
+
+The worm only eats a word that keeps the sentence on one of these shapes, and the game's
+strip shows each word in its block (each structure's `blocks` list names the optional ones).
 
 So a student is never limited to one recipe: "The dragon flew.", "The dragon
 quickly flew over the old castle.", "She gave the knight a golden sword." and
@@ -31,7 +36,7 @@ The words still have to fit together, and that is where the care goes:
 - Pairs of words that cannot share a sentence are listed as "clashes", with the
   reason the child is told: "The small reader is tall", "swam into the gym".
 - The checker (js/checker.js) explains a word that is the right kind but does
-  not fit (""big" does not go with "tasted"") and suggests a fix.
+  not fit (""big" does not go with "tasted"") when the worm refuses it.
 
 A bad word shows up immediately, because tools/list-sentences.py samples across
 every combination. Read a sample after any change, and add a clash for anything
@@ -172,11 +177,11 @@ def grammar(words, extra_rules=None, extra_structures=()):
     if has("give", "thing"):
         structures.append(("giving", "Giving sentence", ["Subject", "Verb", "Object", "Object?"],
                            "<subject> adverb? give ( <someone> <something> | <something> ( 'to' <someone> )? )"))
-    structures.append(("describing", "Describing sentence", ["Subject", "Verb", "Complement"],
+    structures.append(("describing", "Describing sentence", ["Subject", "Verb", "Complement", "Modifier?"],
                        "<subjectOne> 'was' ( <beingWord> <at>? | 'a' <beingWord>? noun <at>? | <at> )"
                        " | <subjectMany> 'were' ( <beingWord> <at>? | <at> )"))
     if has("thing"):
-        structures.append(("describing-things", "Describing sentence", ["Subject", "Verb", "Complement"],
+        structures.append(("describing-things", "Describing sentence", ["Subject", "Verb", "Complement", "Modifier?"],
                            "determiner <thingWord>? thing 'was' ( <thingWord> <at>? | <at> )" +
                            (" | <mass> 'was' ( quality <at>? | <at> )" if has("mass") else "")))
     structures.extend(extra_structures)
@@ -229,7 +234,7 @@ def silly_grammar(words):
         # "tastes" is singular, so no pronouns here: "I tastes sweet" is not English
         structures.append(("tasting", "Describing sentence", ["Subject", "Verb", "Complement"],
                            "<anything> ( %s ) <adj>" % linking))
-    structures.append(("describing", "Describing sentence", ["Subject", "Verb", "Complement"],
+    structures.append(("describing", "Describing sentence", ["Subject", "Verb", "Complement", "Modifier?"],
                        "<subjectOne> 'was' ( <adj> <at>? | 'a' <adj>? <anyNoun> <at>? | <at> )"
                        " | <subjectMany> 'were' ( <adj> <at>? | <at> )"))
     return rules, structures

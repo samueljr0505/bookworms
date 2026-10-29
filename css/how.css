@@ -97,7 +97,7 @@ body {
 /* ---------- the strip, as the game shows it ---------- */
 
 .strip-demo {
-  display: flex; flex-wrap: wrap; gap: 6px;
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end;
   background: #faf5ea; border: 2px solid var(--line);
   border-radius: 12px; padding: 10px 12px;
 }
@@ -120,6 +120,19 @@ body {
 
 /* an extra the sentence can do without - dashed, as in the game */
 .slot.optional { border-style: dashed; opacity: 0.8; }
+
+/* a block of the sentence, with its name on top - as the game's strip groups the words */
+.blk {
+  display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+  padding: 18px 7px 6px; border-radius: 10px; position: relative;
+  border: 2px solid var(--line); background: #fff;
+}
+.blk.next { border-color: var(--green); }
+.blk small {
+  position: absolute; left: 8px; top: 2px;
+  font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--muted);
+}
 
 .slot.next {
   color: var(--ink);
@@ -226,8 +239,6 @@ body {
 
 /* ---------- word kind cards ---------- */
 
-.kinds { margin-top: 30px; }
-.kinds h2 { text-align: center; font-size: 24px; margin-bottom: 14px; }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
 .card {
   background: #fff; border: 2px solid var(--line);

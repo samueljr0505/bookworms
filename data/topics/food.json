@@ -477,7 +477,8 @@
       "blocks": [
         "Subject",
         "Verb",
-        "Complement"
+        "Complement",
+        "Modifier?"
       ],
       "end": [
         ".",
@@ -491,7 +492,8 @@
       "blocks": [
         "Subject",
         "Verb",
-        "Complement"
+        "Complement",
+        "Modifier?"
       ],
       "end": [
         ".",
@@ -934,7 +936,8 @@
         "blocks": [
           "Subject",
           "Verb",
-          "Complement"
+          "Complement",
+          "Modifier?"
         ],
         "end": [
           ".",

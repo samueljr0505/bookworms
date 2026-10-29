@@ -38,6 +38,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   max-width: 960px; margin: 0 auto; padding: 16px 16px 0;
 }
+.help-links { display: flex; flex-wrap: wrap; gap: 4px; }
 .help {
   display: inline-flex; align-items: center; gap: 8px;
   font-weight: 800; font-size: 15px; color: var(--muted); text-decoration: none;

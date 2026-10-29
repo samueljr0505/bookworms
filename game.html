@@ -45,15 +45,15 @@
   <section class="stage">
     <div class="sentence-strip">
       <div class="strip-label" id="building-label">Build this sentence</div>
-      <div id="blocks" class="blocks"></div>
       <div id="building" class="building"></div>
       <div id="next-up" class="next-up"></div>
+      <p id="refusal" class="refusal" aria-live="polite" hidden></p>
     </div>
 
     <div class="board-wrap">
       <canvas id="board"></canvas>
 
-      <!-- the sentence check: shown when punctuation is eaten (js/main.js fills it in) -->
+      <!-- the finished sentence, read out: shown when punctuation is eaten (js/main.js fills it in) -->
       <section id="report" class="report" hidden aria-live="polite">
         <h2 id="report-title"></h2>
         <p id="report-sentence" class="report-sentence"></p>
@@ -128,20 +128,22 @@
       <ul class="help">
         <li>Steer with the <b>arrow keys</b> or <b>W A S D</b>.</li>
         <li>A sentence is built from <b>blocks</b>: a <b>Subject</b> and a <b>Verb</b>, then an
-            <b>Object</b> or <b>Modifiers</b> if you like. The strip shows the blocks and the
-            kind of word to find next.</li>
+            <b>Object</b>, a <b>Complement</b> or <b>Modifiers</b>. The strip shows the blocks,
+            and the kind of word that goes next.</li>
+        <li>Your worm only eats a word that <b>fits next</b>. Bump into one that does not and
+            it stays on the board - the strip says why.</li>
         <li><b>The</b> starts a sentence; <b>the</b> goes in the middle.</li>
         <li>Every word you eat is <b>written along your body</b>, and it always reads the
             normal way: left to right, or top to bottom.</li>
-        <li><b>Eat a punctuation mark</b> (<b>.</b> or <b>!</b>) to end the sentence. That is when
-            it gets <b>checked</b>: capital letter, noun, verb, sounds right, makes sense, end mark.</li>
-        <li>Not quite right? The checker says why, and the words go back on the board.</li>
+        <li>When the sentence is whole, <b>eat a punctuation mark</b> (<b>.</b> or <b>!</b>)
+            to finish it.</li>
         <li>Hit a wall or your own body and the words you were carrying
             <b>drop back onto the board</b> - go collect them again.</li>
-        <li>Every correct sentence earns <b>points to spend in the shop</b> on hats, glasses
-            and more. Get several right <b>in a row</b> for a streak bonus!</li>
+        <li>Every sentence earns <b>points to spend in the shop</b> on hats, glasses
+            and more. Build several in a row without a bump for a <b>streak bonus</b>!</li>
       </ul>
     </details>
+    <a class="review-link" href="review.html" target="_blank" rel="noopener">📖 Grammar review: Nouns, Verbs and the blocks of a sentence</a>
     <p id="checker-status" class="small checker-status"></p>
   </aside>
 </main>

@@ -102,11 +102,25 @@ main {
   font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
   color: var(--muted); font-weight: 800; margin-bottom: 6px;
 }
-.blocks { font-size: 13px; font-weight: 800; color: var(--muted); margin-bottom: 7px; min-height: 1em; }
-.blocks .block { color: var(--ink); }
-.blocks .block.optional { color: var(--muted); font-weight: 700; }
-.blocks .block.optional::after { content: " (optional)"; font-size: 11px; font-weight: 700; }
-.building { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; align-items: center; }
+/* the sentence, block by block: each block is a box with its name on top and its words inside */
+.building { display: flex; flex-wrap: wrap; gap: 8px; min-height: 30px; align-items: stretch; }
+.seg {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 4px 8px 6px; border-radius: 12px;
+  border: 2px solid var(--line); background: #fffdf8;
+}
+.seg small {
+  font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--muted);
+}
+.seg.done { background: #fff; }
+.seg.done small { color: var(--ink); }
+.seg.next { border-color: var(--green); box-shadow: 0 0 0 3px rgba(79, 138, 91, 0.16); }
+.seg.next small { color: var(--green); }
+.seg.optional { border-style: dashed; }
+.seg.optional:not(.next) { opacity: 0.75; }
+.seg-words { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.chip.ask { font-style: italic; font-weight: 700; border-style: dashed; }
 .chip {
   padding: 4px 11px; border-radius: 999px; font-weight: 800; font-size: 14px;
   border: 2px solid var(--line); background: #fff; color: var(--ink);
@@ -117,6 +131,13 @@ main {
 .chip.next { box-shadow: 0 0 0 3px rgba(79, 138, 91, 0.18); color: var(--ink); }
 .next-up { margin-top: 8px; font-size: 14px; color: var(--muted); font-weight: 700; }
 .next-up b { color: var(--green); }
+/* why the word the worm just bumped into was not eaten */
+.refusal {
+  margin: 8px 0 0; padding: 6px 10px; border-radius: 10px;
+  background: #fbebe6; color: var(--bad); font-weight: 800; font-size: 14px;
+  animation: chip-in 0.25s ease-out;
+}
+.refusal::before { content: "✋ "; }
 
 #board {
   display: block; border: 4px solid #cdb98f; border-radius: 18px;
@@ -222,10 +243,13 @@ kbd {
 }
 .chip.optional.next { opacity: 1; }
 
-/* the words no longer fit any shape - finishing will show whether they still work */
-.chip.lost { border-style: dashed; border-color: var(--bad) !important; color: var(--bad); }
-
 .checker-status { margin: 12px 0 0; }
+.review-link {
+  display: block; margin-top: 12px; padding: 8px 10px; border-radius: 10px;
+  background: #f4f8ee; border: 2px solid #d5e4c4; color: var(--green);
+  font-weight: 800; font-size: 13px; text-decoration: none;
+}
+.review-link:hover { border-color: var(--green); }
 
 /* ---------- the sentence check, on top of the board ---------- */
 

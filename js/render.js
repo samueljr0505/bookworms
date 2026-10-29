@@ -106,9 +106,12 @@ BW.Renderer = class Renderer {
       const age = Math.min(1, (now - t.born) / 220);       // little pop-in
       const scale = 0.7 + 0.3 * age;
       const bob = Math.sin(now / 520 + t.x * 0.9 + t.y * 1.3) * 1.2;   // tiles float gently
+      // a word the worm would not eat shakes its head for a moment
+      const no = t.refusedAt ? Math.max(0, 1 - (now - t.refusedAt) / 600) : 0;
+      const shake = Math.sin(now / 28) * 4 * no;
 
       ctx.save();
-      ctx.translate(x + w / 2, y + h / 2 + bob);
+      ctx.translate(x + w / 2 + shake, y + h / 2 + bob);
       ctx.scale(scale, scale);
       ctx.globalAlpha = age;
 
@@ -123,6 +126,13 @@ BW.Renderer = class Renderer {
       ctx.fillStyle = color;
       this.roundRect(-w / 2, -h / 2, w - 4, h - 4, 8);
       ctx.fill();
+
+      if (no > 0) {
+        ctx.strokeStyle = `rgba(192, 86, 63, ${no})`;
+        ctx.lineWidth = 3;
+        this.roundRect(-w / 2, -h / 2, w - 4, h - 4, 8);
+        ctx.stroke();
+      }
 
       if (valid && state.showHints) {
         ctx.strokeStyle = 'rgba(255,255,255,0.95)';

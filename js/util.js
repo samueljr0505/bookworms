@@ -46,7 +46,6 @@ BW.Sound = (function () {
     correct() { tone(660, 0, 0.12, 'triangle'); tone(880, 0.07, 0.14, 'triangle'); },
     eat()     { tone(620, 0, 0.07, 'triangle', 0.08); tone(780, 0.05, 0.08, 'triangle', 0.07); },
     hmm()     { tone(440, 0, 0.12, 'sine', 0.09); tone(392, 0.11, 0.16, 'sine', 0.09); },
-    wrong()   { tone(180, 0, 0.18, 'sawtooth', 0.08); },
     sentence() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.09, 0.2, 'triangle')); },
     bonk()    { tone(110, 0, 0.16, 'square', 0.09); },
     tick()    { tone(440, 0, 0.09, 'sine', 0.07); },

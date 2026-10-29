@@ -14,7 +14,7 @@ BW.CONFIG = {
   speedUpPerSentence: 3,   // shave this many ms off stepMs after each finished sentence
 
   wordsOnBoard: 9,         // how many word tiles float around at once
-  minValidWords: 3,        // always keep at least this many tiles that would keep the sentence on track
+  minValidWords: 3,        // always keep at least this many tiles the worm would eat next
 
   // The worm's body spells out the sentence: one letter per body square. So eating a long
   // word makes you a lot longer. Each finished sentence leaves this many squares behind
@@ -31,21 +31,22 @@ BW.CONFIG = {
   wallBehavior: 'reset',       // 'reset' or 'wrap'
   selfCollision: 'reset',      // 'reset' or 'ignore'
 
-  // Req 6: eating a punctuation mark stops the worm and checks the sentence. The check is
-  // held on screen at least this long, so it feels like the sentence is being read.
+  // Req 6: a punctuation mark completes the sentence (the worm only eats one once the
+  // sentence is whole). The worm stops while the sentence is read out against the checklist,
+  // for at least this long.
   checkMs: 900,
-  // How long to wait for the judge (tools/judge.py) before going with the game's own rules.
+  // How long to wait for the judge's note (tools/judge.py) before going on without it.
   judgeWaitMs: 7000,
   // Ask the judge as soon as the words could be a whole sentence, so its answer is usually
   // back before the worm reaches a punctuation mark. Costs a few extra questions.
   judgeEarly: true,
 
-  // Points come when a sentence is checked: `sentence` for every correct one, plus `word` for
-  // each word in it (0, so every sentence is worth the same - raise it to reward longer ones).
-  // A wrong sentence costs `wrong`. Correct sentences in a row earn `streak` extra for each one
-  // after the first, up to `maxStreak` in a row. Points from correct sentences are also saved
-  // up to spend in the shop (js/closet.js); a wrong sentence never takes away saved points.
-  points: { word: 0, sentence: 20, wrong: -5, streak: 5, maxStreak: 5 },
+  // Points come when a sentence is complete: `sentence` for every one, plus `word` for each
+  // word in it (0, so every sentence is worth the same - raise it to reward longer ones).
+  // Sentences in a row built without a word bounced earn `streak` extra for each one after
+  // the first, up to `maxStreak` in a row. A bounced word costs no points, only the streak.
+  // Points are also saved up to spend in the shop (js/closet.js).
+  points: { word: 0, sentence: 20, streak: 5, maxStreak: 5 },
 
   sound: true
 };

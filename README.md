@@ -1,20 +1,29 @@
 # Bookworms
 
 A Google-Snake-style game that teaches 3rd-5th graders how sentences are built. You steer a worm
-around a board covered in words. Eat the words in an order that makes a real sentence, then eat a
-punctuation mark to end it. **That is when the sentence is checked** - capital letter, subject,
-verb, does it sound right, does it make sense, end mark - and if it passes, it goes up on your list.
+around a board covered in words, and build a sentence one block at a time.
 
-Sentences are built from real building blocks - a subject, a verb, and if you like an object and
-modifiers - in five topics: Animals, School, Food, Fantasy and Sports.
+Every sentence follows real grammar: a **Subject**, a **Verb**, and if you like an **Object**, a
+**Complement** or **Modifiers**, each made of the right kinds of word (*The* + *hungry* + *fox*).
+**The worm only eats a word that fits the next spot.** Drive into one that does not and it stays
+on the board, and the game says why, right at that word: *"ran" is a Verb. After "The", the
+sentence needs a Noun or an Adjective.* Once the sentence is whole, eat a punctuation mark
+(**.** or **!**) and it is complete.
+
+The structure keeps the game's world small enough to get right - every sentence a topic allows
+can be counted (Animals has about 7 billion) - while the creativity comes from five topics
+(Animals, School, Food, Fantasy and Sports) and from longer sentences: *The dragon flew.*, *The
+dragon quickly flew over the old castle.* and *She gave the knight a golden sword.* are all
+sentences of the Fantasy topic. A short [grammar review](review.html) goes over the kinds of word
+and the blocks, with a quick check at the end.
 
 On the home page the player also picks **Real** or **Silly**:
 
-- **Real** - the sentence has to make sense. "The mouse carried the horse." is marked wrong: *a
-  horse is too big for a mouse to carry.*
+- **Real** - the sentence has to make sense. After "The mouse carried the", the worm will not eat
+  "horse": *a horse is too big for a mouse to carry.*
 - **Silly** - the sentence only has to sound right. Any Adjective goes with any Noun and anything
   can do anything, so "The pencil ate the gym." is a fine sentence. Capitals, word order, *a* /
-  *the*, repeated words and end marks are still checked.
+  *the* and repeated words still count.
 
 **The worm's body is the sentence.** Every word you eat is written along the body, one letter per
 square, coloured by its part of speech, with a little gap between words. Whichever way the worm
@@ -48,8 +57,9 @@ python3 tools/test_classroom.py
 ```
 
 `test.js` plays several thousand games with no browser involved and checks the rules hold - most
-importantly that the checker never passes a sentence that breaks the topic's sentence shapes,
-even when the player eats words at random, and that every refusal comes with a reason.
+importantly that the worm never eats a word that takes the sentence off its structure, even when
+the player drives into words at random, that every sentence it finishes is correct, and that
+every word it refuses comes with a reason.
 `test_judge.py` checks the judge's server side with a stand-in for the AI, so it needs no API key
 and costs nothing. `test_classroom.py` plays class races against the server with a pretend clock,
 so a five-minute race takes no time. See [Docs/How-Requirements-Are-Met.md](Docs/How-Requirements-Are-Met.md) for
@@ -63,24 +73,27 @@ what each test proves.
 | `P` or `Space` | Pause |
 | `R` | New game |
 
-- The strip above the board is the **recipe**: the kinds of word to collect, in order, with
-  optional ones dashed. It follows along as you eat, and if your words turn into a different
-  sentence shape the topic knows, it switches to that one.
-- **Every word you eat goes onto the worm**, whether it fits the recipe or not. Nothing is marked
-  until the sentence is finished.
-- Hints start off. Turn them on with the **Hints** button and words that would keep the sentence
-  on track get a dashed white outline.
-- **Eat a punctuation mark to end the sentence, and it gets checked.** The worm stops while the
-  checker reads it, then shows a checklist with a reason for anything that failed. Press an arrow
-  key to carry on.
-  - **Right:** it goes up on your list and scores 20 points.
-  - **Not finished yet:** the checker says what is missing ("What happens? Add a Verb."), and the
-    words stay on the worm so you can keep building.
-  - **Not quite right:** the checker says which word and why, and the words go back on the board
-    to try again. A wrong sentence costs a few points.
+- The strip above the board is the sentence **block by block**: Subject, Verb, then an Object,
+  a Complement or a Modifier, each box holding its words in their part-of-speech colours. The box
+  the next word goes in has a green border and names the kinds of word that fit there ("Adjective
+  or Noun"); boxes still to come show the kinds of word they are built from, and optional ones are
+  dashed. If your words turn into a different sentence shape the topic knows, it switches to that one.
+- **The worm only eats a word that fits the next spot** - the right kind of word, with the right
+  capital letter, not used already, and (in Real mode) making sense with the words before it.
+  Drive into any other word and it is **not eaten**: the tile shakes, a pop-up over the worm says
+  what was wrong ("Need a Noun!"), and the strip gives the whole reason until the next word is
+  eaten. It costs no points, but it ends a streak.
+- Hints start off. Turn them on with the **Hints** button and the words the worm would eat get a
+  dashed white outline.
+- **Once the sentence is whole, eat a punctuation mark and it is complete.** A mark eaten too
+  early is refused like any other word ("Not finished yet! What happens? Add a Verb."). The worm
+  stops while the sentence is read back against the checklist - capital letter, subject, verb,
+  sounds right, makes sense, end mark - then it goes up on your list and scores 20 points. Press
+  an arrow key to carry on.
 - After a crash the game holds still for a moment so you can see what you hit, *then* the words
   scatter. Steering is locked during that pause, so you cannot drive into the same wall twice.
-- Correct sentences **in a row** earn a streak bonus, shown with a 🔥 in the sidebar.
+- Sentences **in a row** built without a refused word earn a streak bonus, shown with a 🔥 in the
+  sidebar.
 
 ## The worm shop
 
@@ -99,8 +112,8 @@ shop, `shop.html`, on things for the worm to wear:
 
 - Tap anything to **try it on** in the dressing room before buying. Buying takes two taps, so
   nothing is bought by accident, and the worm puts it on straight away.
-- Saved points only go up by playing and down by buying - a wrong sentence costs points in the
-  game's score, never in the shop. Prices run from 100 to 1000; a correct sentence is worth 20 (more on a streak).
+- Saved points only go up by playing and down by buying. Prices run from 100 to 1000; a
+  sentence is worth 20 (more on a streak).
 - The game's sidebar shows the cheapest thing not bought yet, with the worm already wearing it,
   and says when you can afford it.
 - The words written on the body always keep their part-of-speech colours. Patterns show on the
@@ -127,14 +140,14 @@ sentences before the time runs out. The teacher puts the leaderboard up on the b
    checker passes moves them up the board. The sidebar shows the time left and a **mini
    leaderboard**: the top five, and the student's own place if they are further down.
 5. The teacher's screen shows the **class leaderboard** live, biggest score first, with a bar for
-   each student. Click a name to see every sentence that student wrote, right and not quite.
+   each student. Click a name to see every sentence that student wrote.
 6. When the time is up every game stops. A sentence whose ending mark was eaten before the bell
    still counts. The teacher sees the top three on a podium and can **print what the class
    wrote**, then **race again** (same class, everyone back to nought) or change the topic or time.
 
 The rules:
 
-- The leaderboard counts **correct sentences**. A wrong sentence never costs a place. Two
+- The leaderboard counts **finished sentences** (the worm only finishes correct ones). Two
   students on the same score share the place, and the one who got there first is listed first.
   Nobody has a place until they have a correct sentence.
 - Students on the board are shown by first name only. Names are cut to 16 letters, and two
@@ -187,50 +200,51 @@ the board can be read by clicking the student's name.
 
 ## The sentence checker
 
-When the worm eats a punctuation mark, the sentence is checked against the list a teacher uses for
-a complete sentence: **capital letter, subject, verb, sounds right, makes sense, end mark**. Two
-things do the checking.
+A sentence is checked **word by word, as it is built** (`js/checker.js`, on the grammar engine in
+`js/grammar.js`). Before the worm eats a word, the game asks whether it fits the next spot of a
+sentence shape the topic knows - the same list a teacher uses for a complete sentence, one word at
+a time:
 
-**1. The game's rules (`js/checker.js`)** - always on, instant, no internet. They compare the words
-with the topic's sentence shapes, so they know for certain when a noun or verb is missing, when a
-word is in the wrong place ("An Adjective goes before the Noun it describes"), when a word is used
-twice, and when the sentence was already finished before the last word. Each topic also says
-which words fit where and which words cannot share a sentence, so the rules catch nonsense too:
+- **Sounds right** - is it the right kind of word for the next spot? *"ran" is a Verb. After
+  "The", the sentence needs a Noun or an Adjective.* *An Adjective goes before the Noun it
+  describes: "big dog", not "dog big".* *"chased" needs an object first: chased what?*
+- **Capital letter** - *"The" has a capital letter, so it starts a sentence. In the middle of one,
+  look for "the".*
+- **Makes sense** - is it new, and does it go with the words before it? *"happy" is already in
+  your sentence.* *"small" and "tall" do not go together: someone cannot be tall and small at
+  once.* *"big" does not go with "tasted". Adjectives that do: "sweet", "fresh", "warm" or "cold".*
+- **Subject, Verb and End mark** - a punctuation mark is only eaten once the sentence is whole,
+  and only one that suits it: *Not finished yet! What happens? Add a Verb.*
 
-- "The cookie tasted big." - *"big" does not go with "tasted". Adjectives that do: "sweet",
-  "fresh", "warm" or "cold".*
-- "A rice is soft." - *"rice" is not something you can count, so it goes with "The" or "My".*
-- "The small reader is tall." - *"small" and "tall" do not go together: someone cannot be tall and
-  small at once.*
+A word that fails is refused with that reason, pinned to the word, and the sentence is left as it
+was. `refuse()` in `js/checker.js` works out the reason; `tools/test.js` drives into thousands of
+random words and checks that every refusal has one, that every word eaten keeps the sentence on
+its structure, and that every sentence finished is correct.
 
-In Real mode the topic's `meaning` section catches sentences that sound right but could not
-happen (see [Real mode: what makes sense](#real-mode-what-makes-sense)):
+Each topic says which words fit where and which words cannot share a sentence, so the rules catch
+nonsense too. In Real mode the topic's `meaning` section catches sentences that sound right but
+could not happen (see [Real mode: what makes sense](#real-mode-what-makes-sense)):
 
 - "The mouse carried the horse." - *a horse is too big for a mouse to carry.*
 - "The knight flew over the castle." - *only a dragon has wings to fly.*
 - "The boy was a teacher." - *a boy cannot be a teacher.*
 
-**Every wrong sentence gets feedback**: the reason, pinned to the word, and a corrected sentence to
-try, built from the topic's own tiles and changing as little as possible ("The dog cat ran." -
-*Try: The dog ran.*). `tools/test.js` checks this for thousands of random sentences, and checks
-that every suggested sentence passes the rules itself.
+When punctuation completes a sentence, `check()` reads it back as a checklist on the card, so the
+child sees why it is a complete sentence. "Makes sense" is left for the child to check by reading
+it out loud - unless the judge has looked at it.
 
-But the rules only know what the topic told them, so they can still get two kinds of sentence
-wrong:
+**The structure is the point.** A sentence the topic's shapes do not include is refused, even when
+it is good English - "The big fluffy dog ran." has room for one Adjective - and the creativity
+comes from the topics and from longer sentences instead. That keeps every sentence the game can
+make countable and checkable without an internet connection.
 
-- **Wrong sentences they pass.** "The quick bird jumped quickly." says the same thing twice, and no
-  word list can rule out every odd sentence.
-- **Right sentences they fail.** "The big fluffy dog ran." is fine English, but the recipe only had
-  room for one Adjective.
+**The judge (`tools/judge.py`)** - optional. An AI (Claude) reads each finished sentence the way a
+careful teacher would. It cannot fail a sentence the structure built - every word was checked on
+the way in - but it is a second reader for what word lists cannot foresee: it ticks "Makes sense",
+praises the sentence, or, when it thinks the sentence sounds odd ("The quick bird jumped quickly."
+says the same thing twice), leaves a tip on the card with its own version to try next time.
 
-**2. The judge (`tools/judge.py`)** - optional. An AI (Claude) reads the words the way a careful
-teacher would and answers two questions: does it sound right, and does it make sense? It gets the
-last word on those two, so it catches the first kind of mistake and rescues the second. It always
-gives a reason a child can read, and its own corrected sentence.
-Capital letters, repeated words and end marks stay the rules' call.
-
-Without the judge the game works exactly the same, using its rules only. "Makes sense" is then
-left for the child to check by reading the sentence out loud.
+Without the judge the game works exactly the same, using its rules only.
 
 ### Turning the judge on
 
@@ -271,7 +285,7 @@ tries. Things that keep it down:
 - The server asks at most 30 new questions a minute (`BOOKWORMS_JUDGE_PER_MINUTE`), and only about
   sentences made of the game's own word tiles, so nobody can use it to ask anything else.
 - `judgeEarly` in `js/config.js` asks the judge as soon as the words could be a whole sentence, so
-  the answer is ready when the worm reaches the punctuation. Turn it off to ask only about
+  its note is ready when the worm reaches the punctuation. Turn it off to ask only about
   finished sentences: fewer questions, slightly longer waits.
 
 ### No API key? Two free options
@@ -288,14 +302,15 @@ tries. Things that keep it down:
   }
   ```
 
-  The same file is where the judge saves its answers, so a teacher can read through what it decided
-  and overrule any of it. The judge never overwrites an entry marked `"by": "teacher"`.
+  The same file is where the judge saves its answers, so a teacher can read through what it said
+  and overrule any of it. The judge never overwrites an entry marked `"by": "teacher"`. Like the
+  judge's, a teacher's answer adds a note to the card; it does not fail a sentence the worm built.
 - **Tighter word lists.** In `tools/build-topics.py` a topic can say which words fit where (in
   Food, "tastes" only takes taste words and rice never takes "A") and list `clashes`: pairs of
   words that cannot share a sentence, with the reason the child is told -
-  `["waited", "quickly", "waiting is not something you can hurry"]`. Run
-  `python3 tools/build-topics.py`, then read a sample with `python3 tools/list-sentences.py school`
-  and add a clash for anything that reads wrong.
+  `["waited", "quickly", "waiting is not something you can hurry"]`. The worm then refuses the
+  second word with that reason. Run `python3 tools/build-topics.py`, then read a sample with
+  `python3 tools/list-sentences.py school` and add a clash for anything that reads wrong.
 
 ### What is sent to the AI
 
@@ -312,6 +327,7 @@ bookworms/
   join.html             a student joins a class race with the teacher's code
   teacher.html          the teacher runs a class race: the code, Start, the leaderboard
   how-to-play.html      how to play, for the players
+  review.html           a short grammar review: kinds of word, the blocks, little rules, a quick check
   serve.sh              starts the local web server
   requirements.txt      the one Python package the (optional) judge needs
   Docs/
@@ -320,7 +336,8 @@ bookworms/
     Design-Patterns.md           the patterns used, where, and what was left out
   css/home.css          styling for the home page
   css/style.css         styling for the game
-  css/how.css           styling for the how-to-play page
+  css/how.css           styling for the how-to-play page (and the base of the grammar review)
+  css/review.css        styling for the grammar review
   css/shop.css          styling for the shop
   css/class.css         styling for the join page and the teacher's page
   data/
@@ -338,10 +355,12 @@ bookworms/
     board-art.js        draws the boards from the shop (shared by the game and the shop)
     config.js           tweakable numbers: speed, board size, rules, points
     util.js             random-number helpers and the sound effects
-    grammar.js          sentence-shape language: which shapes the words fit, what could come next
+    grammar.js          sentence-shape language: which shapes the words fit, what could come next,
+                        and which block (Subject, Verb, Object...) each word is in
     sense.js            Real mode: does the sentence make sense (sizes, who can do what)
-    checker.js          checks a finished sentence, and folds in the judge's answer
+    checker.js          why a word cannot be eaten; reads back a finished sentence; adds the judge's note
     judge.js            asks the judge: saved answers first, then the server
+    review.js           the grammar review's quick check
     worm.js             the worm: its squares, turning, growing, shrinking
     board.js            word tiles: choosing them and finding space for them
     render.js           the game board: tiles, the gliding worm, pop-ups and confetti
@@ -384,6 +403,13 @@ castle.* and *She gave the knight a golden sword.* are all sentences of the Fant
 shapes live in `grammar()` in `tools/build-topics.py`. A capital letter is part of the lesson:
 **The** and **the** are both tiles, and only one fits at the start of a sentence.
 
+The strip shows each word in its block. `blocksOf()` in `js/grammar.js` reads the block off the
+kinds of word and where they sit, the way a teacher marks up a sentence: everything before the
+Verb is the Subject, an Adverb is a Modifier, the first phrase after *was* or *tastes* is the
+Complement, a Noun or Pronoun phrase after any other verb is an Object, and any other Preposition
+starts a Modifier. A shape's `blocks` list (`["Subject", "Verb", "Object", "Modifier?"]`) adds the
+optional blocks it has room for.
+
 ### Add words, or a topic
 
 Topics are made by `tools/build-topics.py` - edit the `TOPICS` table there, never the JSON files
@@ -421,7 +447,7 @@ hear:
 ["swam", "gym", "you cannot swim in a gym"],
 ```
 
-The game marks that sentence wrong with that reason, the hints never lead to it, and the tests
+The worm refuses the second word with that reason, the hints never lead to it, and the tests
 check that a correct sentence can still always be finished.
 
 ### Real mode: what makes sense
@@ -479,6 +505,8 @@ grows, how many words are on the board at once, points, sound on or off, and wha
 
 ## Ideas for the next version
 
+- Questions: a shape like *Was the dog happy?* that ends with **?** (the engine already supports
+  a shape that only takes `?`; no topic has one yet).
 - Two players on one board.
 - Keep a class's results after the server stops, so a teacher can look back over the week.
 
