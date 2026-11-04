@@ -69,7 +69,9 @@ the player drives into words at random, that every sentence it finishes is corre
 every word it refuses comes with a reason.
 `test_judge.py` checks the judge's server side with a stand-in for the AI, so it needs no API key
 and costs nothing. `test_classroom.py` plays class races against the server with a pretend clock,
-so a five-minute race takes no time. See [Docs/How-Requirements-Are-Met.md](Docs/How-Requirements-Are-Met.md) for
+so a five-minute race takes no time. `test.js` also builds [class reports](#the-class-report)
+from made-up classes - a student who mixes up verbs, one who stops playing, one who repeats a
+sentence, one who steers at random - and checks the report says so. See [Docs/How-Requirements-Are-Met.md](Docs/How-Requirements-Are-Met.md) for
 what each test proves.
 
 ## How to play
@@ -148,10 +150,12 @@ sentences before the time runs out. The teacher puts the leaderboard up on the b
    checker passes moves them up the board. The sidebar shows the time left and a **mini
    leaderboard**: the top five, and the student's own place if they are further down.
 5. The teacher's screen shows the **class leaderboard** live, biggest score first, with a bar for
-   each student. Click a name to see every sentence that student wrote.
+   each student. Click a name to see every sentence that student wrote. A 💤 by a name means that
+   student has not steered for over a minute - stepped away, stuck, or lost the connection.
 6. When the time is up every game stops. A sentence whose ending mark was eaten before the bell
    still counts. The teacher sees the top three on a podium and can **print what the class
-   wrote**, then **race again** (same class, everyone back to nought) or change the topic or time.
+   wrote**, open the **[class report](#the-class-report)**, then **race again** (same class,
+   everyone back to nought) or change the topic or time.
 
 The rules:
 
@@ -165,6 +169,11 @@ The rules:
   race now** and **Close this class** also ask with a second press, not a pop-up box, because
   some browsers never show pop-ups and just answer "no".
 - Points a student earns in a race also go into their shop savings, as in an ordinary game.
+- **A sentence a student has already written in this race scores nothing** - no place on the
+  board, no points. The game says so ("Already on your list!"), and the teacher still sees it,
+  marked as a repeat. Writing the same easy sentence over and over is no way to win. (In an
+  ordinary game repeats still score.)
+
 
 **The link.** Students reach the teacher's computer through a link, because school Wi-Fi often
 will not let one computer reach another - but it lets everyone reach the internet. Cloudflare's
@@ -198,13 +207,79 @@ So the risk is someone who has the link joining a class they should not, for exa
 silly name. The teacher sees every name as it arrives and can remove it.
 
 **What is kept, and where.** The server keeps each class in memory: the code, the settings, the
-students' first names and their sentences. Nothing is written to disk. A class disappears when
-the server stops, or after 12 hours without anyone looking at it. Each browser remembers its own
-seat (or, for the teacher, the class's key) so a reload carries on where it was.
+students' first names, their sentences, and - for the class report - the words each student's
+worm refused and why, how many of each kind of word it ate, crashes, and which quarter-minutes
+they were steering in. Only the teacher's browser is ever sent any of it; students see names and
+scores. Nothing is written to disk. Racing again starts it all afresh, and a class disappears
+when the server stops, or after 12 hours without anyone looking at it - so print the report to
+keep it. Each browser remembers its own seat (or, for the teacher, the class's key) so a reload
+carries on where it was.
 
 **Cheating.** Each student's browser reports its own sentences, so a student who knows how to
 use the browser's console could send made-up ones. The teacher would see them: every sentence on
-the board can be read by clicking the student's name.
+the board can be read by clicking the student's name. The same goes for what the class report is
+made from, so read it as a guide, not a record.
+
+### The class report
+
+Once the time is up, **📊 Class report** shows how each student did - for planning the next
+lesson, and for one-to-ones. **🖨️ Print the report** prints it (or saves it as a PDF from the
+print box), with every sentence each student wrote under their card.
+
+- **What stands out** - a few findings in plain words: the mix-up the most students made ("3
+  students more than once put a Verb where a Noun or an Adjective was needed. A quick whole-class
+  look at where Verbs go could help."), a skill many are still practising, one most have down,
+  how long sentences were, and who is worth a check-in.
+- **Skills at a glance** - a grid: each student down the side; across the top each kind of word
+  (Determiners, Adjectives, Nouns, Verbs, Adverbs, Prepositions, and Pronouns in Silly mode),
+  then Ending, Capitals and, in Real mode, Making sense. Each box is **Strong**, **Okay**,
+  **Practice**, **–** (too few tries to say) or **?** (not enough focused play to judge). Capitals
+  and Making sense can also be **✓** (no slips seen): the board seldom offers those mistakes, so
+  a student with none may never have met one, and that is not called Strong. Hover over a box
+  for the numbers behind it.
+- **A card for each student** - strengths, what they are working on (each mix-up with an example,
+  like *"ran" right after "The"*), one **next step** to try with them, their best sentence, their
+  pace next to the class's, and everything they wrote.
+
+How a box is worked out, so it can be explained to anyone: every word the worm ate counts as
+*placed right*; every word it refused for being the wrong kind for that spot counts as *in the
+wrong spot*. Right nearly every time (at most 1 in 5 wrong) is Strong; more than 2 in 5 wrong,
+at least three times, is Practice; in between is Okay; fewer than 4 tries is "–". Ending counts
+trying to end a sentence before it was finished; Capitals counts "the" to start or "The" in the
+middle; Making sense counts words that do not go together. The rules are at the top of
+`js/report.js`.
+
+**How engaged each student was is kept apart from their skills**, under **Worth a look** on
+their card:
+
+- **Mostly quiet / partly active** - the game notes which quarter-minutes of the race a student
+  pressed a key in. Steering in under 70% of them is "partly active"; under 35% is "mostly
+  quiet". A student who joined late is only timed from when they joined.
+- **Repeats** - "Wrote "The cat ran." 6 times". Repeating the same sentence does not count as a
+  strength either.
+- **Random steering** - lots of refused words, spread evenly over every kind of word, and few
+  eaten. A real mix-up is narrow ("always a Verb after "the""); random driving is the same
+  everywhere. Then that student's skills are all **?**: random steering says nothing about
+  grammar, so the report does not guess.
+
+None of this is proof - a slow computer or a bad day looks the same - and nothing is shown to
+the student. It is there so the teacher knows who to sit with.
+
+**What it cannot tell.** The worm never stops, so some refused words are accidents rather than
+choices; that is why a skill needs several tries and a mix-up needs to happen at least twice
+before it is mentioned. And it is ten minutes of a game, not a test: the report says so at the
+top.
+
+**Try it on your own.** `tools/demo-class.js` fills a class with eight pretend students who each
+play a different way (one strong, one who mixes up verbs, one who misplaces describing words, one who ends sentences too early, one
+who repeats, one who stops after twenty seconds, one who steers at random...):
+
+1. `./serve.sh`, open the teacher's page and open a class - 2 minutes is plenty.
+2. In another terminal: `node tools/demo-class.js BCDF` (your class's code).
+3. Press **Start the race**, wait for the bell, and press **📊 Class report**.
+
+They play through the game's real rules and talk to the server exactly as a browser does. You can
+join and play alongside them.
 
 ## The sentence checker
 
@@ -375,16 +450,19 @@ bookworms/
     game.js             the game loop and all the rules
     main.js             loads the JSON, starts the game, updates the panels and the check card
     classroom.js        class races: talking to the server, the class clock, remembering your seat
-    race.js             a class race in the game: waits for Start, sends sentences, the mini leaderboard
+    race.js             a class race in the game: waits for Start, sends sentences and moves, the mini leaderboard
     join.js             the join page
     teacher.js          the teacher's page: setup, who is here, the leaderboard, the podium, printing
+    report.js           the class report: each student's skills, mix-ups, strengths, next step, engagement
+    report-view.js      draws the class report on the teacher's page
   tools/
     serve.py            the local web server, with the judge at /api/judge and class races at /api/class
     judge.py            the sentence judge: asks Claude, saves the answers
-    classroom.py        class races: codes, who has joined, the clock and the leaderboard
+    classroom.py        class races: codes, who has joined, the clock, the leaderboard, the report's data
     test.js             headless checks of the game, no browser needed
     test_judge.py       checks of the judge, no API key needed
     test_classroom.py   checks of class races, with a pretend clock
+    demo-class.js       pretend students, for trying a class race and its report on your own
     build-topics.py     writes the topic files
     list-sentences.py   prints a sample of a topic's sentences for a person to read
 ```

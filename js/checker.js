@@ -37,6 +37,12 @@ window.BW = window.BW || {};
     const info = pack.pos[pos];
     return (info && pack.families && pack.families[info.family]) || info || null;
   }
+  /* The family id of a part of speech - "noun" for both "noun" and "place" - which stays the
+     same whatever the family's label says. The class report (js/report.js) counts by it. */
+  function familyId(pack, pos) {
+    const info = pack.pos[pos];
+    return (info && info.family) || pos;
+  }
   function labelOf(pack, pos) {
     const fam = familyOf(pack, pos);
     return (fam && fam.label) || pos;
@@ -250,13 +256,27 @@ window.BW = window.BW || {};
      player is told about it: { short, reason } - a few words to pop up over the worm, and
      the whole reason for the strip.
 
-     The checks go in the order a teacher's would: is it the right kind of word for this
-     spot, does it have the right capital letter, is it new, does it go with the words
-     before it - and last, could the sentence still be finished after it. */
+     It also says what went wrong in a form the class report can count (js/report.js):
+       kind     'order' (the wrong kind of word for this spot), 'capital', 'repeat', 'clash',
+                'sense', 'deadend', or for a punctuation mark 'empty', 'unfinished', 'mark'
+       tried    the family of the word bumped into ("verb"), or "end" for a mark
+       needed   for 'order', the families that would have fitted there, plus "end" when the
+                sentence could have finished instead */
   function refuse(pack, sentence, word, pos) {
-    if (pos === 'punctuation') return cannotEnd(pack, sentence, word);
+    if (pos === 'punctuation') {
+      const no = cannotEnd(pack, sentence, word);
+      return no && { ...no, tried: 'end', needed: [] };
+    }
     if (sentence.fits(word, pos)) return null;
+    const no = whyNot(pack, sentence, word, pos);
+    return { ...no, tried: familyId(pack, pos), needed: no.needed || [] };
+  }
 
+  /* Why a word that does not fit was refused. The checks go in the order a teacher's would:
+     is it the right kind of word for this spot, does it have the right capital letter, is it
+     new, does it go with the words before it - and last, could the sentence still be
+     finished after it. */
+  function whyNot(pack, sentence, word, pos) {
     const at = sentence.tokens.length;
     const kind = labelOf(pack, pos);
     const tokens = sentence.tokens.concat([{ word, pos }]);
@@ -265,21 +285,26 @@ window.BW = window.BW || {};
     const trace = trial.trace();
 
     if (trace.at === at) {
-      const kinds = [];
+      const kinds = [], needed = [];
       for (const m of trace.wanted) {
-        const label = labelOf(pack, m.pos || BW.Grammar.posOfWord(pack, m.word));
+        const wantedPos = m.pos || BW.Grammar.posOfWord(pack, m.word);
+        const label = labelOf(pack, wantedPos);
         if (!kinds.includes(label)) kinds.push(label);
+        const fam = familyId(pack, wantedPos);
+        if (fam && !needed.includes(fam)) needed.push(fam);
       }
+      if (trace.finished) needed.push('end');
       const short = trace.finished ? 'End it here!'
         : kinds.includes(kind) ? 'Not that ' + kind + '!'
         : kinds.length <= 2 ? 'Need ' + an(kinds.join(' or ')) + '!'
         : 'Not here!';
-      return { short, reason: explain(pack, trial, trace,
-                                      { before: sentence.displayWords(), ends: sentence.endMarks() }) };
+      return { kind: 'order', needed, short,
+               reason: explain(pack, trial, trace, { before: sentence.displayWords(), ends: sentence.endMarks() }) };
     }
     if (!sentence.capitalFits(word, pos, at)) {
       const fix = otherCase(pack, word);
       return {
+        kind: 'capital',
         short: fix ? 'Use "' + fix + '"!' : 'Capital letter!',
         reason: at === 0
           ? 'A sentence starts with a capital letter, and "' + word + '" does not have one' +
@@ -289,19 +314,19 @@ window.BW = window.BW || {};
       };
     }
     if (sentence.repeats(word, pos)) {
-      return { short: 'Used already!', reason: '"' + word + '" is already in your sentence. Find a different ' + kind + '.' };
+      return { kind: 'repeat', short: 'Used already!', reason: '"' + word + '" is already in your sentence. Find a different ' + kind + '.' };
     }
     const clash = sentence.clashWith(word);
     if (clash) {
-      return { short: 'Does not fit!', reason: '"' + clash.other + '" and "' + word + '" do not go together' +
+      return { kind: 'clash', short: 'Does not fit!', reason: '"' + clash.other + '" and "' + word + '" do not go together' +
                                                 (clash.why ? ': ' + clash.why + '.' : '.') };
     }
     const odd = BW.Sense.problem(pack, tokens);
     if (odd && odd.at === at) {
-      return { short: 'No sense!', reason: '"' + odd.words[0] + '" and "' + odd.words[1] + '" do not go together: ' +
+      return { kind: 'sense', short: 'No sense!', reason: '"' + odd.words[0] + '" and "' + odd.words[1] + '" do not go together: ' +
                                            odd.why + '.' };
     }
-    return { short: 'Dead end!', reason: '"' + word + '" fits here, but then nothing could come after it and still ' +
+    return { kind: 'deadend', short: 'Dead end!', reason: '"' + word + '" fits here, but then nothing could come after it and still ' +
                                          'make sense. Find a different ' + kind + '.' };
   }
 
@@ -309,13 +334,13 @@ window.BW = window.BW || {};
      that suits it: null when this one can, otherwise why not. */
   function cannotEnd(pack, sentence, mark) {
     if (!sentence.tokens.length) {
-      return { short: 'No words yet!', reason: 'Eat some words first, then end the sentence with "' + mark + '".' };
+      return { kind: 'empty', short: 'No words yet!', reason: 'Eat some words first, then end the sentence with "' + mark + '".' };
     }
-    if (!sentence.canEnd()) return { short: 'Not finished!', reason: 'Not finished yet! ' + nextStep(pack, sentence) };
+    if (!sentence.canEnd()) return { kind: 'unfinished', short: 'Not finished!', reason: 'Not finished yet! ' + nextStep(pack, sentence) };
     const marks = sentence.endMarks();
     if (marks.includes(mark)) return null;
     const these = orList(marks.map(m => '"' + m + '"'));
-    return { short: 'Use ' + these + '!',
+    return { kind: 'mark', short: 'Use ' + these + '!',
              reason: (marks.includes('?') ? 'A question ends with ' : 'This kind of sentence ends with ') +
                      these + ', not "' + mark + '".' };
   }
@@ -510,5 +535,5 @@ window.BW = window.BW || {};
     return 'Something is not quite right.';
   }
 
-  BW.Checker = { check, decide, refuse };
+  BW.Checker = { check, decide, refuse, familyId };
 })();

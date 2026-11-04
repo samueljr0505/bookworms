@@ -209,6 +209,7 @@ window.BW = window.BW || {};
     card.className = 'report ' + (checking ? 'checking' : report.verdict);
 
     $('report-title').textContent = checking ? 'Checking your sentence...'
+      : report.repeat ? 'Already on your list!'
       : CHEERS[game.finished.length % CHEERS.length];
 
     const line = $('report-sentence');
@@ -248,11 +249,12 @@ window.BW = window.BW || {};
     tip.textContent = report.tip ? '💡 ' + report.tip + (report.suggestion ? ' Try: ' + report.suggestion : '') : '';
 
     const streak = $('report-streak');
-    streak.hidden = checking || !(report.streak >= 2);
+    streak.hidden = checking || report.repeat || !(report.streak >= 2);
     if (!streak.hidden) {
       streak.textContent = '🔥 ' + report.streak + ' in a row! +' + report.bonus + ' streak bonus';
     }
     $('report-after').textContent = checking ? ''
+      : report.repeat ? 'You made this one already, so it does not count again. Try a new sentence!'
       : '+' + report.points + ' points - it is on your list, and saved for the shop!';
     $('report-go').hidden = checking;
     $('report-by').textContent = checking ? '' : BY[report.by] || '';
@@ -388,7 +390,12 @@ window.BW = window.BW || {};
       onMessage: showMessage,
       onEarn: earned,
       onReport: report => renderReport(game, report),
-      onSentence: race ? (verdict, text) => race.report(verdict, text) : null
+      // a class race sends what happens to the teacher's report (js/race.js)
+      onSentence: race ? (verdict, text, info) => race.report(verdict, text, info) : null,
+      onRefuse: race ? info => race.noteRefusal(info) : null,
+      onEat: race ? family => race.noteEat(family) : null,
+      onSteer: race ? () => race.noteSteer() : null,
+      onCrash: race ? () => race.noteCrash() : null
     }, { race: !!race, speed: BW.chooseSpeed() });
 
     game.attachInput(window);

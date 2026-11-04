@@ -79,6 +79,7 @@
           <button id="again" class="btn go" type="button">Race again</button>
           <button id="change-after" class="btn" type="button">Change topic or time</button>
           <button id="print" class="btn" type="button">🖨️ Print what the class wrote</button>
+          <button id="open-report" class="btn" type="button">📊 Class report</button>
         </div>
       </div>
 
@@ -89,6 +90,45 @@
        <button id="new-class" class="btn" type="button">Close this class</button></p>
   </section>
 
+  <!-- 3. the class report, once the race is over (js/report.js, js/report-view.js) -->
+  <section id="report" class="report-page" hidden>
+    <div class="panel report-head">
+      <div class="report-tools">
+        <button id="close-report" class="btn small" type="button">&larr; Back to the race</button>
+        <button id="print-report" class="btn small" type="button">🖨️ Print the report</button>
+      </div>
+      <h2 class="report-title">Class report</h2>
+      <p id="report-meta" class="settings"></p>
+      <p class="report-note">Practice data from one short race - a place to start a conversation, not a
+         grade. It is kept until you race again or close the class, so print it (or save it as a PDF
+         from the print box) to keep it.</p>
+    </div>
+
+    <div class="panel">
+      <h2>What stands out</h2>
+      <ul id="report-findings" class="findings"></ul>
+    </div>
+
+    <div class="panel">
+      <h2>Skills at a glance</h2>
+      <div class="grid-wrap"><table id="report-grid" class="skill-grid"></table></div>
+      <p class="legend">
+        <span class="lv strong">Strong</span> right nearly every time
+        <span class="lv okay">Okay</span> right most of the time
+        <span class="lv practice">Practice</span> often in the wrong spot
+        <span class="lv few">&ndash;</span> too few tries to say
+        <span class="lv noslips">&#10003;</span> no slips seen (Capitals and Making sense: the game seldom offers these mistakes)
+        <span class="lv unclear">?</span> not enough focused play to judge
+      </p>
+      <p class="report-note">For each kind of word: how often the student steered to one that fitted the
+         sentence, against how often they bumped into one where it did not fit. Some bumps are
+         accidents - the worm never stops - so look for patterns, not single slips. Hover over a box
+         for the numbers.</p>
+    </div>
+
+    <div id="report-cards"></div>
+  </section>
+
   <!-- only on paper: every student's sentences -->
   <section id="printout" class="print-only"></section>
 
@@ -96,6 +136,8 @@
 
 <script src="js/worm-skin.js"></script>
 <script src="js/classroom.js"></script>
+<script src="js/report.js"></script>
+<script src="js/report-view.js"></script>
 <script src="js/teacher.js"></script>
 </body>
 </html>

@@ -196,8 +196,13 @@ body {
 .mine li::before { content: "\2713  "; color: var(--good); font-weight: 900; }
 .mine li.no { color: var(--muted); }
 .mine li.no::before { content: "\2717  "; color: var(--bad); }
+.mine li.again { color: var(--muted); }
+.mine li.again::before { content: "\21BB  "; color: var(--muted); }
+.mine li.again::after { content: "  (repeat - not counted)"; font-size: 12px; }
 .mine .tally { color: var(--muted); font-size: 13px; }
 .mine .tally::before { content: ""; }
+/* no steering for a minute (see QUIET_MS in js/teacher.js) */
+.board .zz { font-size: 16px; }
 
 /* ---------- the teacher's page: time's up ---------- */
 
@@ -213,7 +218,67 @@ body {
 .podium .p2 .step { height: 110px; background: #b9c3cf; }
 .podium .p3 .step { height: 80px; background: #d89a62; }
 
-/* ---------- printing what the class wrote ---------- */
+/* ---------- the class report (js/report-view.js) ---------- */
+
+.report-head { text-align: center; }
+.report-tools { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+.report-head .report-title { font-size: clamp(26px, 5vw, 36px); text-transform: none; letter-spacing: -0.5px;
+                              color: var(--green); margin: 14px 0 4px; }
+.report-note { color: var(--muted); font-size: 14px; font-weight: 700; margin: 10px auto 0; max-width: 680px; }
+.findings { margin: 0; padding-left: 22px; font-size: 17px; font-weight: 700; }
+.findings li { margin: 6px 0; }
+
+.grid-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.skill-grid { border-collapse: separate; border-spacing: 4px; width: 100%; font-size: 14px; }
+.skill-grid th { font-size: 12px; font-weight: 800; color: var(--muted); text-align: center; padding: 4px; vertical-align: bottom; }
+.skill-grid th.who { text-align: left; min-width: 130px; }
+.skill-grid tbody th.who { font-size: 16px; color: var(--ink); white-space: nowrap; vertical-align: middle; }
+.skill-grid tbody th.who a { color: inherit; text-decoration: none; }
+.skill-grid tbody th.who a:hover { text-decoration: underline; }
+.skill-grid td.num { text-align: center; font-weight: 800; white-space: nowrap; }
+.skill-grid td.num .repeats { display: block; font-size: 11px; color: var(--muted); }
+.skill-grid td.empty { text-align: center; color: var(--muted); padding: 12px; }
+.lv { display: inline-block; text-align: center; font-weight: 900; font-size: 13px; border-radius: 9px; padding: 6px 6px; min-width: 52px; }
+td.lv { display: table-cell; cursor: help; }
+.lv.strong { background: #dff1e3; color: #2f6f47; }
+.lv.okay { background: #fbefcf; color: #8a6200; }
+.lv.practice { background: #fbe0d8; color: #a8432d; }
+.lv.few, .lv.unclear, .lv.noslips { background: #f3eee3; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 13px; font-weight: 700; color: var(--muted); margin: 14px 0 0; }
+.legend .lv { min-width: 0; padding: 3px 8px; margin-left: 6px; }
+
+.engaged { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: var(--muted); white-space: nowrap; }
+.engaged::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--good); }
+.engaged.partly::before { background: var(--gold); }
+.engaged.quiet::before { background: #b9b0a0; }
+
+.student-card { break-inside: avoid; }
+.card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 12px; }
+.card-head h3 { margin: 0; font-size: 26px; }
+.card-place { margin-left: auto; font-weight: 800; color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 0 0 14px; }
+.stats div { background: #faf5ea; border-radius: 12px; padding: 8px 12px; }
+.stats dt { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
+.stats dd { margin: 2px 0 0; font-size: 17px; font-weight: 800; }
+.card-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.card-cols h4, .attention h4 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+.card-cols .strengths h4 { color: var(--good); }
+.card-cols .working h4 { color: #a8432d; }
+.card-cols ul, .attention ul { margin: 0; padding-left: 20px; font-weight: 700; }
+.card-cols li, .attention li { margin: 4px 0; }
+.quiet-note { margin: 0; color: var(--muted); font-size: 14px; font-weight: 700; }
+.next, .best { margin: 14px 0 0; font-weight: 700; }
+.next { background: #f3faf4; border: 2px solid #b9dcc0; border-radius: 12px; padding: 10px 14px; }
+.attention { margin-top: 14px; background: #fff8e6; border: 2px solid #f0dca6; border-radius: 12px; padding: 10px 14px; }
+.attention .quiet-note { margin-top: 6px; font-size: 13px; }
+.all-sentences { margin-top: 14px; font-weight: 700; }
+.all-sentences summary { cursor: pointer; color: var(--muted); }
+.all-sentences ol { margin: 8px 0 0; padding-left: 24px; }
+.all-sentences li.no, .all-sentences li.again { color: var(--muted); }
+.all-sentences li.again::after { content: "  (repeat)"; font-style: italic; }
+.all-sentences li.no::after { content: "  (not quite)"; font-style: italic; }
+
+/* ---------- printing what the class wrote, or the report ---------- */
 
 .print-only { display: none; }
 @media print {
@@ -227,9 +292,38 @@ body {
   .print-only ol { margin: 0; padding-left: 22px; }
   .print-only li.no { color: #777; }
   .print-only li.no::after { content: "  (not quite)"; font-style: italic; }
+  .print-only li.again { color: #777; }
+  .print-only li.again::after { content: "  (repeat)"; font-style: italic; }
+
+  /* printing with the report open: the report instead of the sentences (js/teacher.js) */
+  body.print-report .page > #printout { display: none !important; }
+  body.print-report .page > #report { display: block !important; }
+  .report-tools { display: none; }
+  /* every sentence goes on paper (opened by js/teacher.js), under a plain heading */
+  .all-sentences summary { list-style: none; color: var(--ink); cursor: auto; }
+  .all-sentences summary::-webkit-details-marker { display: none; }
+  .all-sentences li { break-inside: avoid; }
+  /* a card with all its sentences can be long: let it run on to the next page, but keep each
+     part of it together, and its name with what follows */
+  .student-card { break-inside: auto; }
+  .card-head { break-after: avoid; }
+  .stats, .card-cols, .next, .best, .attention { break-inside: avoid; }
+  .panel { box-shadow: none; border-width: 1px; }
+  .grid-wrap { overflow: visible; }
+  .skill-grid { font-size: 11px; border-spacing: 2px; }
+  .skill-grid th { font-size: 10px; padding: 2px; }
+  .skill-grid th.who { min-width: 0; }
+  .skill-grid tbody th.who { font-size: 12px; white-space: normal; }
+  .skill-grid .engaged { display: flex; font-size: 9px; }
+  .skill-grid td.num .repeats { font-size: 9px; }
+  .panel { padding: 12px 14px; }
+  td.lv { min-width: 0; padding: 3px 4px; font-size: 10px; }
+  .lv, .engaged::before, .next, .attention, .stats div { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
 @media (max-width: 620px) {
+  .card-cols { grid-template-columns: 1fr; }
+  .card-place { margin-left: 0; }
   .top .spacer { display: none; }
   .board .row { grid-template-columns: 44px 1fr 44px; font-size: 17px; }
   .board .bar { display: none; }

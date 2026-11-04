@@ -12,7 +12,7 @@ global.window = global;   // the game files expect a browser-style global
 global.performance = { now: () => Date.now() };
 for (const f of ['js/config.js', 'js/util.js', 'js/grammar.js', 'js/sense.js', 'js/checker.js', 'js/judge.js',
                  'js/worm.js', 'js/board.js', 'js/closet.js', 'js/worm-skin.js', 'js/board-art.js',
-                 'js/classroom.js', 'js/game.js']) {
+                 'js/classroom.js', 'js/game.js', 'js/report.js']) {
   eval(fs.readFileSync(path.join(root, f), 'utf8'));
 }
 const NS = global.window.BW;
@@ -432,6 +432,40 @@ const SILLY_REFUSALS = {
   ]
 };
 
+const REFUSAL_KINDS = ['order', 'capital', 'repeat', 'clash', 'sense', 'deadend', 'empty', 'unfinished', 'mark'];
+
+/* What the class report is told about a refused word: [words before, word, kind, tried, needed]. */
+const REFUSAL_REPORTS = [
+  ['The', 'ran', 'order', 'verb', ['noun', 'adjective']],
+  ['', 'dog', 'order', 'noun', ['determiner']],
+  ['The dog ran', 'the', 'order', 'determiner', ['adverb', 'preposition', 'end']],
+  ['', 'the', 'capital', 'determiner', []],
+  ['The dog chased', 'The', 'capital', 'determiner', []],
+  ['The happy dog was', 'happy', 'repeat', 'adjective', []],
+  ['The small dog was', 'big', 'clash', 'adjective', []],
+  ['The mouse carried the', 'horse', 'sense', 'noun', []],
+  ['', '.', 'empty', 'end', []],
+  ['The dog', '.', 'unfinished', 'end', []],
+  ['The dog ran', '?', 'mark', 'end', []]
+];
+
+function checkRefusalReports() {
+  console.log('\n=== What a refused word tells the class report ===');
+  const was = pack;
+  pack = loadTopic('animals');
+  for (const [before, word, kind, tried, needed] of REFUSAL_REPORTS) {
+    const s = sentenceOf(before ? before.split(' ') : []);
+    const no = NS.Checker.refuse(pack, s, word, /^[.!?]$/.test(word) ? 'punctuation' : NS.Grammar.posOfWord(pack, word));
+    const name = '"' + before + '" + "' + word + '"';
+    check(no && no.kind === kind && no.tried === tried && JSON.stringify(no.needed) === JSON.stringify(needed),
+          name + ' should be ' + JSON.stringify([kind, tried, needed]) + ', got ' +
+          JSON.stringify(no && [no.kind, no.tried, no.needed]));
+  }
+  check(NS.Checker.familyId(pack, 'place') === 'noun' && NS.Checker.familyId(pack, 'motionPrep') === 'preposition',
+        'a part of speech is counted under its family');
+  pack = was;
+}
+
 function checkRefusals() {
   for (const [before, word, says] of (pack.mode === 'silly' ? SILLY_REFUSALS : REFUSALS)[pack.id] || []) {
     const s = sentenceOf(before ? before.split(' ') : []);
@@ -532,6 +566,11 @@ function checkThisPack() {
         check(!/does not fit\. The sentence needed/.test(no.reason), 'a refusal should say what to find instead: ' + name);
         check(sentence.text() === before, 'a refused word must leave the sentence as it was: ' + name);
         if (pick.kind === 'word') check(!sentence.fits(pick.word, pick.pos), 'a word that fits was refused: ' + name);
+        // ...and says what went wrong in a form the class report can count
+        check(REFUSAL_KINDS.includes(no.kind) && typeof no.tried === 'string' && Array.isArray(no.needed),
+              'a refusal needs a kind, what was tried and what was needed: ' + name + ' ' + JSON.stringify(no));
+        if (no.kind === 'order') check(no.needed.length > 0 && no.needed.every(f => typeof f === 'string'),
+                                       'a wrong kind of word says which kinds would have fitted: ' + name);
         continue;
       }
       if (pick.kind === 'punct') {
@@ -887,6 +926,122 @@ function checkCloset() {
   console.log('  closet checks done');
 }
 
+/* The class report (js/report.js), from made-up classes: each student below plays one way,
+   and the report has to say so - and must not guess at grammar from random steering. */
+function checkReport() {
+  console.log('\n=== The class report ===');
+  const R = NS.Report;
+  const said = (text, shape, more) => ({ text, ok: true, repeat: false, at: 0, shape, mark: '.', ...more });
+  const DNV = ['determiner', 'noun', 'verb'];
+  const LONG = ['determiner', 'adjective', 'noun', 'verb', 'preposition', 'determiner', 'noun'];
+  const order = (tried, needed, word, after) => ({ kind: 'order', tried, needed, word: word || 'x', after: after || 'y', at: 0 });
+  const many = (n, make) => Array.from({ length: n }, (_, i) => make(i));
+  const allSlots = many(8, i => i);
+  const base = { topic: 'animals', mode: 'real', minutes: 2, round: 1, playedMs: 120000, slotMs: 15000 };
+  const mixedUp = name => ({
+    name, correct: 3, rank: 2, slots: allSlots, steers: 40,
+    sentences: ['The dog ran.', 'A cat hid.', 'The fox ran.'].map(t => said(t, DNV)),
+    ate: { determiner: 6, noun: 6, verb: 3 },
+    refusals: many(6, () => order('verb', ['noun', 'adjective'], 'ran', 'The'))
+  });
+  const view = { ...base, board: [
+    { name: 'Ana', correct: 6, rank: 1, slots: allSlots, steers: 80, crashes: 1,
+      sentences: many(6, i => said('The big dog ran into the pond ' + i + '.', LONG, { mark: i === 0 ? '!' : '.' })),
+      ate: { determiner: 12, adjective: 6, noun: 12, verb: 6, preposition: 6 },
+      refusals: [order('verb', ['noun'])] },
+    mixedUp('Ben'),
+    { name: 'Cal', correct: 1, rank: 5, slots: [0], steers: 3, sentences: [said('The cat hid.', DNV)],
+      ate: { determiner: 1, noun: 1, verb: 1 }, refusals: [] },
+    { name: 'Dee', correct: 1, rank: 5, slots: allSlots, steers: 60,
+      sentences: many(5, i => said('The cat ran.', DNV, { repeat: i > 0 })),
+      ate: { determiner: 5, noun: 5, verb: 5 }, refusals: [] },
+    { name: 'Eli', correct: 0, rank: 7, slots: allSlots, steers: 200, sentences: [], ate: { determiner: 4, noun: 4 },
+      refusals: many(30, i => order(['noun', 'verb', 'adjective', 'adverb', 'preposition', 'determiner'][i % 6],
+                                    [['noun'], ['verb'], ['determiner']][i % 3])) },
+    mixedUp('Fay'),
+    { name: 'Gus', correct: 0, rank: 7 }      // joined, and nothing else: no data must not break it
+  ] };
+  const r = R.build(view);
+  const who = name => r.students.find(s => s.name === name);
+
+  check(r.students.map(s => s.name).join() === 'Ana,Ben,Cal,Dee,Eli,Fay,Gus', 'students are listed by name, not by score');
+  check(r.columns.map(c => c.id).join() === 'determiner,adjective,noun,verb,adverb,preposition,end,capital,sense',
+        'Real mode shows every kind of word but pronouns, and making sense: ' + r.columns.map(c => c.id).join());
+  check(R.build({ ...base, mode: 'silly', board: [] }).columns.map(c => c.id).join() ===
+        'determiner,adjective,noun,pronoun,verb,adverb,preposition,end,capital', 'Silly mode has pronouns, and no making sense');
+
+  const ana = who('Ana');
+  check(ana.engagement.level === 'active' && !ana.flags.length, 'Ana played the whole race: ' + JSON.stringify(ana.flags));
+  check(ana.skills.noun.level === 'strong' && ana.skills.verb.level === 'strong' && ana.skills.verb.errors === 1,
+        'one slip in seven tries is still strong: ' + JSON.stringify(ana.skills.verb));
+  check(ana.skills.adverb.level === 'few', 'a kind of word hardly tried is not judged');
+  check(ana.skills.capital.level === 'noslips' && ana.skills.sense.level === 'noslips',
+        'no capital or sense slips, when the board seldom offers them, is "no slips seen", not Strong');
+  const slips = R.build({ ...base, board: [{ name: 'Al', correct: 5, rank: 1, sentences: many(5, i => said('s' + i, DNV)),
+                                             refusals: many(4, () => ({ kind: 'capital', tried: 'determiner', needed: [] })) }] });
+  check(slips.students[0].skills.capital.level === 'practice' &&
+        slips.students[0].working.some(w => w.startsWith('Mixed up capital letters (4 times)')),
+        'capital slips that do happen are still counted: ' + JSON.stringify(slips.students[0].skills.capital));
+  check(ana.strengths.some(t => t.startsWith('Puts Nouns in the right spot (12 of 12)')) &&
+        ana.strengths.some(t => t.includes('describing words')), 'Ana\'s strengths: ' + ana.strengths.join(' | '));
+  check(ana.best.words === 7 && Math.abs(ana.wordsPer - 7) < 1e-9, 'Ana\'s sentences are 7 words long');
+  check(ana.working.length === 0, 'one slip is nothing to work on: ' + ana.working.join(' | '));
+
+  const ben = who('Ben');
+  check(ben.skills.verb.level === 'practice' && ben.skills.verb.tries === 9 && ben.skills.verb.errors === 6,
+        'six misplaced verbs in nine tries needs practice: ' + JSON.stringify(ben.skills.verb));
+  check(ben.working[0] === 'Put a Verb where a Noun or an Adjective was needed (6 times) - like "ran" right after "The".',
+        'Ben\'s mix-up is spelled out with an example: ' + ben.working[0]);
+  check(ben.next === R.KINDS.verb.tip, 'Ben\'s next step is about where Verbs go: ' + ben.next);
+
+  const cal = who('Cal');
+  check(cal.engagement.level === 'quiet' && cal.flags.some(f => f.id === 'quiet' && f.text.includes('1 of 8')),
+        'Cal steered in one quarter-minute of eight: ' + JSON.stringify(cal.flags));
+
+  const dee = who('Dee');
+  check(dee.counted === 1 && dee.repeats === 4, 'Dee wrote one sentence, and then repeats');
+  check(dee.flags.some(f => f.id === 'repeats' && f.text.startsWith('Wrote "The cat ran." 5 times')),
+        'the repeats are shown: ' + JSON.stringify(dee.flags));
+  check(!dee.strengths.some(t => t.startsWith('Puts')), 'placing the same words again and again is not a strength');
+  // the mistake made most comes first, and the next step is about it
+  const ender = R.build({ ...base, board: [{ name: 'Sy', correct: 5, rank: 1, slots: allSlots, sentences: many(5, i => said('s' + i, DNV)),
+    ate: { determiner: 10, noun: 10, verb: 5 },
+    refusals: many(2, () => order('noun', ['determiner'], 'cat', '')).concat(
+              many(9, () => ({ kind: 'unfinished', tried: 'end', needed: [] }))) }] }).students[0];
+  check(ender.working[0] === 'Tried to end a sentence before it was finished (9 times).' && ender.next === R.KINDS.end.tip,
+        'the most common mistake leads: ' + ender.working.join(' | '));
+  check(dee.next === R.REPEAT_TIP, 'Dee\'s next step is a new sentence every time: ' + dee.next);
+
+  const eli = who('Eli');
+  check(eli.random && eli.flags.some(f => f.id === 'random'), 'Eli steered at random');
+  check(Object.values(eli.skills).every(k => k.level === 'unclear') && !eli.strengths.length && !eli.working.length,
+        'random steering says nothing about grammar, so nothing is judged from it');
+
+  const gus = who('Gus');
+  check(gus.counted === 0 && gus.engagement.level === 'quiet' && Object.values(gus.skills).every(k => k.level === 'few'),
+        'a student with no data is quiet, with nothing judged');
+
+  check(r.findings.some(f => f === '2 students more than once put a Verb where a Noun or an Adjective was needed. ' +
+                             'A quick whole-class look at where Verbs go could help.'),
+        'the class finding names the shared mix-up: ' + r.findings.join(' | '));
+  check(r.findings.some(f => f.startsWith('Worth a check-in:') && f.includes('Cal (quiet)') &&
+                             f.includes('Dee (repeats)') && f.includes('Eli (random steering)') && !f.includes('Ana')),
+        'the check-ins name who and why: ' + r.findings.join(' | '));
+  check(!r.findings.join().includes('Eli') || r.findings.filter(f => f.includes('Eli')).length === 1,
+        'Eli only comes up as a check-in');
+
+  // a student who joined a minute late is judged on the minute they were there
+  const late = R.build({ ...base, board: [{ name: 'Lou', correct: 2, rank: 1, since: 60000, slots: [4, 5, 6, 7],
+                                            sentences: [said('The dog ran.', DNV)] }] }).students[0];
+  check(late.engagement.level === 'active' && late.engagement.totalSlots === 4, 'a late joiner is not marked quiet for it');
+  const half = R.build({ ...base, board: [{ name: 'Mo', correct: 1, rank: 1, slots: [0, 1, 2, 3], sentences: [] }] });
+  check(half.students[0].engagement.level === 'partly' && half.findings.some(f => f.includes('Mo (partly active)')),
+        'half a race is partly active, and the check-in says so: ' + half.findings.join(' | '));
+
+  check(R.build({ ...base, board: [] }).findings.join() === 'Nobody was in this race.', 'an empty race says so');
+  console.log('  report checks done');
+}
+
 /* A class race. js/race.js drives the game from the class clock; here the clock is played by
    hand. The game must wait for Start, count down, report every sentence it checks, refuse to
    pause or start over, and stop when the time is up - except that a sentence already being
@@ -903,9 +1058,15 @@ async function checkRace() {
   global.requestAnimationFrame = () => 0;
 
   const animals = loadTopic('animals');
-  const said = [];
-  const game = new NS.Game(animals, null, { onSentence: (verdict, text) => said.push(verdict + ': ' + text) },
-                           { race: true });
+  const said = [], shapes = [], refusals = [], ate = [];
+  let steers = 0, crashes = 0;
+  const game = new NS.Game(animals, null, {
+    onSentence: (verdict, text, info) => { said.push(verdict + ': ' + text); shapes.push(info); },
+    onRefuse: info => refusals.push(info),
+    onEat: family => ate.push(family),
+    onSteer: () => steers++,
+    onCrash: () => crashes++
+  }, { race: true });
   let t = performance.now();
   const run = ms => { for (let i = 0; i < ms; i += 50) game.frame(t += 50); };
   const key = k => game.handleKey({ key: k, preventDefault() {} });
@@ -926,6 +1087,7 @@ async function checkRace() {
   key('r');
   key('p');
   check(game.mode === 'waiting' && game.worm === worm, 'the worm waits for the teacher, whatever is pressed');
+  check(steers === 0, 'keys pressed before the start are not steering');
 
   game.startIn(1500);
   check(game.mode === 'countdown', 'Start begins a countdown');
@@ -938,8 +1100,12 @@ async function checkRace() {
   await checkIt('.');
   check(game.mode === 'checked' && said[0] === 'correct: The dog ran.',
         'a correct sentence is reported with its words: ' + said[0]);
+  check(JSON.stringify(shapes[0]) === JSON.stringify({ shape: ['determiner', 'noun', 'verb'], mark: '.' }),
+        'and with its shape, for the class report: ' + JSON.stringify(shapes[0]));
+  check(ate.join() === 'determiner,noun,verb', 'every word eaten is reported by its kind: ' + ate.join());
   key('ArrowRight');
   check(game.streak === 1, 'one sentence in a row');
+  check(steers === 1, 'carrying on with an arrow key is steering');
 
   // a word that does not fit is not eaten: nothing is reported, and the streak ends
   write(['The', 'mouse', 'carried', 'the', 'horse']);
@@ -947,13 +1113,38 @@ async function checkRace() {
   check(game.worm.carried.length === 4, 'the worm carries only the words it ate');
   check(game.refusal && game.refusal.reason.includes('too big'), 'the strip says why: ' + (game.refusal && game.refusal.reason));
   check(game.streak === 0, 'a refused word ends the streak');
+  check(refusals.length === 1 && refusals[0].kind === 'sense' && refusals[0].tried === 'noun' &&
+        refusals[0].word === 'horse' && refusals[0].after === 'the',
+        'a refused word is reported with what was tried and where: ' + JSON.stringify(refusals[0]));
+  game.eat(game.refused);
+  check(refusals.length === 1, 'still crossing the same word reports it once');
   eat('.');
   check(game.mode === 'playing' && said.length === 1, 'an unfinished sentence cannot be ended');
+  check(refusals[1] && refusals[1].kind === 'unfinished' && refusals[1].tried === 'end', 'and that is reported too');
   eat('bone');
   check(!game.refusal, 'eating a word that fits clears the reason');
   game.crash('wall');
   run(NS.CONFIG.crashDelayMs + 100);
   check(game.sentence.tokens.length === 0 && game.mode === 'playing', 'a crash still drops the sentence');
+  check(crashes === 1, 'a crash is reported');
+  key('ArrowUp');
+  check(steers === 2, 'steering while playing is reported');
+
+  // the same sentence again scores nothing in a race: it is still reported, so the teacher
+  // sees it, but there are no points and it is not added to the list again
+  write(['The', 'dog', 'ran']);
+  await checkIt('!');
+  check(game.mode === 'checked' && !game.report.repeat && game.report.points > 0 && game.finished.length === 2,
+        '"The dog ran!" is a different sentence from "The dog ran.", so it counts');
+  key('ArrowRight');
+  const score = game.score, streak = game.streak;
+  write(['The', 'dog', 'ran']);
+  await checkIt('.');
+  check(game.report.repeat === true && game.report.points === 0, 'a repeat is shown as one, for no points');
+  check(game.score === score && game.finished.length === 2 && game.streak === streak,
+        'a repeat adds no points, is not listed again, and leaves the streak where it was');
+  check(said.length === 3 && said[2] === 'correct: The dog ran.', 'a repeat is still reported to the teacher');
+  key('ArrowRight');
 
   write(['A', 'cat', 'hid']);
   eat('.');
@@ -961,11 +1152,11 @@ async function checkRace() {
   check(game.mode === 'checking', 'the bell waits for a sentence that is already being checked');
   await new Promise(done => setTimeout(done, 0));
   run(NS.CONFIG.checkMs + 100);
-  check(game.mode === 'over' && said[1] === 'correct: A cat hid.', 'it still counts, and then the game stops');
+  check(game.mode === 'over' && said[3] === 'correct: A cat hid.', 'it still counts, and then the game stops');
   key('ArrowUp');
   run(1000);
   check(game.mode === 'over' && !game.worm.moving, 'after the bell the worm stays still');
-  check(said.length === 2, 'every finished sentence was reported once');
+  check(said.length === 4, 'every finished sentence was reported once');
 
   game.newGame();
   game.hold();
@@ -979,6 +1170,22 @@ async function checkRace() {
   solo.frame(performance.now() + 50);
   solo.handleKey({ key: 'p', preventDefault() {} });
   check(solo.mode === 'paused', 'an ordinary game can still be paused');
+
+  // on your own, writing a sentence again still scores: the repeat rule is for races
+  solo.handleKey({ key: 'p', preventDefault() {} });
+  const scores = [];
+  for (let k = 0; k < 2; k++) {
+    for (const w of ['The', 'dog', 'ran', '.']) {
+      solo.eat(w === '.' ? { word: w, pos: 'punctuation', kind: 'punct' }
+                         : { word: w, pos: NS.Grammar.posOfWord(animals, w), kind: 'word' });
+    }
+    await new Promise(done => setTimeout(done, 0));
+    for (let i = 0; i < NS.CONFIG.checkMs + 100; i += 50) solo.frame(t += 50);
+    scores.push(solo.score);
+    solo.carryOn(null);
+  }
+  check(solo.finished.length === 2 && scores[0] > 0 && scores[1] > scores[0],
+        'a repeat counts in an ordinary game: ' + solo.finished.join(' | ') + ' ' + scores.join());
 
   // the helpers the race pages share (js/classroom.js)
   const C = NS.Class;
@@ -1022,6 +1229,8 @@ async function checkRace() {
       checkThisPack();
     }
   }
+  checkRefusalReports();
+  checkReport();
   checkDecide();
   checkSyntheticPack();
   checkCloset();

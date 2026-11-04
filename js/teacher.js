@@ -4,7 +4,8 @@
    makes a class with a four-letter code. Students join with it on their own computers
    (join.html). This page then shows who is here, starts the race, shows the leaderboard and the
    time left while it runs, and at the end the winners - and every sentence the class wrote,
-   ready to print. The class's key is kept in this browser, so a reload carries on. */
+   ready to print - and the class report: how each student did, and where they could use help
+   (js/report.js). The class's key is kept in this browser, so a reload carries on. */
 window.BW = window.BW || {};
 
 (function () {
@@ -12,6 +13,7 @@ window.BW = window.BW || {};
   const POLL_MS = 2000;
   const MINUTES = [2, 3, 5, 10];
   const HURRY_MS = 30000;
+  const QUIET_MS = 60000;      // no steering for this long while racing: a 💤 by the name
 
   let topics = [];             // from data/topics.json
   let choice = { topic: null, mode: 'real', minutes: 5 };
@@ -19,6 +21,7 @@ window.BW = window.BW || {};
   let view = null;             // the latest look at it
   let link = { state: 'off', url: null, canControl: false };   // the class link (tools/serve.py)
   let changing = false;        // the setup panel is changing the open class, not making one
+  let reporting = false;       // the class report is open
   const opened = new Set();    // students whose sentences are showing
   let drawn = '';              // what the board was last drawn from
   let timer = null;
@@ -74,6 +77,8 @@ window.BW = window.BW || {};
   }
 
   function showSetup(message) {
+    reporting = false;
+    $('report').hidden = true;
     $('room').hidden = true;
     $('setup').hidden = false;
     $('setup-error').textContent = message || '';
@@ -125,7 +130,7 @@ window.BW = window.BW || {};
         // an open class needs its link: open it (a new class), or see whether it is ready
         if (link.canControl && link.state === 'off' && !link.why) refreshLink({ open: true });
         else refreshLink();
-        if (!changing) { $('setup').hidden = true; $('room').hidden = false; }
+        if (!changing) { $('setup').hidden = true; $('room').hidden = reporting; }
         draw();
       }
     } catch (err) {
@@ -221,7 +226,7 @@ window.BW = window.BW || {};
     $('race').hidden = state === 'lobby';
     $('end').hidden = state !== 'running';
     $('open-hint').hidden = state === 'lobby';
-    $('again').hidden = $('change-after').hidden = $('print').hidden = state !== 'over';
+    $('again').hidden = $('change-after').hidden = $('print').hidden = $('open-report').hidden = state !== 'over';
 
     if (state === 'lobby') drawNames();
     else drawClock(state);
@@ -268,7 +273,10 @@ window.BW = window.BW || {};
 
   function drawBoard(state) {
     if (state === 'lobby') return;
-    const key = state + ':' + JSON.stringify(view.board) + [...opened].join();
+    // how long each student has been quiet changes at every look; only the 💤 matters here
+    const sleepy = row => state === 'running' && row.quietMs >= QUIET_MS;
+    const key = state + ':' + JSON.stringify(view.board, (k, v) => k === 'quietMs' ? undefined : v) +
+                view.board.map(r => sleepy(r) ? 'z' : '-').join('') + [...opened].join();
     if (key === drawn) return;
     drawn = key;
 
@@ -292,6 +300,13 @@ window.BW = window.BW || {};
                     '<span class="bar"><i></i></span><span class="score"></span>';
       b.querySelector('.place').textContent = BW.Class.place(row);
       b.querySelector('.name').textContent = row.name;
+      if (sleepy(row)) {
+        const z = document.createElement('span');
+        z.className = 'zz';
+        z.textContent = ' 💤';
+        z.title = 'No steering for over a minute - stepped away, stuck, or lost the connection?';
+        b.querySelector('.name').append(z);
+      }
       b.querySelector('.bar i').style.width = (100 * row.correct / most) + '%';
       b.querySelector('.score').textContent = row.correct;
       b.addEventListener('click', () => {
@@ -313,13 +328,15 @@ window.BW = window.BW || {};
     ul.className = 'mine';
     for (const s of row.sentences) {
       const li = document.createElement('li');
-      li.className = s.ok ? '' : 'no';
+      li.className = s.repeat ? 'again' : s.ok ? '' : 'no';
       li.textContent = s.text;
       ul.append(li);
     }
+    const repeats = row.sentences.filter(s => s.repeat).length;
     const tally = document.createElement('li');
     tally.className = 'tally';
-    tally.textContent = row.correct + ' correct' + (row.wrong ? ', ' + row.wrong + ' not quite right' : '');
+    tally.textContent = row.correct + ' correct' + (row.wrong ? ', ' + row.wrong + ' not quite right' : '') +
+                        (repeats ? ', ' + repeats + ' repeated (not counted)' : '');
     ul.append(tally);
     return ul;
   }
@@ -362,13 +379,46 @@ window.BW = window.BW || {};
       const ol = document.createElement('ol');
       for (const s of row.sentences) {
         const li = document.createElement('li');
-        li.className = s.ok ? '' : 'no';
+        li.className = s.repeat ? 'again' : s.ok ? '' : 'no';
         li.textContent = s.text;
         ol.append(li);
       }
       sec.append(h2, ol);
       out.append(sec);
     }
+  }
+
+  /* ---------- 3. the class report ---------- */
+
+  /* Ask for everything the race left behind - only once it is over, as it is a lot to send -
+     and lay it out (js/report.js, js/report-view.js). */
+  async function openReport() {
+    $('room-error').textContent = '';
+    $('open-report').disabled = true;
+    try {
+      const r = await BW.Class.call('/' + mine.code + '?teacher=' + encodeURIComponent(mine.teacher) + '&detail=1');
+      if (!r.ok) {
+        $('room-error').textContent = r.data.error || 'Could not make the report.';
+        return;
+      }
+      const topic = topics.find(t => t.id === r.data.topic) || { emoji: '', name: r.data.topic };
+      BW.ReportView.draw($('report'), BW.Report.build(r.data), topic);
+      reporting = true;
+      $('room').hidden = true;
+      $('report').hidden = false;
+      window.scrollTo(0, 0);
+    } catch (err) {
+      $('room-error').textContent = 'Could not reach the Bookworms server.';
+    } finally {
+      $('open-report').disabled = false;
+    }
+  }
+
+  function closeReport() {
+    reporting = false;
+    $('report').hidden = true;
+    $('room').hidden = false;
+    window.scrollTo(0, 0);
   }
 
   /* ---------- start up ---------- */
@@ -402,7 +452,24 @@ window.BW = window.BW || {};
     };
     $('change').addEventListener('click', change);
     $('change-after').addEventListener('click', change);
+    // printing with the report open prints the report; otherwise what the class wrote (see
+    // @media print) - from these buttons or from the browser's own Print
     $('print').addEventListener('click', () => window.print());
+    $('print-report').addEventListener('click', () => window.print());
+    // On paper every student's sentences are shown: a closed <details> prints closed, so the
+    // ones that are closed are opened for printing, and closed again afterwards.
+    let openedForPrint = [];
+    window.addEventListener('beforeprint', () => {
+      document.body.classList.toggle('print-report', reporting);
+      openedForPrint = reporting ? [...document.querySelectorAll('#report details:not([open])')] : [];
+      openedForPrint.forEach(d => { d.open = true; });
+    });
+    window.addEventListener('afterprint', () => {
+      openedForPrint.forEach(d => { d.open = false; });
+      openedForPrint = [];
+    });
+    $('open-report').addEventListener('click', openReport);
+    $('close-report').addEventListener('click', closeReport);
     $('link-btn').addEventListener('click', () => refreshLink({ open: true }));
     // closing the class closes its link, so everyone in it stops - it asks first
     twoStep($('new-class'), 'Sure? Everyone in it stops playing', () => {

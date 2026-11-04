@@ -83,6 +83,13 @@ BW.Game = class Game {
     if (this.mode === 'paused') return;
     if (this.mode === 'waiting' || this.mode === 'over') return;   // a class race not running
     this.worm.turn(dir[0], dir[1]);
+    this.steered();
+  }
+
+  /* The player pressed a direction while playing. A class race counts these to tell a player
+     who is steering from one who has stepped away (js/race.js, js/report.js). */
+  steered() {
+    if (this.hooks.onSteer) this.hooks.onSteer();
   }
 
   /* ---------- speed ---------- */
@@ -218,6 +225,7 @@ BW.Game = class Game {
     this.mode = 'crashed';
     this.crashMs = this.cfg.crashDelayMs;
     this.refusal = null;
+    if (this.hooks.onCrash) this.hooks.onCrash();
 
     const bump = reason === 'self' ? 'Oops, you bit your own tail!' : 'Bonk, that was the wall!';
     this.say(this.worm.carried.length
@@ -260,6 +268,7 @@ BW.Game = class Game {
     }
 
     this.sentence.add(tile.word, tile.pos);
+    if (this.hooks.onEat) this.hooks.onEat(BW.Checker.familyId(this.pack, tile.pos));
     this.worm.carry(tile.word, tile.pos);      // the word becomes part of the body
     this.worm.gulpAt = performance.now();
     BW.Sound.eat();
@@ -281,8 +290,14 @@ BW.Game = class Game {
   /* A word that does not fit is not eaten. The worm slides over it, the tile shakes, and
      the reason goes up on the strip - right at the word, while the child still has it in
      mind. It costs no points, but it does end a streak: the streak counts sentences built
-     without a word bounced. */
+     without a word bounced. A class race passes on what was tried, and where, for the
+     teacher's report. */
   refuse(tile, why) {
+    if (this.hooks.onRefuse) {
+      const last = this.sentence.tokens[this.sentence.tokens.length - 1];
+      this.hooks.onRefuse({ kind: why.kind, tried: why.tried, needed: why.needed,
+                            word: tile.word, after: last ? last.word : '' });
+    }
     this.refused = tile;
     this.refusal = { word: tile.word, ...why };
     tile.refusedAt = performance.now();
@@ -333,9 +348,23 @@ BW.Game = class Game {
 
   finishSentence(report, mark) {
     const words = this.sentence.tokens.length;
+    const shape = this.sentence.tokens.map(t => BW.Checker.familyId(this.pack, t.pos));
     this.sentence.end(mark);
-    this.finished.push(this.sentence.text());
-    if (this.hooks.onSentence) this.hooks.onSentence('correct', this.sentence.text());
+    const text = this.sentence.text();
+    if (this.hooks.onSentence) this.hooks.onSentence('correct', text, { shape, mark });
+
+    // In a class race a sentence already on your list scores nothing, so writing the same
+    // one over and over is no way up the board. The server keeps to the same rule.
+    if (this.race && this.finished.some(f => BW.Game.sameSentence(f, text))) {
+      BW.Sound.hmm();
+      this.worm.dropCarried();
+      this.sentence = BW.Grammar.newSentence(this.pack, BW.rng);
+      this.refill();
+      this.show({ ...report, points: 0, bonus: 0, streak: this.streak, repeat: true });
+      return;
+    }
+
+    this.finished.push(text);
     const pts = this.cfg.points;
     this.streak++;
     const bonus = pts.streak * (Math.min(this.streak, pts.maxStreak) - 1);
@@ -379,7 +408,7 @@ BW.Game = class Game {
     this.mode = 'playing';
     this.acc = 0;
     this.worm.prev = null;      // start gliding from where the worm stopped
-    if (dir) this.worm.turn(dir[0], dir[1]);
+    if (dir) { this.worm.turn(dir[0], dir[1]); this.steered(); }
     else this.worm.moving = true;
     this.notify();
   }
@@ -417,6 +446,13 @@ BW.Game = class Game {
     this.report = null;
     if (this.hooks.onReport) this.hooks.onReport(null);
     this.notify();
+  }
+
+  /* The same sentence, whatever the spacing or capitals. tools/classroom.py's same_sentence
+     must agree. */
+  static sameSentence(a, b) {
+    const norm = t => String(t).trim().split(/\s+/).join(' ').toLowerCase();
+    return norm(a) === norm(b);
   }
 
   label(pos) {

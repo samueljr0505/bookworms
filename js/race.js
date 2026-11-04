@@ -4,7 +4,11 @@
    score. This file keeps the game in step with them. It holds the worm still until the teacher
    presses Start, counts down with the rest of the class, sends every sentence the checker
    marks, keeps the mini leaderboard and the time left up to date in the sidebar, and stops the
-   game when the time is up. Everyone plays on their own board; only the scores are shared. */
+   game when the time is up. Everyone plays on their own board; only the scores are shared.
+
+   For the teacher's class report (js/report.js) it also sends, every few seconds, what happened
+   in between: the words the worm refused and why, the kinds of word it ate, crashes, and when
+   the player was steering. Only the teacher sees that. */
 window.BW = window.BW || {};
 
 BW.Race = (function () {
@@ -12,6 +16,17 @@ BW.Race = (function () {
   const POLL_MS = 2000;      // how often to ask for the board
   const ROWS = 5;            // how many of the top players the mini leaderboard shows
   const HURRY_MS = 30000;    // the clock turns red for the last half minute
+  const MOVES_MS = 10000;    // how often to send what happened between sentences
+  const BATCH = 12;          // refused words per report, which keeps it well under the server's limit
+  const SLOT_MS = 15000;     // the same as SLOT_MS in tools/classroom.py
+  const FAMILY = /^[a-z][a-zA-Z-]{0,19}$/;   // the same as FAMILY in tools/classroom.py
+  const families = list => (list || []).filter(f => typeof f === 'string' && FAMILY.test(f));
+  const short = text => String(text || '').slice(0, 24);
+
+  /* What has happened since the last moves report. */
+  function noMoves() {
+    return { refusals: [], ate: {}, crashes: 0, steers: 0, slots: new Set() };
+  }
 
   class Race {
     constructor(code) {
@@ -22,8 +37,11 @@ BW.Race = (function () {
       this.seat = inUrl ? inUrl[1] : saved && saved.seat;
       this.view = null;
       this.game = null;
-      this.outbox = [];        // sentences not yet safely on the server
+      this.outbox = [];        // sentences and moves not yet safely on the server, in order
       this.sent = 0;           // how many sentences this player has sent this race
+      this.batches = 0;        // how many moves reports
+      this.moves = noMoves();
+      this.movesAt = Date.now();
       this.lastTick = null;
     }
 
@@ -47,6 +65,7 @@ BW.Race = (function () {
       if (!r.data.me) return this.rejoin();
       this.view = r.data;
       this.sent = r.data.me.checked;
+      this.batches = r.data.me.moves || 0;
       return r.data;
     }
 
@@ -89,6 +108,7 @@ BW.Race = (function () {
         // the teacher has started a fresh race, maybe on another topic: load it from the top
         if (r.ok && r.data.round !== this.view.round) return location.reload();
         if (r.ok) { this.view = r.data; this.offline = false; }
+        if (Date.now() - this.movesAt >= MOVES_MS) this.sendMoves();
         this.flush();
       } catch (err) {
         this.offline = true;     // keep playing - the sentences wait in the outbox
@@ -101,30 +121,73 @@ BW.Race = (function () {
       this.pollAgain = false;
     }
 
-    /* The game has checked a sentence (the onSentence hook in js/game.js). */
-    report(verdict, text) {
-      this.outbox.push({ seat: this.seat, round: this.view.round, n: ++this.sent, verdict, text });
+    /* The game has checked a sentence (the onSentence hook in js/game.js). Its shape - the
+       kind of each word - is for the class report. */
+    report(verdict, text, info) {
+      const shape = families(info && info.shape).slice(0, 40);
+      this.outbox.push({ action: 'sentence', body: { seat: this.seat, round: this.view.round, n: ++this.sent,
+                                                      verdict, text, shape, mark: info && info.mark } });
       this.flush();
     }
 
-    /* Send the outbox in order. Each sentence carries its number, so one sent twice - the
-       answer got lost on the way back - is only counted once. A sentence the server turns
-       down (too late, or from an earlier race) is dropped; one that never got there is kept
-       for the next try. */
+    /* What the game tells the class report about, between sentences (js/game.js's hooks).
+       Only while the race is on: nothing before Start counts, and the game is still after the bell. */
+    noteRefusal(info) {
+      if (!this.racing() || !info || !info.kind) return;
+      this.moves.refusals.push({ kind: info.kind, tried: families([info.tried])[0] || 'other',
+                                 needed: families(info.needed).slice(0, 6),
+                                 word: short(info.word), after: short(info.after) });
+      if (this.moves.refusals.length >= BATCH) this.sendMoves();
+    }
+    noteEat(family) {
+      if (!this.racing() || !FAMILY.test(family)) return;
+      this.moves.ate[family] = (this.moves.ate[family] || 0) + 1;
+    }
+    noteCrash() {
+      if (this.racing()) this.moves.crashes++;
+    }
+    noteSteer() {
+      if (!this.racing()) return;
+      this.moves.steers++;
+      const last = this.view.minutes * 60000 / SLOT_MS;
+      this.moves.slots.add(Math.min(last, Math.floor((BW.Class.now() - this.view.startsAt) / SLOT_MS)));
+    }
+
+    racing() {
+      return !!this.view && this.view.startsAt !== null && BW.Class.now() >= this.view.startsAt && !this.done;
+    }
+
+    /* Put what has happened since the last report in the outbox, if anything has. */
+    sendMoves() {
+      const m = this.moves;
+      this.movesAt = Date.now();
+      if (!m.refusals.length && !m.crashes && !m.steers && !Object.keys(m.ate).length) return;
+      this.moves = noMoves();
+      this.outbox.push({ action: 'moves', body: { seat: this.seat, round: this.view.round, n: ++this.batches,
+                                                   refusals: m.refusals, ate: m.ate, crashes: m.crashes,
+                                                   steers: m.steers, slots: [...m.slots] } });
+      this.flush();
+    }
+
+    /* Send the outbox in order. Each sentence and each moves report carries its number, so
+       one sent twice - the answer got lost on the way back - is only counted once. One the
+       server turns down (too late, or from an earlier race) is dropped; one that never got
+       there is kept for the next try. */
     async flush() {
       if (this.sending) return;
       this.sending = true;
       let counted = false;
       while (this.outbox.length) {
+        const { action, body } = this.outbox[0];
         let r;
         try {
-          r = await BW.Class.call(this.path('/sentence'), this.outbox[0]);
+          r = await BW.Class.call(this.path('/' + action), body);
         } catch (err) {
           break;
         }
         if (r.status >= 500) break;
         if (r.data.gone) { this.sending = false; return this.gone(r.data.gone === 'seat' ? 'removed' : 'closed'); }
-        counted = counted || (r.ok && this.outbox[0].verdict === 'correct');
+        counted = counted || (r.ok && action === 'sentence' && body.verdict === 'correct');
         this.outbox.shift();
       }
       this.sending = false;
@@ -146,7 +209,10 @@ BW.Race = (function () {
         const wait = v.startsAt - now;
         game.startIn(wait >= 1000 ? wait : BW.CONFIG.startDelayMs);
       }
-      if (state === 'over' && !game.over) game.timeUp();
+      if (state === 'over' && !game.over) {
+        game.timeUp();
+        this.sendMoves();          // the last of it, while the server still takes it
+      }
 
       // the clock: the race's length until it starts, then the time left
       const left = state === 'lobby' ? v.minutes * 60000

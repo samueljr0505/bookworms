@@ -299,3 +299,12 @@ Small things added because the game needed them to be playable for 3rd-5th grade
   (`tools/classroom.py`), the game reports each finished sentence through its `onSentence` hook
   (`js/race.js`), and both are tested: `python3 tools/test_classroom.py` and the "A class race"
   checks in `node tools/test.js`. See [Class races](../README.md#class-races).
+- **The class report.** After a race the teacher can open a report on every student: a grid of
+  how well they place each kind of word, their most common mix-ups with an example, strengths,
+  one next step, and - kept apart from the skills - how engaged they were (quiet, repeating a
+  sentence, or steering at random, which then leaves their skills unjudged). The checker says
+  what each refused word was and what was needed (`js/checker.js`), the game passes it on
+  through hooks, the server keeps it for the teacher only, and `js/report.js` works it out. A
+  sentence written again in the same race scores nothing. Tested by the "class report" checks in
+  `node tools/test.js` and the report tests in `python3 tools/test_classroom.py`. See
+  [The class report](../README.md#the-class-report).

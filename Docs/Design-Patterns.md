@@ -127,6 +127,11 @@ sentence it checked, and the rules did not learn about the network to do it: the
 hook, `onSentence(verdict, text)`, and in a class race `main.js` points it at `js/race.js`, which
 does the sending. In an ordinary game the hook is empty and nothing is sent.
 
+The class report needed more than finished sentences - every word refused and why, every word
+eaten, every crash, every key pressed - and it went the same way: four more hooks (`onRefuse`,
+`onEat`, `onCrash`, `onSteer`), each one line in the rules, and `js/race.js` batching what they
+say for the server. The rules still know nothing about a network, a teacher or a report.
+
 **Known limit, and the next thing to fix.** Sound is *not* routed this way - `game.js` calls
 `BW.Sound.correct()` directly, so the rules engine knows about audio. Every new reaction (score
 popups, a streak counter, logging which words a student keeps getting wrong) would mean another

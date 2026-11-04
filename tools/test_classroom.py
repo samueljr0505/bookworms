@@ -64,9 +64,17 @@ class ClassroomTests(unittest.TestCase):
         self.assertEqual(code, 200, reply)
         return reply["seat"]
 
-    def say(self, seat, n, verdict="correct", text="The dog ran.", rnd=1):
+    def say(self, seat, n, verdict="correct", text=None, rnd=1, **more):
+        """A sentence, different every time unless the test says what it is."""
+        text = "The dog ran %d times." % n if text is None else text
         return self.post(self.code, "sentence",
-                         {"seat": seat, "n": n, "verdict": verdict, "text": text, "round": rnd})
+                         dict(more, seat=seat, n=n, verdict=verdict, text=text, round=rnd))
+
+    def moves(self, seat, n, rnd=1, **body):
+        return self.post(self.code, "moves", dict(body, seat=seat, n=n, round=rnd))
+
+    def detail(self):
+        return self.board(teacher=self.key, detail="1")
 
     def board(self, **params):
         code, view = self.room.handle_get(self.code, params)
@@ -155,7 +163,7 @@ class ClassroomTests(unittest.TestCase):
         view = self.board(teacher=self.key)
         row = view["board"][0]
         self.assertEqual((row["correct"], row["wrong"], len(row["sentences"])), (1, 1, 2))
-        self.assertEqual(row["sentences"][1], {"text": "The dog ate the moon.", "ok": False})
+        self.assertEqual(row["sentences"][1], {"text": "The dog ate the moon.", "ok": False, "repeat": False})
         self.assertEqual(self.board(me=sam)["me"]["checked"], 2)
 
     def test_most_correct_first_and_ties_go_to_whoever_got_there_first(self):
@@ -224,6 +232,174 @@ class ClassroomTests(unittest.TestCase):
                      {"seat": sam, "n": 0, "verdict": "correct", "round": 1},
                      {"seat": sam, "n": "1", "verdict": "correct", "round": 1}]:
             self.assertEqual(self.post(self.code, "sentence", body)[0], 400, body)
+
+
+    # ---------- the class report ----------
+
+    def test_a_repeated_sentence_is_kept_but_scores_nothing(self):
+        sam = self.join("Sam")
+        self.start()
+        self.assertFalse(self.say(sam, 1, text="The dog ran.")[1]["repeat"])
+        code, reply = self.say(sam, 2, text="  the dog   RAN. ")
+        self.assertEqual((code, reply["correct"], reply["repeat"]), (200, 1, True))
+        self.assertFalse(self.say(sam, 3, text="The dog ran!")[1]["repeat"])    # another mark: another sentence
+        row = self.board(teacher=self.key)["board"][0]
+        self.assertEqual(row["correct"], 2)
+        self.assertEqual([s["repeat"] for s in row["sentences"]], [False, True, False])
+        self.assertEqual(self.board(me=sam)["me"]["sentences"], ["The dog ran.", "The dog ran!"])
+
+    def test_a_repeat_does_not_win_a_tie(self):
+        ana, ben = self.join("Ana"), self.join("Ben")
+        self.start()
+        self.say(ana, 1, text="The dog ran.")
+        self.clock.wait(1000)
+        self.say(ben, 1, text="The cat hid.")
+        self.clock.wait(1000)
+        self.say(ana, 2, text="The dog ran.")
+        self.assertEqual([r["name"] for r in self.board()["board"]], ["Ana", "Ben"])   # Ana got there first
+
+    def test_a_sentence_keeps_its_shape_for_the_report(self):
+        sam = self.join("Sam")
+        self.start()
+        self.clock.wait(4000)
+        self.say(sam, 1, shape=["determiner", "noun", "verb"], mark=".")
+        self.say(sam, 2, shape=["determiner", "<b>"], mark="...")           # not right: left out
+        self.say(sam, 3, shape="determiner noun")
+        row = self.detail()["board"][0]
+        self.assertEqual(row["correct"], 3)                                 # but every sentence counts
+        self.assertEqual(row["sentences"][0], {"text": "The dog ran 1 times.", "ok": True, "repeat": False,
+                                               "at": 4000, "shape": ["determiner", "noun", "verb"], "mark": "."})
+        self.assertEqual([(s["shape"], s["mark"]) for s in row["sentences"][1:]], [([], ""), ([], "")])
+
+    def test_moves_are_kept_for_the_report(self):
+        sam = self.join("Sam")
+        self.start()
+        refusal = {"kind": "order", "tried": "verb", "needed": ["noun", "adjective"], "word": "ran", "after": "The"}
+        self.clock.wait(20000)
+        batch = {"refusals": [refusal], "ate": {"noun": 2, "verb": 1}, "crashes": 1, "steers": 5, "slots": [0, 1]}
+        self.assertEqual(self.moves(sam, 1, **batch)[0], 200)
+        self.assertEqual(self.moves(sam, 1, **batch)[0], 200)               # sent twice: counted once
+        self.assertEqual(self.moves(sam, 2, ate={"noun": 1}, slots=[1, 2], steers=1)[0], 200)
+        row = self.detail()["board"][0]
+        self.assertEqual(row["refusals"], [dict(refusal, at=20000)])
+        self.assertEqual((row["ate"], row["crashes"], row["steers"], row["slots"]),
+                         ({"noun": 3, "verb": 1}, 1, 6, [0, 1, 2]))
+        self.assertEqual(self.board(me=sam)["me"]["moves"], 2)              # a reloaded game carries on from here
+
+    def test_moves_that_are_not_right_are_refused(self):
+        sam = self.join("Sam")
+        self.assertEqual(self.moves(sam, 1, steers=1)[0], 409)              # not started
+        self.start()
+        good = {"kind": "order", "tried": "verb", "needed": ["noun"]}
+        for body in [{"refusals": [dict(good, kind="oops")]},
+                     {"refusals": [dict(good, tried="<b>")]},
+                     {"refusals": [dict(good, needed="noun")]},
+                     {"refusals": [good] * (classroom.REFUSALS_PER_BATCH + 1)},
+                     {"refusals": "lots"},
+                     {"ate": {"noun": -1}},
+                     {"ate": ["noun"]},
+                     {"slots": [3 * 4 + 1]},                                # past the end of a 3-minute race
+                     {"slots": [-1]},
+                     {"steers": True},
+                     {"crashes": 5000}]:
+            self.assertEqual(self.moves(sam, 1, **body)[0], 400, body)
+        self.assertEqual(self.post(self.code, "moves", {"seat": sam, "n": 0, "round": 1})[0], 400)
+        self.assertEqual(self.moves(sam, 1, rnd=2, steers=1)[0], 409)
+        self.assertEqual(self.moves("nobody", 1, steers=1)[1].get("gone"), "seat")
+        long_word = dict(good, word="w" * 100, after="a" * 100)
+        self.assertEqual(self.moves(sam, 1, refusals=[long_word])[0], 200)
+        kept = self.detail()["board"][0]["refusals"][0]
+        self.assertEqual((len(kept["word"]), len(kept["after"])), (classroom.WORD_LENGTH, classroom.WORD_LENGTH))
+        self.clock.wait(3 * 60000 + classroom.GRACE_MS + 1)
+        self.assertEqual(self.moves(sam, 2, steers=1)[0], 409)              # too late
+
+    def test_only_so_many_refusals_are_kept(self):
+        sam = self.join("Sam")
+        self.start()
+        refusal = {"kind": "capital", "tried": "determiner", "needed": []}
+        batches = classroom.MAX_REFUSALS // classroom.REFUSALS_PER_BATCH + 1
+        for n in range(1, batches + 1):
+            self.moves(sam, n, refusals=[refusal] * classroom.REFUSALS_PER_BATCH)
+        row = self.detail()["board"][0]
+        self.assertEqual(len(row["refusals"]), classroom.MAX_REFUSALS)
+        self.assertEqual(row["refusedMore"], batches * classroom.REFUSALS_PER_BATCH - classroom.MAX_REFUSALS)
+
+    def test_the_biggest_moves_report_the_game_sends_fits(self):
+        # js/race.js sends at most 12 refused words, each naming at most 6 kinds, words cut to 24
+        long_id = "x" * 20
+        refusal = {"kind": "unfinished", "tried": long_id, "needed": [long_id] * 6,
+                   "word": "w" * 24, "after": "a" * 24}
+        body = {"seat": "s" * 16, "round": 99, "n": 9999, "refusals": [refusal] * 12,
+                "ate": {"f%02d%s" % (i, "x" * 15): 1000 for i in range(7)}, "crashes": 1000, "steers": 100000,
+                "slots": list(range(10))}
+        self.assertLess(len(json.dumps(body).encode()), 4096)    # the server's limit (tools/serve.py)
+
+    def test_how_long_each_student_has_been_quiet(self):
+        sam, ana = self.join("Sam"), self.join("Ana")
+        self.assertEqual(self.board(teacher=self.key)["board"][0]["quietMs"], 0)   # not started
+        self.start()
+        self.clock.wait(70000)
+        self.moves(sam, 1, steers=2, slots=[4])
+        self.clock.wait(5000)
+        rows = {r["name"]: r["quietMs"] for r in self.board(teacher=self.key)["board"]}
+        self.assertEqual(rows, {"Sam": 5000, "Ana": 75000})
+        self.say(ana, 1)                                            # finishing a sentence is being active too
+        rows = {r["name"]: r["quietMs"] for r in self.board(teacher=self.key)["board"]}
+        self.assertEqual(rows["Ana"], 0)
+        self.assertNotIn("quietMs", json.dumps(self.board()))      # only the teacher sees it
+
+    def test_the_detail_is_only_for_the_teacher_and_only_when_asked(self):
+        sam = self.join("Sam")
+        self.start()
+        self.moves(sam, 1, refusals=[{"kind": "capital", "tried": "determiner", "needed": []}], steers=1)
+        self.say(sam, 1, shape=["determiner", "noun", "verb"])
+        everyday = json.dumps(self.board(teacher=self.key))
+        self.assertNotIn("refusals", everyday)
+        self.assertNotIn("shape", everyday)                        # sent every couple of seconds: kept small
+        for params in ({"detail": "1"}, {"me": sam, "detail": "1"}):
+            text = json.dumps(self.board(**params))
+            self.assertNotIn("refusals", text, params)
+            self.assertNotIn("capital", text, params)
+        self.assertEqual(self.room.handle_get(self.code, {"teacher": "guess", "detail": "1"})[0], 403)
+        self.clock.wait(30000)
+        view = self.detail()
+        self.assertEqual((view["playedMs"], view["slotMs"]), (30000, classroom.SLOT_MS))
+        self.assertEqual(view["board"][0]["since"], 0)
+
+    def test_what_the_teacher_is_handed_is_a_copy(self):
+        # the server writes the answer out after letting go of the lock, while students carry on
+        sam = self.join("Sam")
+        self.start()
+        self.moves(sam, 1, refusals=[{"kind": "capital", "tried": "determiner", "needed": []}], ate={"noun": 1})
+        self.say(sam, 1)
+        row = self.detail()["board"][0]
+        row["ate"]["verb"] = 9
+        row["refusals"].clear()
+        row["sentences"].clear()
+        again = self.detail()["board"][0]
+        self.assertEqual((again["ate"], len(again["refusals"]), len(again["sentences"])), ({"noun": 1}, 1, 1))
+
+    def test_a_late_joiner_is_timed_from_when_they_joined(self):
+        self.join("Sam")
+        self.start()
+        self.clock.wait(60000)
+        self.join("Ana")
+        self.assertEqual({r["name"]: r["since"] for r in self.detail()["board"]}, {"Sam": 0, "Ana": 60000})
+
+    def test_racing_again_starts_the_report_afresh(self):
+        sam = self.join("Sam")
+        self.start()
+        self.moves(sam, 1, refusals=[{"kind": "capital", "tried": "determiner", "needed": []}],
+                   ate={"noun": 1}, crashes=1, steers=1, slots=[0])
+        self.say(sam, 1, text="The dog ran.")
+        self.teacher("end")
+        self.teacher("again")
+        self.start()
+        self.assertFalse(self.say(sam, 1, rnd=2, text="The dog ran.")[1]["repeat"])   # a new race
+        row = self.detail()["board"][0]
+        self.assertEqual((row["refusals"], row["ate"], row["crashes"], row["steers"], row["slots"], row["refusedMore"]),
+                         ([], {}, 0, 0, [], 0))
+        self.assertEqual(self.board(me=sam)["me"]["moves"], 0)
 
 
 class LinkTests(unittest.TestCase):
