@@ -77,3 +77,22 @@ BW.chooseMode = function () {
   try { saved = localStorage.getItem(BW.MODE_KEY); } catch (e) { /* no storage */ }
   return [url, saved].find(m => BW.MODES.includes(m)) || 'real';
 };
+
+/* ---------- how fast the worm goes ---------- */
+
+/* How much quicker each speed is lives in js/config.js (`speeds`); these are just the names,
+   slowest first, so the home page can offer them without loading the game's settings. */
+BW.SPEEDS = ['slow', 'normal', 'fast', 'zoom'];
+BW.SPEED_KEY = 'bookworms.speed';
+
+BW.saveSpeed = function (speed) {
+  try { localStorage.setItem(BW.SPEED_KEY, speed); } catch (e) { /* not important */ }
+};
+
+/* The address wins, then the remembered choice, then Normal. */
+BW.chooseSpeed = function () {
+  let url = null, saved = null;
+  try { url = new URLSearchParams(location.search).get('speed'); } catch (e) { /* no address */ }
+  try { saved = localStorage.getItem(BW.SPEED_KEY); } catch (e) { /* no storage */ }
+  return [url, saved].find(s => BW.SPEEDS.includes(s)) || 'normal';
+};

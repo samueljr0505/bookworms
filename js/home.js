@@ -10,6 +10,7 @@ window.BW = window.BW || {};
   let skin = BW.skinFor(BW.DEFAULT_WORM);
   let chosenTopic = null;
   let chosenMode = BW.chooseMode();
+  let chosenSpeed = BW.chooseSpeed();
 
   /* Both choices ride in the link as well as in storage, so they survive a
      private window, blocked site data, or the game opening on another port. */
@@ -18,6 +19,7 @@ window.BW = window.BW || {};
     if (chosenWorm) bits.push('worm=' + encodeURIComponent(chosenWorm));
     if (chosenTopic) bits.push('topic=' + encodeURIComponent(chosenTopic));
     bits.push('mode=' + chosenMode);
+    bits.push('speed=' + chosenSpeed);
     $('play').href = 'game.html' + (bits.length ? '?' + bits.join('&') : '');
   }
 
@@ -112,9 +114,27 @@ window.BW = window.BW || {};
     show();
   }
 
+  /* How fast the worm goes, explained in one line under the switch like Real or Silly. */
+  function buildSpeeds() {
+    const buttons = document.querySelectorAll('#speeds [data-speed]');
+    const show = () => buttons.forEach(b => {
+      const on = b.dataset.speed === chosenSpeed;
+      b.setAttribute('aria-checked', String(on));
+      if (on) $('speed-note').textContent = b.dataset.note;
+    });
+    buttons.forEach(b => b.addEventListener('click', () => {
+      chosenSpeed = b.dataset.speed;
+      BW.saveSpeed(chosenSpeed);
+      show();
+      updatePlayLink();
+    }));
+    show();
+  }
+
   async function boot() {
     buildWorm();
     buildModes();
+    buildSpeeds();
     updatePlayLink();
     try {
       const data = await fetch('data/worms.json').then(r => {

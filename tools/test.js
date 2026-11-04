@@ -243,29 +243,26 @@ const CASES = {
     ['My cat hid', 'correct', ''],
     ['A fluffy rabbit was sleepy', 'correct', ''],
     ['The dog quickly ran into the barn', 'correct', ''],          // an Adverb before the Verb is fine
-    ['She chased the ball across the field', 'correct', ''],        // pronoun subject, object, place
-    ['The puppy brought him a stick', 'correct', ''],               // two objects
-    ['The puppy brought a stick to him', 'correct', ''],
-    ['They were hungry', 'correct', ''],
+    ['The dog chased the ball across the field', 'correct', ''],    // subject, object, place
+    ['The puppy brought the dog a stick', 'correct', ''],           // two objects
+    ['The puppy brought a stick to the cat', 'correct', ''],
     ['The big dog', 'unfinished', 'verb', 'What happens? Add a Verb'],
     ['The', 'unfinished', 'subject,verb', '"The" what? Add a Noun'],
     ['The dog was', 'unfinished', '', 'What is the dog like? Add an Adjective'],
     ['The dog chased', 'unfinished', '', 'It needs an object: chased what?'],
     ['The dog ran into', 'unfinished', '', '"into" where?'],
     ['The dog cat ran', 'wrong', 'order', '"dog cat" is two Nouns in a row'],
-    ['dog ran', 'wrong', 'capital,order', 'starts with a Pronoun or a Determiner'],
+    ['dog ran', 'wrong', 'capital,order', 'starts with a Determiner'],
     ['the dog ran', 'wrong', 'capital', 'use "The"'],
     ['The dog chased The cat', 'wrong', 'capital', 'needs a small letter: "the"'],
     ['The dog big', 'wrong', 'order,verb', 'It needs a verb'],
     ['The big fluffy dog ran', 'wrong', 'order', 'has room for one'],
-    ['The dog ran quickly slowly', 'wrong', 'order', 'was already a whole sentence'],
+    ['The dog ran quickly slowly', 'wrong', 'order,sense', 'was already a whole sentence'],
     ['The dog ran the barn', 'wrong', 'order', 'needs a Preposition to say where'],
     ['The dog chased quickly', 'wrong', 'order', 'needs an object first'],
-    ['They was hungry', 'wrong', 'order', '"They" goes with "were", not "was"'],
     ['The happy dog was happy', 'wrong', 'sense', '"happy" is used twice'],
     ['The quick fox ran slowly', 'wrong', 'sense', '"quick" and "slowly" do not go together'],
     ['The big mouse was small', 'wrong', 'sense', 'cannot be big and small at once'],
-    ['I watched me', 'wrong', 'sense', 'myself'],
     // Real mode: sentences that sound right but could not happen (js/sense.js)
     ['The mouse carried the horse', 'wrong', 'sense', 'a horse is too big for a mouse to carry'],
     ['The cat carried the kitten', 'correct', ''],
@@ -273,16 +270,25 @@ const CASES = {
     ['The horse hid under the tree', 'correct', ''],
     ['The duck chewed the bone', 'wrong', 'sense', 'cannot chew'],
     ['The cat was a dog', 'wrong', 'sense', 'a cat cannot be a dog'],
-    ['He was a dog', 'correct', ''],
     ['The dog found the bone in the hole', 'correct', ''],
     ['The dog dropped the ball into the hole', 'correct', ''],
-    ['The quickly', 'wrong', 'order,subject,verb', 'It needs a subject']
+    ['The quickly', 'wrong', 'order,subject,verb', 'It needs a subject'],
+    // on topic: no pronouns, "the" or "a" before a place, and only the pairs that fit
+    ['She ran', 'wrong', 'order,subject', 'starts with a Determiner'],
+    ['The dog ran into my barn', 'wrong', 'order,sense', '"into" goes with "the" or "a", not "my"'],
+    ['The cat jumped to the barn', 'wrong', 'sense', 'after "jumped", use "into" or "over"'],
+    ['The cat hid behind the field', 'wrong', 'sense', 'try "the barn" or "the tree"'],
+    ['The horse sat slowly', 'wrong', 'sense', '"sat" goes with "quietly"'],
+    ['My fox ran', 'wrong', 'sense', 'say "the fox" or "a fox"'],
+    ['The toy was small in the hole', 'wrong', 'order', 'already a whole sentence'],
+    ['The dog chewed the bone in the nest', 'wrong', 'sense', 'too big to fit in a nest'],
+    ['The dog buried the bone in the hole', 'correct', '']
   ],
   school: [
     ['The kind teacher smiled', 'correct', ''],
     ['A old student was busy', 'correct', ''],     // shown as "An old student"
     ['The teacher read the book in the library', 'correct', ''],
-    ['She handed the boy a red pencil', 'correct', ''],
+    ['The girl handed the boy a red pencil', 'correct', ''],
     ['The teacher smiled happily quietly', 'wrong', 'order', 'was already a whole sentence'],
     ['The teacher was', 'unfinished', '', 'What is the teacher like?'],
     ['The small reader was tall', 'wrong', 'sense', '"small" and "tall" do not go together'],
@@ -315,13 +321,13 @@ const CASES = {
   ],
   fantasy: [
     ['The brave knight found the golden sword in the old cave', 'correct', ''],
-    ['She gave the wise wizard a magic wand', 'correct', ''],
+    ['The princess gave the wise wizard a magic wand', 'correct', ''],
     ['The dragon quickly flew over the old castle', 'correct', ''],
-    ['He was a brave knight', 'correct', ''],
-    ['We were in the tower', 'correct', ''],
+    ['The elf was a brave knight', 'correct', ''],
+    ['The wizard was in the tower', 'correct', ''],
     ['The knight walked the cave', 'wrong', 'order', '"walked" needs a Preposition'],
     ['The elf slept bravely', 'wrong', 'sense', 'sleeping takes no bravery'],
-    ['him found the map', 'wrong', 'capital,order', 'starts with a Pronoun or a Determiner'],
+    ['the knight found the map', 'wrong', 'capital', 'use "The"'],
     ['The troll hid under the river', 'wrong', 'sense', 'you swim in a river'],
     ['The knight flew over the castle', 'wrong', 'sense', 'only a dragon has wings'],
     ['The unicorn held the sword', 'wrong', 'sense', 'no hands'],
@@ -332,11 +338,12 @@ const CASES = {
   ],
   sports: [
     ['The goalie kicked the ball into the net', 'correct', ''],
-    ['The coach passed the ball to her', 'correct', ''],
+    ['The coach passed the ball to the runner', 'correct', ''],
     ['The proud runner held the shiny trophy', 'correct', ''],
     ['The coach kicked the trophy', 'wrong', 'order', '"kicked" goes with "ball", not "trophy"'],
     ['The swimmer swam into the gym', 'wrong', 'sense', 'you cannot swim in a gym'],
-    ['The goalie waited in the net', 'wrong', 'sense', 'too big to fit in a net'],
+    ['The goalie waited near the net', 'correct', ''],
+    ['The goalie waited in the net', 'wrong', 'sense', 'try "the gym", "the pool" or "the stadium"'],
     ['The coach threw the runner a trophy', 'wrong', 'sense', 'you throw a ball']
   ]
 };
@@ -349,6 +356,12 @@ const SILLY_CASES = {
     ['The cat was a dog', 'correct', ''],
     ['The dog cat ran', 'wrong', 'order', '"dog cat" is two Nouns in a row'],
     ['the dog ran', 'wrong', 'capital', 'use "The"'],
+    // Silly mode keeps the pronouns
+    ['She chased the ball across the field', 'correct', ''],
+    ['They were hungry', 'correct', ''],
+    ['He was a dog', 'correct', ''],
+    ['They was hungry', 'wrong', 'order', '"They" goes with "were", not "was"'],
+    ['him found the map', 'wrong', 'capital,order', 'starts with a Pronoun or a Determiner'],
     ['I watched me', 'wrong', 'sense', 'myself'],
     ['The happy dog was happy', 'wrong', 'sense', '"happy" is used twice']
   ],
@@ -373,7 +386,7 @@ const SILLY_CASES = {
    and a piece of the reason the child is given - or null when the worm should eat it. */
 const REFUSALS = {
   animals: [
-    ['', 'dog', '"dog" is a Noun. A sentence here starts with a Pronoun or a Determiner'],
+    ['', 'dog', '"dog" is a Noun. A sentence here starts with a Determiner'],
     ['', 'the', 'look for "The"'],
     ['', '.', 'Eat some words first'],
     ['The', 'ran', '"ran" is a Verb. After "The", the sentence needs'],
@@ -389,8 +402,11 @@ const REFUSALS = {
     ['The dog ran', '.', null],
     ['The happy dog was', 'happy', '"happy" is already in your sentence'],
     ['The small dog was', 'big', '"small" and "big" do not go together'],
-    ['They', 'was', '"They" goes with "were"'],
-    ['They were', '.', 'What were they like?'],
+    ['The dog jumped', 'to', 'after "jumped", use "into" or "over"'],
+    ['The dog ran into', 'my', '"into" goes with "the" or "a", not "my"'],
+    ['My', 'fox', 'say "the fox" or "a fox"'],
+    ['The horse sat', 'slowly', '"sat" goes with "quietly"'],
+    ['The dog ran into', '.', '"into" where?'],
     ['The mouse carried the', 'horse', 'a horse is too big for a mouse to carry'],
     ['The cat carried the', 'kitten', null],
     ['A', 'in', 'After "A", the sentence needs']
@@ -403,14 +419,16 @@ const REFUSALS = {
   ],
   school: [
     ['The teacher read the', 'busy', '"busy" does not go with "read"'],
-    ['She was', 'us', '"us" is a Pronoun. After "She was", the sentence needs']
+    ['The girl was', 'paper', '"paper" is a Noun. After "The girl was", the sentence needs']
   ]
 };
 const SILLY_REFUSALS = {
   animals: [
     ['The mouse carried the', 'horse', null],
     ['The dog', 'big', 'An Adjective goes before the Noun it describes'],
-    ['I watched', 'me', '"I" and "me" do not go together']
+    ['I watched', 'me', '"I" and "me" do not go together'],
+    ['They', 'was', '"They" goes with "were"'],
+    ['They were', '.', 'What were they like?']
   ]
 };
 

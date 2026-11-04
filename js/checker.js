@@ -326,16 +326,16 @@ window.BW = window.BW || {};
     const need = rest.find(s => !s.optional) || rest[0];
     if (!need) return '';
     const role = roleOf(pack, need.pos);
-    if (need.literal && role !== 'naming' && role !== 'action' && role !== 'describing') {
-      return 'Add the word "' + need.literal + '" next.';
-    }
-    // a slot only certain words fit - "tastes" takes taste words, not every Adjective
     const last = sentence.tokens[sentence.tokens.length - 1];
     const lastFamily = last && pack.pos[last.pos] && pack.pos[last.pos].family;
     if (lastFamily === 'preposition') {
       const place = (pack.words.place || [])[0];
       return '"' + last.word + '" where? Finish it with a place' + (place ? ', like "' + last.word + ' the ' + place + '"' : '') + '.';
     }
+    if (need.literal && role !== 'naming' && role !== 'action' && role !== 'describing') {
+      return 'Add the word "' + need.literal + '" next.';
+    }
+    // a slot only certain words fit - "tastes" takes taste words, not every Adjective
     if ((lastFamily === 'determiner' || lastFamily === 'adjective') && role === 'naming') return '"' + last.word + '" what? Add a Noun.';
     const doing = sentence.tokens.slice().reverse().find(t =>
       roleOf(pack, t.pos) === 'action' && !BW.Grammar.isScaffold(t.pos));

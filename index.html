@@ -59,6 +59,19 @@
       </div>
       <p id="mode-note" class="mode-note" aria-live="polite">They have to make sense: a dog can chase a ball.</p>
 
+      <h2 id="speed-label" class="label">Speed</h2>
+      <div id="speeds" class="segmented speeds" role="radiogroup" aria-labelledby="speed-label">
+        <button type="button" role="radio" data-speed="slow" aria-checked="false"
+                data-note="Plenty of time to read every word.">🐢 Slow</button>
+        <button type="button" role="radio" data-speed="normal" aria-checked="true"
+                data-note="The worm speeds up a little with every sentence.">🐛 Normal</button>
+        <button type="button" role="radio" data-speed="fast" aria-checked="false"
+                data-note="Quicker - steer early!">🐇 Fast</button>
+        <button type="button" role="radio" data-speed="zoom" aria-checked="false"
+                data-note="As fast as it goes. Good luck!">⚡ Zoom</button>
+      </div>
+      <p id="speed-note" class="mode-note" aria-live="polite">The worm speeds up a little with every sentence.</p>
+
       <a id="play" class="play" href="game.html">Play</a>
       <p class="hint">Steer with the <b>arrow keys</b> or <b>W A S D</b></p>
     </section>

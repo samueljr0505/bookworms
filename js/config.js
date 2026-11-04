@@ -12,6 +12,15 @@ BW.CONFIG = {
   stepMs: 240,             // milliseconds between worm steps
   minStepMs: 165,          // the fastest the worm is ever allowed to get
   speedUpPerSentence: 3,   // shave this many ms off stepMs after each finished sentence
+  // The speeds a player can pick (on the home page, or the Speed button in the game): each
+  // one multiplies stepMs and minStepMs, so smaller is faster. A class race always goes at
+  // normal, so everyone in the class has the same worm.
+  speeds: {
+    slow:   { label: 'Slow',   factor: 1.35 },
+    normal: { label: 'Normal', factor: 1 },
+    fast:   { label: 'Fast',   factor: 0.75 },
+    zoom:   { label: 'Zoom',   factor: 0.55 }
+  },
 
   wordsOnBoard: 9,         // how many word tiles float around at once
   minValidWords: 3,        // always keep at least this many tiles the worm would eat next

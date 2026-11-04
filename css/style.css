@@ -121,6 +121,7 @@ main {
 .seg.optional:not(.next) { opacity: 0.75; }
 .seg-words { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
 .chip.ask { font-style: italic; font-weight: 700; border-style: dashed; }
+.seg-words .or { font-size: 11px; font-weight: 800; color: var(--muted); }
 .chip {
   padding: 4px 11px; border-radius: 999px; font-weight: 800; font-size: 14px;
   border: 2px solid var(--line); background: #fff; color: var(--ink);

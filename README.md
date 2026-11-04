@@ -11,7 +11,7 @@ sentence needs a Noun or an Adjective.* Once the sentence is whole, eat a punctu
 (**.** or **!**) and it is complete.
 
 The structure keeps the game's world small enough to get right - every sentence a topic allows
-can be counted (Animals has about 7 billion) - while the creativity comes from five topics
+can be counted (Animals has about 4.5 billion) - while the creativity comes from five topics
 (Animals, School, Food, Fantasy and Sports) and from longer sentences: *The dragon flew.*, *The
 dragon quickly flew over the old castle.* and *She gave the knight a golden sword.* are all
 sentences of the Fantasy topic. A short [grammar review](review.html) goes over the kinds of word
@@ -19,11 +19,18 @@ and the blocks, with a quick check at the end.
 
 On the home page the player also picks **Real** or **Silly**:
 
-- **Real** - the sentence has to make sense. After "The mouse carried the", the worm will not eat
-  "horse": *a horse is too big for a mouse to carry.*
-- **Silly** - the sentence only has to sound right. Any Adjective goes with any Noun and anything
-  can do anything, so "The pencil ate the gym." is a fine sentence. Capitals, word order, *a* /
-  *the* and repeated words still count.
+- **Real** - the sentence has to make sense, and be about the topic. Every Subject and Object is
+  one of the topic's own nouns (no pronouns: *The rabbit jumped into the pond.*, never *They
+  jumped to the field.*), a place takes *the* or *a*, and the words have to suit each other.
+  After "The mouse carried the", the worm will not eat "horse": *a horse is too big for a mouse to
+  carry.* After "The cat jumped", it will not eat "to": *after "jumped", use "into" or "over".*
+- **Silly** - the sentence only has to sound right. Any Adjective goes with any Noun, anything
+  can do anything, and pronouns are back, so "The pencil ate the gym." and "They gave him the
+  pond." are fine sentences. Capitals, word order, *a* / *the* and repeated words still count.
+
+And a **speed**: Slow, Normal, Fast or Zoom. The worm still speeds up a little with every
+sentence. The **Speed** button in the game changes it mid-game; a class race always goes at
+Normal, so everyone has the same worm.
 
 **The worm's body is the sentence.** Every word you eat is written along the body, one letter per
 square, coloured by its part of speech, with a little gap between words. Whichever way the worm
@@ -83,6 +90,7 @@ what each test proves.
   Drive into any other word and it is **not eaten**: the tile shakes, a pop-up over the worm says
   what was wrong ("Need a Noun!"), and the strip gives the whole reason until the next word is
   eaten. It costs no points, but it ends a streak.
+- **Speed** goes round Slow, Normal, Fast and Zoom, and the game remembers it for next time.
 - Hints start off. Turn them on with the **Hints** button and the words the worm would eat get a
   dashed white outline.
 - **Once the sentence is whole, eat a punctuation mark and it is complete.** A mark eaten too
@@ -393,7 +401,7 @@ Every topic shares one grammar, made from the building blocks of a sentence:
 
 | Block | What it is | Examples |
 | --- | --- | --- |
-| **Subject** | who or what the sentence is about: a Determiner + (Adjective) + Noun, or a Pronoun | *The brave knight*, *She* |
+| **Subject** | who or what the sentence is about: a Determiner + (Adjective) + Noun, or (Silly mode) a Pronoun | *The brave knight*, *She* |
 | **Verb** | what happens, or *was* / *were* | *flew*, *found*, *was* |
 | **Object** (optional) | who or what gets the action; giving verbs take two | *found **the map***, *gave **him** **a sword*** |
 | **Modifiers & Complements** (optional) | an Adverb before or after the verb, a Preposition and a place, or a complement after *was* | *quickly*, *into the dark cave*, *was **a wise wizard*** |
@@ -465,12 +473,31 @@ is eaten - so the hints never lead to nonsense, and a wrong word gets a reason p
 | `adjectives` | what an Adjective can describe | `"tall": {"what": ["being"]}` |
 | `canBe` | "The boy was a ___" | `"teacher": ["friend", "reader"]` |
 
-A list names words or tags, and `"!"` rules one out (`"who": ["!horse"]`). Pronouns could be
-anyone, so they are never ruled out, and a word the table does not mention is never blocked.
-`build-topics.py` refuses to build if the table names a word the topic does not have.
+Clashes and the fields above list what does *not* fit. Most awkward sentences, though, come from
+pairs nobody thought to list - "hid under the pond", "jumped to the field", "raced slowly", "my
+girl" - so the `FITS` table next to `MEANING` lists what *does* fit, and anything it leaves out is
+refused:
 
-Silly mode uses a looser copy of the sentence shapes that `build-topics.py` writes into each topic
-file under `"silly"`, and ignores the meaning table and the meaning clashes.
+| Field | Says | Example |
+| --- | --- | --- |
+| `where` | the Prepositions each place takes | `"pond": "into toward to in near"` |
+| `after` | the Prepositions that can follow a verb (a verb not listed takes any) | `"jumped": "into over"` |
+| `adverbs` | the verbs each Adverb goes with | `"slowly": "walked crawled hopped ..."` |
+| `my` | the nouns *my* goes with: pets, family and things | `"cat dog rabbit ... thing"` |
+
+A verb in `MEANING` can also say `"puts": True`: after "buried the bone", only the bone goes into
+the hole, not the dog.
+
+A list names words or tags, and `"!"` rules one out (`"who": ["!horse"]`). A word the table does
+not mention is never blocked. `build-topics.py` refuses to build if the table names a word the
+topic does not have.
+
+To see what a topic really produces, play a few sentences in Real mode, or let the engine build
+some: `node tools/test.js` prints a sample for every topic.
+
+Silly mode uses a looser copy of the sentence shapes, and every word including the pronouns, that
+`build-topics.py` writes into each topic file under `"silly"`, and ignores the meaning table and
+the meaning clashes.
 
 `tools/list-sentences.py` still samples by shape and clashes only, so it can show sentences that
 Real mode's meaning table would turn down.
@@ -500,8 +527,8 @@ checks that every slot has a free starting item and every price is sensible.
 
 ### Change how it feels
 
-Everything tunable is in `js/config.js` with a comment: board size, worm speed, how much the worm
-grows, how many words are on the board at once, points, sound on or off, and what a crash does.
+Everything tunable is in `js/config.js` with a comment: board size, worm speed (and the four
+`speeds` a player can pick), how much the worm grows, how many words are on the board at once, points, sound on or off, and what a crash does.
 
 ## Ideas for the next version
 

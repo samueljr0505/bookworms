@@ -3,7 +3,7 @@
   "name": "School",
   "emoji": "🎒",
   "description": "Build a sentence from a subject, a verb, and as much more as you like.",
-  "sentenceCount": 6215810917,
+  "sentenceCount": 4281518268,
   "families": {
     "determiner": {
       "label": "Determiner",
@@ -21,12 +21,6 @@
       "label": "Noun",
       "hint": "a person, place, or thing",
       "color": "#5ec4a3",
-      "role": "naming"
-    },
-    "pronoun": {
-      "label": "Pronoun",
-      "hint": "takes a noun's place: he, them",
-      "color": "#7cc6e8",
       "role": "naming"
     },
     "verb": {
@@ -90,18 +84,6 @@
       "hint": "a person, place, or thing",
       "color": "#5ec4a3",
       "family": "noun"
-    },
-    "subjectPronoun": {
-      "label": "Pronoun",
-      "hint": "takes a noun's place: he, them",
-      "color": "#7cc6e8",
-      "family": "pronoun"
-    },
-    "objectPronoun": {
-      "label": "Pronoun",
-      "hint": "takes a noun's place: he, them",
-      "color": "#7cc6e8",
-      "family": "pronoun"
     },
     "move": {
       "label": "Verb",
@@ -227,20 +209,6 @@
       "desk",
       "office"
     ],
-    "subjectPronoun": [
-      "He",
-      "She",
-      "I",
-      "They",
-      "We"
-    ],
-    "objectPronoun": [
-      "him",
-      "her",
-      "me",
-      "them",
-      "us"
-    ],
     "move": [
       "walked",
       "ran",
@@ -279,8 +247,7 @@
       "lent"
     ],
     "be": [
-      "was",
-      "were"
+      "was"
     ],
     "adverb": [
       "quickly",
@@ -306,16 +273,15 @@
   "rules": {
     "beingWord": "adjective | mood",
     "being": "determiner <beingWord>? noun",
-    "subjectOne": "<being> | 'He' | 'She' | 'I'",
-    "subjectMany": "'They' | 'We'",
-    "subject": "<subjectOne> | <subjectMany>",
-    "someone": "<being> | objectPronoun",
+    "subjectOne": "<being>",
+    "subject": "<subjectOne>",
+    "someone": "<being>",
     "thingWord": "adjective | quality",
     "something": "determiner <thingWord>? thing",
     "takeTarget": "<someone> | <something>",
     "pushTarget": "<something>",
     "useTarget": "<something>",
-    "spot": "determiner adjective? place",
+    "spot": "( 'the' | 'a' ) adjective? place",
     "to": "motionPrep <spot>",
     "at": "placePrep <spot>",
     "where": "<to> | <at>"
@@ -430,14 +396,13 @@
       "blocks": [
         "Subject",
         "Verb",
-        "Complement",
-        "Modifier?"
+        "Complement"
       ],
       "end": [
         ".",
         "!"
       ],
-      "shape": "<subjectOne> 'was' ( <beingWord> <at>? | 'a' <beingWord>? noun <at>? | <at> ) | <subjectMany> 'were' ( <beingWord> <at>? | <at> )"
+      "shape": "<subjectOne> 'was' ( <beingWord> | 'a' <beingWord>? noun | <at> )"
     },
     {
       "id": "school-describing-things",
@@ -445,14 +410,13 @@
       "blocks": [
         "Subject",
         "Verb",
-        "Complement",
-        "Modifier?"
+        "Complement"
       ],
       "end": [
         ".",
         "!"
       ],
-      "shape": "determiner <thingWord>? thing 'was' ( <thingWord> <at>? | <at> )"
+      "shape": "determiner <thingWord>? thing 'was' ( <thingWord> | <at> )"
     }
   ],
   "clashes": [
@@ -475,16 +439,6 @@
       "hurried",
       "slowly",
       "hurrying is fast, not slow"
-    ],
-    [
-      "I",
-      "me",
-      "say \"myself\" for that - or pick someone else"
-    ],
-    [
-      "We",
-      "us",
-      "say \"ourselves\" for that - or pick someone else"
     ],
     [
       "tall",
@@ -668,7 +622,13 @@
     "verbs": {
       "carried": {
         "bigger": -1,
-        "base": "carry"
+        "base": "carry",
+        "where": [
+          "into",
+          "to",
+          "toward",
+          "through"
+        ]
       },
       "read": {
         "what": [
@@ -676,15 +636,21 @@
           "note",
           "paper"
         ],
-        "why": "you read a book, a note or a paper"
+        "why": "you read a book, a note or a paper",
+        "where": [
+          "in",
+          "at"
+        ]
       },
       "wrote": {
         "what": [
-          "book",
-          "note",
-          "paper"
+          "note"
         ],
-        "why": "you write a book, a note or on paper"
+        "why": "you write a note",
+        "where": [
+          "in",
+          "at"
+        ]
       },
       "opened": {
         "what": [
@@ -699,6 +665,93 @@
           "thing"
         ],
         "why": "you lend things, not people"
+      },
+      "waited": {
+        "where": [
+          "in",
+          "near",
+          "at"
+        ]
+      },
+      "smiled": {
+        "where": [
+          "in"
+        ]
+      },
+      "listened": {
+        "where": [
+          "in"
+        ]
+      },
+      "laughed": {
+        "where": [
+          "in"
+        ]
+      },
+      "studied": {
+        "where": [
+          "in",
+          "at"
+        ]
+      },
+      "sat": {
+        "where": [
+          "in",
+          "near",
+          "at",
+          "behind"
+        ]
+      },
+      "walked": {
+        "where": [
+          "into",
+          "to",
+          "toward",
+          "across",
+          "through",
+          "in"
+        ]
+      },
+      "ran": {
+        "where": [
+          "into",
+          "to",
+          "toward",
+          "across",
+          "through"
+        ]
+      },
+      "hurried": {
+        "where": [
+          "into",
+          "to",
+          "toward",
+          "across",
+          "through"
+        ]
+      },
+      "skipped": {
+        "where": [
+          "into",
+          "to",
+          "toward",
+          "across",
+          "through"
+        ]
+      },
+      "dropped": {
+        "where": [
+          "in",
+          "near",
+          "behind"
+        ]
+      },
+      "slid": {
+        "where": [
+          "toward",
+          "across",
+          "to"
+        ]
       }
     },
     "adjectives": {
@@ -707,6 +760,12 @@
           "being"
         ],
         "why": "tall describes a person"
+      },
+      "small": {
+        "what": [
+          "!teacher"
+        ],
+        "why": "a teacher is a grown-up"
       }
     },
     "canBe": {
@@ -724,10 +783,419 @@
         "writer",
         "helper"
       ]
-    }
+    },
+    "where": {
+      "classroom": [
+        "into",
+        "to",
+        "toward",
+        "in"
+      ],
+      "library": [
+        "into",
+        "to",
+        "toward",
+        "in",
+        "at"
+      ],
+      "hallway": [
+        "into",
+        "through",
+        "in"
+      ],
+      "gym": [
+        "into",
+        "to",
+        "toward",
+        "across",
+        "in",
+        "at"
+      ],
+      "playground": [
+        "to",
+        "toward",
+        "across",
+        "in",
+        "at"
+      ],
+      "desk": [
+        "at",
+        "near",
+        "behind"
+      ],
+      "office": [
+        "into",
+        "to",
+        "toward",
+        "in",
+        "at",
+        "near"
+      ]
+    },
+    "adverbs": {
+      "quickly": [
+        "walked",
+        "ran",
+        "skipped",
+        "carried",
+        "found",
+        "read",
+        "wrote",
+        "opened",
+        "handed",
+        "gave",
+        "slid"
+      ],
+      "slowly": [
+        "walked",
+        "read",
+        "wrote",
+        "opened",
+        "carried"
+      ],
+      "quietly": [
+        "walked",
+        "sat",
+        "waited",
+        "listened",
+        "studied",
+        "read",
+        "wrote",
+        "laughed",
+        "smiled",
+        "opened"
+      ],
+      "carefully": [
+        "carried",
+        "wrote",
+        "read",
+        "opened",
+        "listened",
+        "studied",
+        "handed",
+        "slid",
+        "watched"
+      ],
+      "happily": [
+        "smiled",
+        "laughed",
+        "skipped",
+        "walked",
+        "read",
+        "gave",
+        "showed",
+        "lent",
+        "handed"
+      ]
+    },
+    "my": [
+      "teacher",
+      "classmate",
+      "friend",
+      "thing"
+    ]
   },
   "silly": {
     "sentenceCount": 602049847220,
+    "families": {
+      "determiner": {
+        "label": "Determiner",
+        "hint": "comes before a noun: The, a, my",
+        "color": "#9aa7d7",
+        "role": "other"
+      },
+      "adjective": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "role": "describing"
+      },
+      "noun": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "role": "naming"
+      },
+      "pronoun": {
+        "label": "Pronoun",
+        "hint": "takes a noun's place: he, them",
+        "color": "#7cc6e8",
+        "role": "naming"
+      },
+      "verb": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "role": "action"
+      },
+      "adverb": {
+        "label": "Adverb",
+        "hint": "how it happened: slowly",
+        "color": "#c79ae0",
+        "role": "other"
+      },
+      "preposition": {
+        "label": "Preposition",
+        "hint": "where it happened: into, under",
+        "color": "#b8c97a",
+        "role": "other"
+      }
+    },
+    "pos": {
+      "determiner": {
+        "label": "Determiner",
+        "hint": "comes before a noun: The, a, my",
+        "color": "#9aa7d7",
+        "family": "determiner"
+      },
+      "adjective": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "family": "adjective"
+      },
+      "mood": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "family": "adjective"
+      },
+      "quality": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "family": "adjective"
+      },
+      "noun": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "family": "noun"
+      },
+      "thing": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "family": "noun"
+      },
+      "place": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "family": "noun"
+      },
+      "subjectPronoun": {
+        "label": "Pronoun",
+        "hint": "takes a noun's place: he, them",
+        "color": "#7cc6e8",
+        "family": "pronoun"
+      },
+      "objectPronoun": {
+        "label": "Pronoun",
+        "hint": "takes a noun's place: he, them",
+        "color": "#7cc6e8",
+        "family": "pronoun"
+      },
+      "move": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "stay": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "take": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "push": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "see": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "use": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "give": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "be": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "adverb": {
+        "label": "Adverb",
+        "hint": "how it happened: slowly",
+        "color": "#c79ae0",
+        "family": "adverb"
+      },
+      "motionPrep": {
+        "label": "Preposition",
+        "hint": "where it happened: into, under",
+        "color": "#b8c97a",
+        "family": "preposition"
+      },
+      "placePrep": {
+        "label": "Preposition",
+        "hint": "where it happened: into, under",
+        "color": "#b8c97a",
+        "family": "preposition"
+      }
+    },
+    "words": {
+      "determiner": [
+        "The",
+        "A",
+        "My",
+        "the",
+        "a",
+        "my"
+      ],
+      "adjective": [
+        "tall",
+        "small",
+        "new",
+        "old"
+      ],
+      "mood": [
+        "happy",
+        "busy",
+        "kind",
+        "clever",
+        "quiet",
+        "noisy",
+        "tired"
+      ],
+      "quality": [
+        "red",
+        "blue",
+        "yellow"
+      ],
+      "noun": [
+        "teacher",
+        "student",
+        "classmate",
+        "boy",
+        "girl",
+        "friend",
+        "reader",
+        "writer",
+        "helper"
+      ],
+      "thing": [
+        "book",
+        "pencil",
+        "paper",
+        "backpack",
+        "crayon",
+        "note"
+      ],
+      "place": [
+        "classroom",
+        "library",
+        "hallway",
+        "gym",
+        "playground",
+        "desk",
+        "office"
+      ],
+      "subjectPronoun": [
+        "He",
+        "She",
+        "I",
+        "They",
+        "We"
+      ],
+      "objectPronoun": [
+        "him",
+        "her",
+        "me",
+        "them",
+        "us"
+      ],
+      "move": [
+        "walked",
+        "ran",
+        "hurried",
+        "skipped"
+      ],
+      "stay": [
+        "waited",
+        "smiled",
+        "listened",
+        "studied",
+        "sat",
+        "laughed"
+      ],
+      "take": [
+        "carried"
+      ],
+      "push": [
+        "dropped",
+        "slid"
+      ],
+      "see": [
+        "found",
+        "saw",
+        "watched"
+      ],
+      "use": [
+        "read",
+        "wrote",
+        "opened"
+      ],
+      "give": [
+        "gave",
+        "handed",
+        "showed",
+        "lent"
+      ],
+      "be": [
+        "was",
+        "were"
+      ],
+      "adverb": [
+        "quickly",
+        "slowly",
+        "quietly",
+        "carefully",
+        "happily"
+      ],
+      "motionPrep": [
+        "into",
+        "to",
+        "toward",
+        "across",
+        "through"
+      ],
+      "placePrep": [
+        "in",
+        "near",
+        "at",
+        "behind"
+      ]
+    },
     "rules": {
       "adj": "adjective | mood | quality",
       "anyNoun": "noun | thing | place",

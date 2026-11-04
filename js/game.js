@@ -3,12 +3,15 @@ window.BW = window.BW || {};
 
 BW.Game = class Game {
   /* options.race: this is a class race (js/race.js). The class shares one clock, so there is
-     no pausing and no starting over - the teacher says when it starts and when it ends. */
+     no pausing and no starting over - the teacher says when it starts and when it ends - and
+     everyone goes at normal speed.
+     options.speed: one of the `speeds` in js/config.js, picked on the home page. */
   constructor(pack, canvas, hooks, options) {
     this.pack = pack;
     this.cfg = BW.CONFIG;
     this.hooks = hooks || {};
     this.race = !!(options && options.race);
+    this.speed = !this.race && options && this.cfg.speeds[options.speed] ? options.speed : 'normal';
     this.renderer = new BW.Renderer(canvas, this.cfg);
     this.board = new BW.Board(this.cfg.grid.cols, this.cfg.grid.rows,
                               text => this.renderer.measureCells(text));
@@ -25,7 +28,7 @@ BW.Game = class Game {
     this.finished = [];
     this.score = 0;
     this.streak = 0;            // correct sentences in a row
-    this.stepMs = this.cfg.stepMs;
+    this.stepMs = this.cfg.stepMs * this.factor();
     this.acc = 0;
     this.last = performance.now();
     this.countdownMs = this.cfg.startDelayMs;   // Req 3
@@ -80,6 +83,18 @@ BW.Game = class Game {
     if (this.mode === 'paused') return;
     if (this.mode === 'waiting' || this.mode === 'over') return;   // a class race not running
     this.worm.turn(dir[0], dir[1]);
+  }
+
+  /* ---------- speed ---------- */
+
+  factor() { return this.cfg.speeds[this.speed].factor; }
+
+  /* Change speed mid-game. The worm keeps whatever it has sped up by since the start. */
+  setSpeed(speed) {
+    if (this.race || !this.cfg.speeds[speed]) return;
+    this.stepMs = this.stepMs / this.factor() * this.cfg.speeds[speed].factor;
+    this.speed = speed;
+    this.notify();
   }
 
   attachInput(target) {
@@ -342,7 +357,7 @@ BW.Game = class Game {
     this.worm.dropCarried();
     this.worm.grow += this.cfg.trophyPerSentence;
 
-    this.stepMs = Math.max(this.cfg.minStepMs, this.stepMs - this.cfg.speedUpPerSentence);
+    this.stepMs = Math.max(this.cfg.minStepMs * this.factor(), this.stepMs - this.cfg.speedUpPerSentence);
     this.sentence = BW.Grammar.newSentence(this.pack, BW.rng);
     this.refill();
     this.show({ ...report, points, bonus, streak: this.streak });

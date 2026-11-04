@@ -14,10 +14,24 @@
                    what    what it can be done to          ("baked": a cake, not a sandwich)
                    bigger  how much bigger than the doer the object may be: -1 means it has
                            to be smaller ("carried"), 1 means up to one size bigger ("chased")
+                   where   the Prepositions that can follow it (see below)
+                   puts    the object goes into the place, not the doer: "buried the bone in
+                           the hole" (otherwise, after a verb like "chewed", the doer is there)
                    base    the verb said plainly, for the reason: "carry"
                    why     the reason a child is told when who or what does not fit
      adjectives  adjective -> { what, why }   what it can describe
      canBe       noun -> what it can be in "The boy was a ___"; "*" for every other noun
+     where       place -> the Prepositions it takes: "pond": ["into", "in", "near"], so never
+                 "under the pond"
+     adverbs     adverb -> the verbs it goes with: "slowly": ["walked", "crawled"], so never
+                 "raced slowly"
+     my          the nouns "my" goes with: "my dog", "my mom", "my pencil" - not "my girl"
+   and a verb's rule can say `where` too - the Prepositions that can follow it: "jumped":
+   { where: ["into", "over"] }, so never "jumped to the field".
+
+   `where` and `adverbs` list what fits rather than what does not, because the pairs that
+   read wrong are too many to list one by one - so a place, verb or adverb they leave out is
+   not limited at all.
 
    A list may name words or tags. Every word is tagged with itself, beings with "being",
    things with "thing" and places with "place". A word starting with "!" rules that word or
@@ -102,8 +116,10 @@ BW.Sense = (function () {
     const objects = [];          // heads of the objects, in order
     let recipient = null;
     let pending = [];            // Adjectives waiting for their Noun
+    let how = null;              // an Adverb that came before its verb
     let prep = null;             // a Preposition waiting for its place
     let open = false;            // a Determiner has started a noun phrase
+    let mine = null;             // that Determiner was "my"
     let complement = false;      // "was a ___": the next Noun is what the subject is
 
     const say = (at, a, b, why) => ({ at, words: [a, b], why });
@@ -115,10 +131,26 @@ BW.Sense = (function () {
       if (fam === 'determiner') {
         if (verb && verb.pos === 'be' && !open && !prep && (word === 'a' || word === 'A')) complement = true;
         open = true;
+        mine = word === 'my' || word === 'My' ? { word, at: i } : null;
         continue;
       }
       if (fam === 'preposition' || (word === 'to' && !NAMING[pos])) {
+        // "jumped to the field": the verb says which Prepositions can follow it
+        const rule = verb && (m.verbs || {})[verb.word];
+        if (rule && rule.where && !rule.where.includes(word)) {
+          return say(i, verb.word, word, 'after "' + verb.word + '", use ' + quoted(rule.where));
+        }
         prep = { word, at: i };
+        continue;
+      }
+
+      if (fam === 'adverb') {
+        if (verb) {
+          const no = notHow(M, word, verb.word, true);
+          if (no) return say(i, verb.word, word, no);
+        } else {
+          how = { word, at: i };
+        }
         continue;
       }
 
@@ -141,6 +173,8 @@ BW.Sense = (function () {
         if (rule && subject && !allowed(M, subject.word, rule.who)) {
           return say(i, subject.word, word, rule.why || (named(pack, subject) + ' cannot do that'));
         }
+        const no = how && notHow(M, how.word, word, false);
+        if (no) return say(i, how.word, word, no);
         continue;
       }
 
@@ -157,13 +191,30 @@ BW.Sense = (function () {
       }
       pending = [];
       open = false;
+      // "my girl": "my" is for pets, family and things
+      if (mine && m.my && head.kind !== 'pronoun' && !allowed(M, word, m.my)) {
+        return say(i, mine.word, word, 'say "the ' + word + '" or "a ' + word + '"');
+      }
+      mine = null;
 
       if (prep) {
         const p = prep;
         prep = null;
         if (head.kind === 'place') {
+          // "under the pond": the place says which Prepositions it takes
+          const takes = (m.where || {})[word];
+          if (takes && !takes.includes(p.word)) {
+            const others = Object.keys(m.where).filter(x => m.where[x].includes(p.word));
+            return say(i, p.word, word, others.length
+              ? 'try ' + quoted(others.slice(0, 3).map(x => 'the ' + x))
+              : named(pack, head) + ' goes with ' + quoted(takes));
+          }
           // whoever or whatever is there has to fit: "The horse hid in the nest"
-          const there = objects.length ? objects[objects.length - 1] : subject;
+          // "chewed a leaf in the nest": the one doing it is there too; "dropped the bone
+          // into the hole": only the bone goes
+          const rule = (m.verbs || {})[verb && verb.word] || {};
+          const doer = verb && ['stay', 'move', 'use'].includes(verb.pos) && !rule.puts;
+          const there = objects.length && !doer ? objects[objects.length - 1] : subject;
           const room = HOLD_PREPS.includes(p.word) ? holdsOf(M, word, p.word) : null;
           const size = there && there.kind !== 'pronoun' ? sizeOf(M, there.word) : null;
           if (room !== null && size !== null && size > room) {
@@ -209,6 +260,25 @@ BW.Sense = (function () {
       }
     }
     return null;
+  }
+
+  /* ["in", "near"] -> '"in" or "near"' */
+  function quoted(words) {
+    const q = words.map(w => '"' + w + '"');
+    return q.length <= 1 ? q.join('') : q.slice(0, -1).join(', ') + ' or ' + q[q.length - 1];
+  }
+
+  /* Why this Adverb does not go with this verb, or null when it does. `late` says the verb
+     came first, so the reason offers other Adverbs; otherwise it offers other verbs. */
+  function notHow(M, adverb, verb, late) {
+    const all = M.m.adverbs || {};
+    if (!all[adverb] || allowed(M, verb, all[adverb])) return null;
+    if (late) {
+      const fit = Object.keys(all).filter(a => allowed(M, verb, all[a]));
+      return fit.length ? '"' + verb + '" goes with ' + quoted(fit)
+                        : 'there is no telling how someone ' + verb;
+    }
+    return '"' + adverb + '" goes with ' + quoted(all[adverb].slice(0, 4));
   }
 
   /* Would this word, eaten next, still make sense? */

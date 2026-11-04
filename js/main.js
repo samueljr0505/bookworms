@@ -56,6 +56,10 @@ window.BW = window.BW || {};
                       <b>${info.label}</b><span>${info.hint}</span>`;
       ul.appendChild(li);
     }
+    const end = document.createElement('li');
+    end.innerHTML = `<i style="background:${posColor(pack, 'punctuation')}"></i>
+                     <b>End mark</b><span>finishes the sentence: . !</span>`;
+    ul.appendChild(end);
   }
 
   /* What each building block of a sentence answers - shown in an empty block, and on hover. */
@@ -95,7 +99,18 @@ window.BW = window.BW || {};
     // is made of; the block the next word goes in shows every kind that would fit there.
     const wanted = s.wants();
     const nextBlock = new Map(wanted.map(m => [m, s.blockOfNext(m)]));
-    const kindsOf = ms => [...new Set(ms.map(m => posLabel(pack, m.pos || BW.Grammar.posOfWord(pack, m.word))))].join(' or ');
+    // every kind of word that fits, each chip in its own colour: [Adjective] or [Noun]
+    const kindChips = (row, ms) => {
+      const seen = new Set();
+      for (const m of ms) {
+        const pos = m.pos || BW.Grammar.posOfWord(pack, m.word);
+        const label = posLabel(pack, pos);
+        if (seen.has(label)) continue;
+        if (seen.size) row.append(Object.assign(document.createElement('span'), { className: 'or', textContent: 'or' }));
+        seen.add(label);
+        row.append(chip(pack, label, pos, 'next'));
+      }
+    };
     const segments = s.segments();
     const building = $('building');
     building.textContent = '';
@@ -112,17 +127,17 @@ window.BW = window.BW || {};
       head.textContent = seg.block + (seg.optional ? ' (optional)' : '');
       const row = document.createElement('div');
       row.className = 'seg-words';
-      let asked = false;     // the first slot to fill shows every kind that fits: "Adjective or Noun"
+      let asked = false;     // the first slot to fill shows every kind that fits
       for (const slot of seg.slots) {
         if (slot.state === 'done') row.append(chip(pack, slot.word, slot.pos, 'done'));
         else if (slot.state === 'next' && fits.length) {
-          if (!asked) row.append(chip(pack, kindsOf(fits), slot.pos, 'next'));
+          if (!asked) kindChips(row, fits);
           asked = true;
         } else row.append(chip(pack, posLabel(pack, slot.pos), slot.pos, slot.state));
       }
       if (!seg.slots.length) {
-        row.append(state === 'next' ? chip(pack, kindsOf(fits), null, 'next')
-                                    : chip(pack, ASKS[seg.block], null, 'todo ask'));
+        if (state === 'next') kindChips(row, fits);
+        else row.append(chip(pack, ASKS[seg.block], null, 'todo ask'));
       }
       box.append(head, row);
       building.append(box);
@@ -159,6 +174,7 @@ window.BW = window.BW || {};
     no.textContent = game.refusal ? game.refusal.reason : '';
 
     $('btn-pause').innerHTML = (game.mode === 'paused' ? 'Resume' : 'Pause') + ' <kbd>P</kbd>';
+    $('btn-speed').textContent = 'Speed: ' + BW.CONFIG.speeds[game.speed].label;
 
     const list = $('finished');
     if (game.finished.length === 0) {
@@ -373,19 +389,27 @@ window.BW = window.BW || {};
       onEarn: earned,
       onReport: report => renderReport(game, report),
       onSentence: race ? (verdict, text) => race.report(verdict, text) : null
-    }, { race: !!race });
+    }, { race: !!race, speed: BW.chooseSpeed() });
 
     game.attachInput(window);
     if (race) {
       // the class shares one clock: no pausing it, and no starting over
       $('btn-new').hidden = true;
       $('btn-pause').hidden = true;
+      $('btn-speed').hidden = true;      // everyone races at the same speed
       race.attach(game);
     }
 
     $('btn-new').addEventListener('click', () => { game.newGame(); window.focus(); });
     $('btn-pause').addEventListener('click', () => {
       game.handleKey({ key: 'p', preventDefault() {} });
+    });
+    // the next speed up, round to the slowest again; remembered for next time
+    $('btn-speed').addEventListener('click', () => {
+      const next = BW.SPEEDS[(BW.SPEEDS.indexOf(game.speed) + 1) % BW.SPEEDS.length];
+      game.setSpeed(next);
+      BW.saveSpeed(next);
+      $('btn-speed').blur();
     });
     $('btn-hints').addEventListener('click', () => {
       game.showHints = !game.showHints;

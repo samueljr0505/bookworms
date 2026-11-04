@@ -3,7 +3,7 @@
   "name": "Fantasy",
   "emoji": "🐉",
   "description": "Build a sentence from a subject, a verb, and as much more as you like.",
-  "sentenceCount": 14233411461,
+  "sentenceCount": 9425201724,
   "families": {
     "determiner": {
       "label": "Determiner",
@@ -21,12 +21,6 @@
       "label": "Noun",
       "hint": "a person, place, or thing",
       "color": "#5ec4a3",
-      "role": "naming"
-    },
-    "pronoun": {
-      "label": "Pronoun",
-      "hint": "takes a noun's place: he, them",
-      "color": "#7cc6e8",
       "role": "naming"
     },
     "verb": {
@@ -90,18 +84,6 @@
       "hint": "a person, place, or thing",
       "color": "#5ec4a3",
       "family": "noun"
-    },
-    "subjectPronoun": {
-      "label": "Pronoun",
-      "hint": "takes a noun's place: he, them",
-      "color": "#7cc6e8",
-      "family": "pronoun"
-    },
-    "objectPronoun": {
-      "label": "Pronoun",
-      "hint": "takes a noun's place: he, them",
-      "color": "#7cc6e8",
-      "family": "pronoun"
     },
     "move": {
       "label": "Verb",
@@ -227,20 +209,6 @@
       "mountain",
       "village"
     ],
-    "subjectPronoun": [
-      "He",
-      "She",
-      "I",
-      "They",
-      "We"
-    ],
-    "objectPronoun": [
-      "him",
-      "her",
-      "me",
-      "them",
-      "us"
-    ],
     "move": [
       "flew",
       "ran",
@@ -282,8 +250,7 @@
       "sent"
     ],
     "be": [
-      "was",
-      "were"
+      "was"
     ],
     "adverb": [
       "quickly",
@@ -312,16 +279,15 @@
   "rules": {
     "beingWord": "adjective | mood",
     "being": "determiner <beingWord>? noun",
-    "subjectOne": "<being> | 'He' | 'She' | 'I'",
-    "subjectMany": "'They' | 'We'",
-    "subject": "<subjectOne> | <subjectMany>",
-    "someone": "<being> | objectPronoun",
+    "subjectOne": "<being>",
+    "subject": "<subjectOne>",
+    "someone": "<being>",
     "thingWord": "adjective | quality",
     "something": "determiner <thingWord>? thing",
     "takeTarget": "<someone> | <something>",
     "pushTarget": "<something>",
     "useTarget": "<something>",
-    "spot": "determiner adjective? place",
+    "spot": "( 'the' | 'a' ) adjective? place",
     "to": "motionPrep <spot>",
     "at": "placePrep <spot>",
     "where": "<to> | <at>"
@@ -436,14 +402,13 @@
       "blocks": [
         "Subject",
         "Verb",
-        "Complement",
-        "Modifier?"
+        "Complement"
       ],
       "end": [
         ".",
         "!"
       ],
-      "shape": "<subjectOne> 'was' ( <beingWord> <at>? | 'a' <beingWord>? noun <at>? | <at> ) | <subjectMany> 'were' ( <beingWord> <at>? | <at> )"
+      "shape": "<subjectOne> 'was' ( <beingWord> | 'a' <beingWord>? noun | <at> )"
     },
     {
       "id": "fantasy-describing-things",
@@ -451,14 +416,13 @@
       "blocks": [
         "Subject",
         "Verb",
-        "Complement",
-        "Modifier?"
+        "Complement"
       ],
       "end": [
         ".",
         "!"
       ],
-      "shape": "determiner <thingWord>? thing 'was' ( <thingWord> <at>? | <at> )"
+      "shape": "determiner <thingWord>? thing 'was' ( <thingWord> | <at> )"
     }
   ],
   "clashes": [
@@ -478,16 +442,6 @@
       "waiting is not something you can hurry"
     ],
     [
-      "I",
-      "me",
-      "say \"myself\" for that - or pick someone else"
-    ],
-    [
-      "We",
-      "us",
-      "say \"ourselves\" for that - or pick someone else"
-    ],
-    [
       "big",
       "tiny",
       "something cannot be big and tiny at once"
@@ -496,6 +450,11 @@
       "angry",
       "happily",
       "an angry creature does nothing happily"
+    ],
+    [
+      "angry",
+      "grumpy",
+      "they mean the same thing - say it once"
     ],
     [
       "grumpy",
@@ -665,30 +624,67 @@
         "who": [
           "flyer"
         ],
-        "why": "only a dragon has wings to fly"
+        "why": "only a dragon has wings to fly",
+        "where": [
+          "over",
+          "toward",
+          "to",
+          "into",
+          "across"
+        ]
       },
       "marched": {
         "who": [
           "walker"
         ],
-        "why": "marching is for people on two feet"
+        "why": "marching is for people on two feet",
+        "where": [
+          "into",
+          "through",
+          "across",
+          "toward",
+          "to"
+        ]
       },
       "carried": {
         "bigger": -1,
-        "base": "carry"
+        "base": "carry",
+        "where": [
+          "into",
+          "toward",
+          "to",
+          "across",
+          "through",
+          "up"
+        ]
       },
       "followed": {
         "what": [
           "being",
           "map"
         ],
-        "why": "you follow someone, or a map"
+        "why": "you follow someone, or a map",
+        "where": [
+          "into",
+          "through",
+          "across",
+          "toward",
+          "to",
+          "up"
+        ]
       },
       "chased": {
         "what": [
           "being"
         ],
-        "why": "you chase someone who runs away"
+        "why": "you chase someone who runs away",
+        "where": [
+          "into",
+          "through",
+          "across",
+          "toward",
+          "to"
+        ]
       },
       "held": {
         "who": [
@@ -706,7 +702,103 @@
         "who": [
           "hands"
         ],
-        "why": "that creature has no hands to throw it"
+        "why": "that creature has no hands to throw it",
+        "where": [
+          "into",
+          "over",
+          "across",
+          "toward",
+          "to"
+        ]
+      },
+      "walked": {
+        "where": [
+          "into",
+          "through",
+          "across",
+          "toward",
+          "to",
+          "up"
+        ]
+      },
+      "ran": {
+        "where": [
+          "into",
+          "through",
+          "across",
+          "toward",
+          "to",
+          "up"
+        ]
+      },
+      "jumped": {
+        "where": [
+          "into",
+          "over",
+          "across"
+        ]
+      },
+      "crept": {
+        "where": [
+          "into",
+          "through",
+          "toward"
+        ]
+      },
+      "hid": {
+        "where": [
+          "in",
+          "under",
+          "behind",
+          "inside"
+        ]
+      },
+      "slept": {
+        "where": [
+          "in",
+          "inside",
+          "under",
+          "near"
+        ]
+      },
+      "waited": {
+        "where": [
+          "in",
+          "near",
+          "behind",
+          "inside"
+        ]
+      },
+      "laughed": {
+        "where": [
+          "in",
+          "inside"
+        ]
+      },
+      "sang": {
+        "where": [
+          "in",
+          "near",
+          "inside"
+        ]
+      },
+      "rested": {
+        "where": [
+          "in",
+          "near",
+          "under",
+          "inside"
+        ]
+      },
+      "dropped": {
+        "where": [
+          "into",
+          "in",
+          "near",
+          "under",
+          "behind",
+          "inside"
+        ]
       }
     },
     "adjectives": {
@@ -755,10 +847,446 @@
         "knight",
         "wizard"
       ]
-    }
+    },
+    "where": {
+      "castle": [
+        "into",
+        "to",
+        "toward",
+        "over",
+        "in",
+        "near",
+        "behind",
+        "inside"
+      ],
+      "forest": [
+        "into",
+        "through",
+        "across",
+        "toward",
+        "to",
+        "over",
+        "in",
+        "near"
+      ],
+      "cave": [
+        "into",
+        "toward",
+        "to",
+        "in",
+        "near",
+        "inside",
+        "behind"
+      ],
+      "tower": [
+        "into",
+        "to",
+        "toward",
+        "up",
+        "in",
+        "inside",
+        "near"
+      ],
+      "river": [
+        "across",
+        "toward",
+        "to",
+        "over",
+        "into",
+        "in",
+        "near"
+      ],
+      "mountain": [
+        "up",
+        "over",
+        "toward",
+        "to",
+        "near",
+        "behind"
+      ],
+      "village": [
+        "into",
+        "through",
+        "toward",
+        "to",
+        "over",
+        "in",
+        "near"
+      ]
+    },
+    "adverbs": {
+      "quickly": [
+        "flew",
+        "ran",
+        "walked",
+        "marched",
+        "jumped",
+        "hid",
+        "carried",
+        "followed",
+        "chased",
+        "threw",
+        "found",
+        "sent",
+        "gave"
+      ],
+      "slowly": [
+        "walked",
+        "marched",
+        "crept",
+        "flew",
+        "carried",
+        "followed"
+      ],
+      "quietly": [
+        "walked",
+        "crept",
+        "slept",
+        "waited",
+        "hid",
+        "sang",
+        "rested",
+        "followed",
+        "guarded"
+      ],
+      "bravely": [
+        "marched",
+        "ran",
+        "jumped",
+        "flew",
+        "followed",
+        "chased",
+        "guarded",
+        "protected",
+        "held",
+        "carried"
+      ],
+      "happily": [
+        "sang",
+        "laughed",
+        "flew",
+        "ran",
+        "walked",
+        "jumped",
+        "gave",
+        "showed",
+        "waved",
+        "found"
+      ]
+    },
+    "my": [
+      "dragon",
+      "unicorn",
+      "thing"
+    ]
   },
   "silly": {
     "sentenceCount": 1013640225860,
+    "families": {
+      "determiner": {
+        "label": "Determiner",
+        "hint": "comes before a noun: The, a, my",
+        "color": "#9aa7d7",
+        "role": "other"
+      },
+      "adjective": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "role": "describing"
+      },
+      "noun": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "role": "naming"
+      },
+      "pronoun": {
+        "label": "Pronoun",
+        "hint": "takes a noun's place: he, them",
+        "color": "#7cc6e8",
+        "role": "naming"
+      },
+      "verb": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "role": "action"
+      },
+      "adverb": {
+        "label": "Adverb",
+        "hint": "how it happened: slowly",
+        "color": "#c79ae0",
+        "role": "other"
+      },
+      "preposition": {
+        "label": "Preposition",
+        "hint": "where it happened: into, under",
+        "color": "#b8c97a",
+        "role": "other"
+      }
+    },
+    "pos": {
+      "determiner": {
+        "label": "Determiner",
+        "hint": "comes before a noun: The, a, my",
+        "color": "#9aa7d7",
+        "family": "determiner"
+      },
+      "adjective": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "family": "adjective"
+      },
+      "mood": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "family": "adjective"
+      },
+      "quality": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "family": "adjective"
+      },
+      "noun": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "family": "noun"
+      },
+      "thing": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "family": "noun"
+      },
+      "place": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "family": "noun"
+      },
+      "subjectPronoun": {
+        "label": "Pronoun",
+        "hint": "takes a noun's place: he, them",
+        "color": "#7cc6e8",
+        "family": "pronoun"
+      },
+      "objectPronoun": {
+        "label": "Pronoun",
+        "hint": "takes a noun's place: he, them",
+        "color": "#7cc6e8",
+        "family": "pronoun"
+      },
+      "move": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "stay": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "take": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "push": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "see": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "use": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "give": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "be": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "adverb": {
+        "label": "Adverb",
+        "hint": "how it happened: slowly",
+        "color": "#c79ae0",
+        "family": "adverb"
+      },
+      "motionPrep": {
+        "label": "Preposition",
+        "hint": "where it happened: into, under",
+        "color": "#b8c97a",
+        "family": "preposition"
+      },
+      "placePrep": {
+        "label": "Preposition",
+        "hint": "where it happened: into, under",
+        "color": "#b8c97a",
+        "family": "preposition"
+      }
+    },
+    "words": {
+      "determiner": [
+        "The",
+        "A",
+        "My",
+        "the",
+        "a",
+        "my"
+      ],
+      "adjective": [
+        "big",
+        "tiny",
+        "old",
+        "golden",
+        "magic"
+      ],
+      "mood": [
+        "brave",
+        "wise",
+        "sleepy",
+        "angry",
+        "kind",
+        "grumpy"
+      ],
+      "quality": [
+        "shiny",
+        "heavy",
+        "secret"
+      ],
+      "noun": [
+        "knight",
+        "dragon",
+        "wizard",
+        "princess",
+        "giant",
+        "elf",
+        "troll",
+        "unicorn"
+      ],
+      "thing": [
+        "sword",
+        "map",
+        "crown",
+        "potion",
+        "shield",
+        "treasure",
+        "wand"
+      ],
+      "place": [
+        "castle",
+        "forest",
+        "cave",
+        "tower",
+        "river",
+        "mountain",
+        "village"
+      ],
+      "subjectPronoun": [
+        "He",
+        "She",
+        "I",
+        "They",
+        "We"
+      ],
+      "objectPronoun": [
+        "him",
+        "her",
+        "me",
+        "them",
+        "us"
+      ],
+      "move": [
+        "flew",
+        "ran",
+        "walked",
+        "marched",
+        "jumped",
+        "crept"
+      ],
+      "stay": [
+        "slept",
+        "waited",
+        "hid",
+        "laughed",
+        "sang",
+        "rested"
+      ],
+      "take": [
+        "carried",
+        "followed",
+        "chased"
+      ],
+      "push": [
+        "dropped",
+        "threw"
+      ],
+      "see": [
+        "found",
+        "saw",
+        "guarded",
+        "protected"
+      ],
+      "use": [
+        "held",
+        "waved"
+      ],
+      "give": [
+        "gave",
+        "showed",
+        "sent"
+      ],
+      "be": [
+        "was",
+        "were"
+      ],
+      "adverb": [
+        "quickly",
+        "slowly",
+        "quietly",
+        "bravely",
+        "happily"
+      ],
+      "motionPrep": [
+        "into",
+        "through",
+        "across",
+        "toward",
+        "to",
+        "over",
+        "up"
+      ],
+      "placePrep": [
+        "in",
+        "near",
+        "under",
+        "behind",
+        "inside"
+      ]
+    },
     "rules": {
       "adj": "adjective | mood | quality",
       "anyNoun": "noun | thing | place",

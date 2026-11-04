@@ -3,7 +3,7 @@
   "name": "Food",
   "emoji": "🍎",
   "description": "Build a sentence from a subject, a verb, and as much more as you like.",
-  "sentenceCount": 1734658205,
+  "sentenceCount": 1242217200,
   "families": {
     "determiner": {
       "label": "Determiner",
@@ -21,12 +21,6 @@
       "label": "Noun",
       "hint": "a person, place, or thing",
       "color": "#5ec4a3",
-      "role": "naming"
-    },
-    "pronoun": {
-      "label": "Pronoun",
-      "hint": "takes a noun's place: he, them",
-      "color": "#7cc6e8",
       "role": "naming"
     },
     "verb": {
@@ -103,18 +97,6 @@
       "hint": "a person, place, or thing",
       "color": "#5ec4a3",
       "family": "noun"
-    },
-    "subjectPronoun": {
-      "label": "Pronoun",
-      "hint": "takes a noun's place: he, them",
-      "color": "#7cc6e8",
-      "family": "pronoun"
-    },
-    "objectPronoun": {
-      "label": "Pronoun",
-      "hint": "takes a noun's place: he, them",
-      "color": "#7cc6e8",
-      "family": "pronoun"
     },
     "move": {
       "label": "Verb",
@@ -264,20 +246,6 @@
       "bakery",
       "table"
     ],
-    "subjectPronoun": [
-      "He",
-      "She",
-      "I",
-      "They",
-      "We"
-    ],
-    "objectPronoun": [
-      "him",
-      "her",
-      "me",
-      "them",
-      "us"
-    ],
     "move": [
       "ran",
       "walked",
@@ -313,8 +281,7 @@
       "served"
     ],
     "be": [
-      "was",
-      "were"
+      "was"
     ],
     "taste": [
       "tastes",
@@ -349,22 +316,22 @@
   "rules": {
     "beingWord": "adjective | mood",
     "being": "determiner <beingWord>? noun",
-    "subjectOne": "<being> | 'He' | 'She' | 'I'",
-    "subjectMany": "'They' | 'We'",
-    "subject": "<subjectOne> | <subjectMany>",
-    "someone": "<being> | objectPronoun",
+    "subjectOne": "<being>",
+    "subject": "<subjectOne>",
+    "someone": "<being>",
     "thingWord": "adjective | quality",
     "something": "determiner <thingWord>? thing | <mass>",
     "mass": "( 'The' | 'the' | 'My' | 'my' ) quality? mass",
     "takeTarget": "<someone> | <something>",
     "pushTarget": "<something>",
     "useTarget": "<something>",
-    "spot": "determiner adjective? place",
+    "spot": "( 'the' | 'a' ) adjective? place",
     "to": "motionPrep <spot>",
     "at": "placePrep <spot>",
     "where": "<to> | <at>",
     "tasteWord": "'sweet' | 'fresh' | 'warm' | 'cold'",
     "smellWord": "'sweet' | 'fresh' | 'tasty'",
+    "lookWord": "'big' | 'small' | 'fresh' | 'soft' | 'sticky' | 'tasty' | 'crunchy'",
     "food": "determiner <thingWord>? thing | <mass>"
   },
   "patterns": [
@@ -477,14 +444,13 @@
       "blocks": [
         "Subject",
         "Verb",
-        "Complement",
-        "Modifier?"
+        "Complement"
       ],
       "end": [
         ".",
         "!"
       ],
-      "shape": "<subjectOne> 'was' ( <beingWord> <at>? | 'a' <beingWord>? noun <at>? | <at> ) | <subjectMany> 'were' ( <beingWord> <at>? | <at> )"
+      "shape": "<subjectOne> 'was' ( <beingWord> | 'a' <beingWord>? noun | <at> )"
     },
     {
       "id": "food-describing-things",
@@ -492,14 +458,13 @@
       "blocks": [
         "Subject",
         "Verb",
-        "Complement",
-        "Modifier?"
+        "Complement"
       ],
       "end": [
         ".",
         "!"
       ],
-      "shape": "determiner <thingWord>? thing 'was' ( <thingWord> <at>? | <at> ) | <mass> 'was' ( quality <at>? | <at> )"
+      "shape": "determiner <thingWord>? thing 'was' ( <thingWord> | <at> ) | <mass> 'was' ( quality | <at> )"
     },
     {
       "id": "food-tasting",
@@ -541,7 +506,7 @@
         ".",
         "!"
       ],
-      "shape": "determiner <thingWord>? thing look <thingWord> | <mass> look quality"
+      "shape": "determiner <thingWord>? thing look <lookWord> | <mass> look <lookWord>"
     }
   ],
   "clashes": [
@@ -569,16 +534,6 @@
       "hurried",
       "slowly",
       "hurrying is fast, not slow"
-    ],
-    [
-      "I",
-      "me",
-      "say \"myself\" for that - or pick someone else"
-    ],
-    [
-      "We",
-      "us",
-      "say \"ourselves\" for that - or pick someone else"
     ],
     [
       "warm",
@@ -696,7 +651,11 @@
           "bread",
           "apple"
         ],
-        "why": "you bake cookies, pizza, pies, cakes and bread"
+        "why": "you bake cookies, pizza, pies, cakes and bread",
+        "where": [
+          "in",
+          "at"
+        ]
       },
       "cooked": {
         "what": [
@@ -705,21 +664,39 @@
           "pancake",
           "carrot"
         ],
-        "why": "you cook soup, rice, pancakes and carrots"
+        "why": "you cook soup, rice, pancakes and carrots",
+        "where": [
+          "in",
+          "at"
+        ]
       },
       "made": {
         "what": [
           "!apple",
           "!carrot"
         ],
-        "why": "apples and carrots grow - nobody makes them"
+        "why": "apples and carrots grow - nobody makes them",
+        "where": [
+          "in",
+          "at"
+        ]
       },
       "cut": {
         "what": [
           "!soup",
           "!rice"
         ],
-        "why": "you cannot cut that"
+        "why": "you cannot cut that",
+        "where": [
+          "in",
+          "at"
+        ]
+      },
+      "found": {
+        "what": [
+          "thing"
+        ],
+        "why": "you find food here"
       },
       "tossed": {
         "what": [
@@ -729,7 +706,73 @@
           "pizza",
           "pancake"
         ],
-        "why": "that would make a big mess"
+        "why": "that would make a big mess",
+        "where": [
+          "into",
+          "toward"
+        ]
+      },
+      "waited": {
+        "where": [
+          "in",
+          "near",
+          "at"
+        ]
+      },
+      "sat": {
+        "where": [
+          "at",
+          "in",
+          "near"
+        ]
+      },
+      "smiled": {
+        "where": [
+          "in"
+        ]
+      },
+      "rested": {
+        "where": [
+          "in",
+          "near"
+        ]
+      },
+      "dropped": {
+        "where": [
+          "in",
+          "near"
+        ]
+      },
+      "ate": {
+        "where": [
+          "in",
+          "at"
+        ]
+      },
+      "ran": {
+        "where": [
+          "into",
+          "to",
+          "toward",
+          "through"
+        ]
+      },
+      "hurried": {
+        "where": [
+          "into",
+          "to",
+          "toward",
+          "through"
+        ]
+      },
+      "walked": {
+        "where": [
+          "into",
+          "to",
+          "toward",
+          "through",
+          "in"
+        ]
       }
     },
     "adjectives": {
@@ -765,6 +808,47 @@
           "!rice"
         ],
         "why": "that food is not sweet"
+      },
+      "big": {
+        "what": [
+          "thing"
+        ],
+        "why": "big describes food here"
+      },
+      "warm": {
+        "what": [
+          "pizza",
+          "soup",
+          "bread",
+          "pie",
+          "pancake",
+          "cookie",
+          "cake",
+          "rice"
+        ],
+        "why": "that is not something you eat warm"
+      },
+      "cold": {
+        "what": [
+          "apple",
+          "pizza",
+          "soup",
+          "sandwich",
+          "cheese",
+          "cake",
+          "pie",
+          "rice",
+          "carrot"
+        ],
+        "why": "that is not something you eat cold"
+      },
+      "small": {
+        "what": [
+          "thing",
+          "girl",
+          "boy"
+        ],
+        "why": "small describes food, or a child"
       }
     },
     "canBe": {
@@ -794,10 +878,435 @@
       "farmer": [
         "friend"
       ]
-    }
+    },
+    "where": {
+      "kitchen": [
+        "into",
+        "to",
+        "toward",
+        "in",
+        "near"
+      ],
+      "garden": [
+        "into",
+        "to",
+        "toward",
+        "through",
+        "in",
+        "near"
+      ],
+      "market": [
+        "to",
+        "toward",
+        "through",
+        "in",
+        "at"
+      ],
+      "bakery": [
+        "into",
+        "to",
+        "toward",
+        "in",
+        "at",
+        "near"
+      ],
+      "table": [
+        "to",
+        "toward",
+        "at",
+        "near"
+      ]
+    },
+    "adverbs": {
+      "quickly": [
+        "ran",
+        "walked",
+        "carried",
+        "ate",
+        "made",
+        "found",
+        "served",
+        "brought",
+        "cooked"
+      ],
+      "slowly": [
+        "walked",
+        "ate",
+        "cooked",
+        "carried"
+      ],
+      "carefully": [
+        "carried",
+        "cut",
+        "baked",
+        "cooked",
+        "made",
+        "served"
+      ],
+      "happily": [
+        "ate",
+        "smiled",
+        "ran",
+        "walked",
+        "baked",
+        "cooked",
+        "made",
+        "served",
+        "gave",
+        "brought"
+      ]
+    },
+    "my": [
+      "mom",
+      "dad",
+      "friend",
+      "thing"
+    ]
   },
   "silly": {
     "sentenceCount": 607958474352,
+    "families": {
+      "determiner": {
+        "label": "Determiner",
+        "hint": "comes before a noun: The, a, my",
+        "color": "#9aa7d7",
+        "role": "other"
+      },
+      "adjective": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "role": "describing"
+      },
+      "noun": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "role": "naming"
+      },
+      "pronoun": {
+        "label": "Pronoun",
+        "hint": "takes a noun's place: he, them",
+        "color": "#7cc6e8",
+        "role": "naming"
+      },
+      "verb": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "role": "action"
+      },
+      "adverb": {
+        "label": "Adverb",
+        "hint": "how it happened: slowly",
+        "color": "#c79ae0",
+        "role": "other"
+      },
+      "preposition": {
+        "label": "Preposition",
+        "hint": "where it happened: into, under",
+        "color": "#b8c97a",
+        "role": "other"
+      }
+    },
+    "pos": {
+      "determiner": {
+        "label": "Determiner",
+        "hint": "comes before a noun: The, a, my",
+        "color": "#9aa7d7",
+        "family": "determiner"
+      },
+      "adjective": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "family": "adjective"
+      },
+      "mood": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "family": "adjective"
+      },
+      "quality": {
+        "label": "Adjective",
+        "hint": "describes a noun: big, brave",
+        "color": "#f2a65a",
+        "family": "adjective"
+      },
+      "noun": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "family": "noun"
+      },
+      "thing": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "family": "noun"
+      },
+      "mass": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "family": "noun",
+        "note": {
+          "after": [
+            "A",
+            "a"
+          ],
+          "text": "\"{word}\" is not something you can count, so it goes with \"the\" or \"my\", not \"a\"."
+        }
+      },
+      "place": {
+        "label": "Noun",
+        "hint": "a person, place, or thing",
+        "color": "#5ec4a3",
+        "family": "noun"
+      },
+      "subjectPronoun": {
+        "label": "Pronoun",
+        "hint": "takes a noun's place: he, them",
+        "color": "#7cc6e8",
+        "family": "pronoun"
+      },
+      "objectPronoun": {
+        "label": "Pronoun",
+        "hint": "takes a noun's place: he, them",
+        "color": "#7cc6e8",
+        "family": "pronoun"
+      },
+      "move": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "stay": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "take": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "push": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "see": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "use": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "give": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "be": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "taste": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "smell": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "look": {
+        "label": "Verb",
+        "hint": "what happens: ran, was",
+        "color": "#e9797a",
+        "family": "verb"
+      },
+      "adverb": {
+        "label": "Adverb",
+        "hint": "how it happened: slowly",
+        "color": "#c79ae0",
+        "family": "adverb"
+      },
+      "motionPrep": {
+        "label": "Preposition",
+        "hint": "where it happened: into, under",
+        "color": "#b8c97a",
+        "family": "preposition"
+      },
+      "placePrep": {
+        "label": "Preposition",
+        "hint": "where it happened: into, under",
+        "color": "#b8c97a",
+        "family": "preposition"
+      }
+    },
+    "words": {
+      "determiner": [
+        "The",
+        "A",
+        "My",
+        "the",
+        "a",
+        "my"
+      ],
+      "adjective": [
+        "big",
+        "small"
+      ],
+      "mood": [
+        "hungry",
+        "happy",
+        "busy",
+        "tired",
+        "kind"
+      ],
+      "quality": [
+        "warm",
+        "cold",
+        "fresh",
+        "sweet",
+        "soft",
+        "sticky",
+        "tasty",
+        "crunchy"
+      ],
+      "noun": [
+        "chef",
+        "baker",
+        "farmer",
+        "girl",
+        "boy",
+        "mom",
+        "dad",
+        "friend"
+      ],
+      "thing": [
+        "apple",
+        "cookie",
+        "pizza",
+        "carrot",
+        "pancake",
+        "pie",
+        "sandwich",
+        "cake"
+      ],
+      "mass": [
+        "soup",
+        "bread",
+        "rice",
+        "cheese"
+      ],
+      "place": [
+        "kitchen",
+        "garden",
+        "market",
+        "bakery",
+        "table"
+      ],
+      "subjectPronoun": [
+        "He",
+        "She",
+        "I",
+        "They",
+        "We"
+      ],
+      "objectPronoun": [
+        "him",
+        "her",
+        "me",
+        "them",
+        "us"
+      ],
+      "move": [
+        "ran",
+        "walked",
+        "hurried"
+      ],
+      "stay": [
+        "waited",
+        "sat",
+        "smiled",
+        "rested"
+      ],
+      "take": [
+        "carried"
+      ],
+      "push": [
+        "dropped",
+        "tossed"
+      ],
+      "see": [
+        "found",
+        "saw"
+      ],
+      "use": [
+        "ate",
+        "baked",
+        "cooked",
+        "cut",
+        "made"
+      ],
+      "give": [
+        "gave",
+        "brought",
+        "served"
+      ],
+      "be": [
+        "was",
+        "were"
+      ],
+      "taste": [
+        "tastes",
+        "tasted"
+      ],
+      "smell": [
+        "smells",
+        "smelled"
+      ],
+      "look": [
+        "looks",
+        "looked"
+      ],
+      "adverb": [
+        "quickly",
+        "slowly",
+        "carefully",
+        "happily"
+      ],
+      "motionPrep": [
+        "into",
+        "to",
+        "toward",
+        "through"
+      ],
+      "placePrep": [
+        "in",
+        "near",
+        "at"
+      ]
+    },
     "rules": {
       "adj": "adjective | mood | quality",
       "anyNoun": "noun | thing | place",

@@ -169,6 +169,9 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline
 .segmented button:hover { color: var(--ink); }
 .segmented button[aria-checked="true"] { background: #fff; color: var(--ink); box-shadow: 0 2px 0 var(--line); }
 .mode-note { margin: 8px 0 22px; font-size: 14px; font-weight: 700; color: var(--muted); }
+#mode-note { margin-bottom: 0; }
+.speeds { grid-template-columns: repeat(4, auto); }
+.speeds button { padding-left: 10px; padding-right: 10px; }
 
 .play {
   margin-top: auto; display: block; text-align: center;

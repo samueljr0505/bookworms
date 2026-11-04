@@ -125,16 +125,21 @@ NOTES = {
 
 
 def grammar(words, extra_rules=None, extra_structures=()):
-    """The shared rules and sentence shapes, for whichever lists a topic fills."""
+    """The shared rules and sentence shapes, for whichever lists a topic fills. Real mode
+    leaves the pronouns out of `words`, so every Subject and Object is one of the topic's
+    own nouns - "The rabbit jumped into the pond.", not "They jumped to the field." - and
+    then there is nothing for "were" to go with either."""
     has = lambda *kinds: all(words.get(k) for k in kinds)
     either = lambda *kinds: " | ".join(k for k in kinds if words.get(k))
+    pronouns = has("subjectPronoun", "objectPronoun")
     rules = {}
     rules["beingWord"] = either("adjective", "mood")
     rules["being"] = "determiner <beingWord>? noun"
-    rules["subjectOne"] = "<being> | 'He' | 'She' | 'I'"
-    rules["subjectMany"] = "'They' | 'We'"
-    rules["subject"] = "<subjectOne> | <subjectMany>"
-    rules["someone"] = "<being> | objectPronoun"
+    rules["subjectOne"] = "<being> | 'He' | 'She' | 'I'" if pronouns else "<being>"
+    if pronouns:
+        rules["subjectMany"] = "'They' | 'We'"
+    rules["subject"] = "<subjectOne> | <subjectMany>" if pronouns else "<subjectOne>"
+    rules["someone"] = "<being> | objectPronoun" if pronouns else "<being>"
     if has("thing"):
         rules["thingWord"] = either("adjective", "quality")
         rules["something"] = "determiner <thingWord>? thing" + (" | <mass>" if has("mass") else "")
@@ -144,7 +149,8 @@ def grammar(words, extra_rules=None, extra_structures=()):
     if has("thing"):
         rules["pushTarget"] = "<something>"   # a topic can narrow these: kicked -> a ball
         rules["useTarget"] = "<something>"
-    rules["spot"] = "determiner adjective? place"
+    # a place is "the barn" or "a barn" - not "my barn"
+    rules["spot"] = "( 'the' | 'a' ) adjective? place"
     rules["to"] = "motionPrep <spot>"
     rules["at"] = "placePrep <spot>"
     rules["where"] = "<to> | <at>"
@@ -177,13 +183,15 @@ def grammar(words, extra_rules=None, extra_structures=()):
     if has("give", "thing"):
         structures.append(("giving", "Giving sentence", ["Subject", "Verb", "Object", "Object?"],
                            "<subject> adverb? give ( <someone> <something> | <something> ( 'to' <someone> )? )"))
-    structures.append(("describing", "Describing sentence", ["Subject", "Verb", "Complement", "Modifier?"],
-                       "<subjectOne> 'was' ( <beingWord> <at>? | 'a' <beingWord>? noun <at>? | <at> )"
-                       " | <subjectMany> 'were' ( <beingWord> <at>? | <at> )"))
+    # what someone or something was like, or where it was - not both: "The toy was small in
+    # the hole" reads like two sentences squashed into one
+    structures.append(("describing", "Describing sentence", ["Subject", "Verb", "Complement"],
+                       "<subjectOne> 'was' ( <beingWord> | 'a' <beingWord>? noun | <at> )" +
+                       (" | <subjectMany> 'were' ( <beingWord> | <at> )" if pronouns else "")))
     if has("thing"):
-        structures.append(("describing-things", "Describing sentence", ["Subject", "Verb", "Complement", "Modifier?"],
-                           "determiner <thingWord>? thing 'was' ( <thingWord> <at>? | <at> )" +
-                           (" | <mass> 'was' ( quality <at>? | <at> )" if has("mass") else "")))
+        structures.append(("describing-things", "Describing sentence", ["Subject", "Verb", "Complement"],
+                           "determiner <thingWord>? thing 'was' ( <thingWord> | <at> )" +
+                           (" | <mass> 'was' ( quality | <at> )" if has("mass") else "")))
     structures.extend(extra_structures)
     return rules, structures
 
@@ -256,7 +264,7 @@ TOPICS = {
             "push": ["dropped", "pushed", "rolled"],
             "see": ["found", "watched", "smelled"],
             "use": ["chewed", "buried"],
-            "give": ["brought", "gave"],
+            "give": ["brought"],
             "adverb": ["quickly", "slowly", "quietly", "happily"],
             "motionPrep": ["into", "across", "toward", "to", "through", "over"],
             "placePrep": ["in", "near", "under", "behind"],
@@ -361,13 +369,14 @@ TOPICS = {
         "rules": {
             "tasteWord": "'sweet' | 'fresh' | 'warm' | 'cold'",
             "smellWord": "'sweet' | 'fresh' | 'tasty'",
+            "lookWord": "'big' | 'small' | 'fresh' | 'soft' | 'sticky' | 'tasty' | 'crunchy'",
             "food": "determiner <thingWord>? thing | <mass>",
         },
         "structures": [
             ("tasting", "Tasting sentence", ["Subject", "Verb", "Complement"], "<food> taste <tasteWord>"),
             ("smelling", "Tasting sentence", ["Subject", "Verb", "Complement"], "<food> smell <smellWord>"),
             ("looking", "Describing sentence", ["Subject", "Verb", "Complement"],
-             "determiner <thingWord>? thing look <thingWord> | <mass> look quality"),
+             "determiner <thingWord>? thing look <lookWord> | <mass> look <lookWord>"),
         ],
         "clashes": [
             ["warm", "cold", "something cannot be warm and cold at once"],
@@ -413,6 +422,7 @@ TOPICS = {
         "clashes": [
             ["big", "tiny", "something cannot be big and tiny at once"],
             ["angry", "happily", "an angry creature does nothing happily"],
+            ["angry", "grumpy", "they mean the same thing - say it once"],
             ["grumpy", "happily", "a grumpy creature does nothing happily"],
             ["sleepy", "quickly", "a sleepy creature is not quick"],
             ["crept", "quickly", "creeping is slow and quiet"],
@@ -498,6 +508,8 @@ TOPICS = {
             ["proudly", "stretched", "stretching is nothing to be proud of"],
             ["proudly", "laughed", "you laugh happily, not proudly"],
             ["nervous", "proudly", "a nervous player is not proud"],
+            ["proud", "proudly", "that says the same thing twice"],
+            ["heavy", "ball", "a ball is light enough to play with"],
         ],
     },
 }
@@ -538,14 +550,14 @@ MEANING = {
             "followed": {"bigger": 1, "base": "follow", "what": ["being"],
                          "why": "you follow someone who is going somewhere"},
             "chewed": {"who": ["chewer"], "why": "a bird has a beak - it cannot chew"},
-            "buried": {"who": ["digger"], "why": "dogs and foxes bury things - not that animal"},
-            "gave": {"who": ["!being"], "why": "animals do not give presents - try a Pronoun like \"She\""},
+            "buried": {"who": ["digger"], "why": "dogs and foxes bury things - not that animal", "puts": True},
             "brought": {"who": ["dog", "puppy"], "why": "a dog brings things back - not that animal"},
         },
         "adjectives": {
             "fluffy": {"what": ["!bird", "!duck", "!horse"], "why": "that animal has feathers or short hair, not fluff"},
-            "grey": {"what": ["!carrot"], "why": "a carrot is orange"},
-            "brown": {"what": ["!carrot"], "why": "a carrot is orange"},
+            "grey": {"what": ["being", "barn", "pond", "stick", "toy", "ball"], "why": "that is not grey"},
+            "brown": {"what": ["being", "barn", "field", "tree", "nest", "stick", "leaf", "toy", "ball", "bone"],
+                      "why": "that is not brown"},
         },
         "canBe": {"*": []},
     },
@@ -559,12 +571,13 @@ MEANING = {
         "verbs": {
             "carried": {"bigger": -1, "base": "carry"},
             "read": {"what": ["book", "note", "paper"], "why": "you read a book, a note or a paper"},
-            "wrote": {"what": ["book", "note", "paper"], "why": "you write a book, a note or on paper"},
+            "wrote": {"what": ["note"], "why": "you write a note"},
             "opened": {"what": ["book", "backpack", "note"], "why": "you open a book, a note or a backpack"},
             "lent": {"what": ["thing"], "why": "you lend things, not people"},
         },
         "adjectives": {
             "tall": {"what": ["being"], "why": "tall describes a person"},
+            "small": {"what": ["!teacher"], "why": "a teacher is a grown-up"},
         },
         "canBe": {"*": ["friend", "reader", "writer", "helper", "student", "classmate"],
                   "teacher": ["friend", "reader", "writer", "helper"]},
@@ -579,6 +592,7 @@ MEANING = {
                        "why": "you cook soup, rice, pancakes and carrots"},
             "made": {"what": ["!apple", "!carrot"], "why": "apples and carrots grow - nobody makes them"},
             "cut": {"what": ["!soup", "!rice"], "why": "you cannot cut that"},
+            "found": {"what": ["thing"], "why": "you find food here"},
             "tossed": {"what": ["apple", "carrot", "cookie", "pizza", "pancake"],
                        "why": "that would make a big mess"},
         },
@@ -589,6 +603,12 @@ MEANING = {
                        "why": "that food is not sticky"},
             "sweet": {"what": ["!pizza", "!sandwich", "!soup", "!cheese", "!rice"],
                       "why": "that food is not sweet"},
+            "big": {"what": ["thing"], "why": "big describes food here"},
+            "warm": {"what": ["pizza", "soup", "bread", "pie", "pancake", "cookie", "cake", "rice"],
+                     "why": "that is not something you eat warm"},
+            "cold": {"what": ["apple", "pizza", "soup", "sandwich", "cheese", "cake", "pie", "rice", "carrot"],
+                     "why": "that is not something you eat cold"},
+            "small": {"what": ["thing", "girl", "boy"], "why": "small describes food, or a child"},
         },
         "canBe": {"*": ["friend"],
                   "mom": ["chef", "baker", "farmer", "friend"], "dad": ["chef", "baker", "farmer", "friend"],
@@ -639,6 +659,167 @@ MEANING = {
 }
 
 
+# What fits with what, for Real mode - written as lists of what DOES fit, because the
+# pairs that read wrong ("under the pond", "jumped to the field", "raced slowly") are too
+# many to list one by one as clashes:
+#
+#   where     place -> the Prepositions it takes
+#   after     verb  -> the Prepositions that can follow it (a verb not listed takes any)
+#   adverbs   Adverb -> the verbs it goes with
+#   my        the nouns "my" goes with: pets, family and things - "my dog", "my mom",
+#             "my pencil", but not "my girl" or "my referee"
+#
+# They go into each topic's `meaning` section (js/sense.js reads them). To check a change,
+# play a few sentences, or run node tools/test.js, which builds thousands of them.
+FITS = {
+    "animals": {
+        "where": {
+            "barn": "into toward to through in near behind",
+            "field": "across toward to through in near",
+            "pond": "into toward to in near",
+            "garden": "into across toward to through in near",
+            "tree": "toward to in near under behind",
+            "hole": "into toward over in near",
+            "nest": "into toward to in near",
+        },
+        "after": {
+            "ran": "into across toward to through", "walked": "into across toward to through",
+            "raced": "into across toward to through", "jumped": "into over",
+            "hopped": "into across toward to over", "crawled": "into toward through",
+            "hid": "in under behind", "slept": "in under near", "played": "in near",
+            "waited": "in near behind under", "rested": "in under near", "sat": "in under near behind",
+            "carried": "into toward to across through", "chased": "into across toward through",
+            "followed": "into across toward to through", "dropped": "into in near under behind",
+            "pushed": "into toward across to", "rolled": "into toward across to",
+        },
+        "my": "cat dog rabbit duck horse mouse puppy kitten bird thing",
+        "adverbs": {
+            "quickly": "ran jumped walked hopped hid carried chased followed dropped pushed rolled "
+                       "found chewed buried brought",
+            "slowly": "walked crawled hopped carried followed pushed rolled chewed buried",
+            "quietly": "walked crawled hid slept waited rested sat played followed watched chewed buried",
+            "happily": "ran jumped hopped raced played chased chewed rolled found brought",
+        },
+    },
+    "school": {
+        "where": {
+            "classroom": "into to toward in",
+            "library": "into to toward in at",
+            "hallway": "into through in",
+            "gym": "into to toward across in at",
+            "playground": "to toward across in at",
+            "desk": "at near behind",
+            "office": "into to toward in at near",
+        },
+        "after": {
+            "waited": "in near at", "smiled": "in", "listened": "in", "laughed": "in",
+            "studied": "in at", "sat": "in near at behind",
+            "walked": "into to toward across through in", "ran": "into to toward across through",
+            "hurried": "into to toward across through", "skipped": "into to toward across through",
+            "dropped": "in near behind", "slid": "toward across to", "read": "in at", "wrote": "in at",
+            "carried": "into to toward through",
+        },
+        "my": "teacher classmate friend thing",
+        "adverbs": {
+            "quickly": "walked ran skipped carried found read wrote opened handed gave slid",
+            "slowly": "walked read wrote opened carried",
+            "quietly": "walked sat waited listened studied read wrote laughed smiled opened",
+            "carefully": "carried wrote read opened listened studied handed slid watched",
+            "happily": "smiled laughed skipped walked read gave showed lent handed",
+        },
+    },
+    "food": {
+        "where": {
+            "kitchen": "into to toward in near",
+            "garden": "into to toward through in near",
+            "market": "to toward through in at",
+            "bakery": "into to toward in at near",
+            "table": "to toward at near",
+        },
+        "after": {
+            "waited": "in near at", "sat": "at in near", "smiled": "in", "rested": "in near",
+            "dropped": "in near", "tossed": "into toward",
+            "ate": "in at", "baked": "in at", "cooked": "in at", "cut": "in at", "made": "in at",
+            "ran": "into to toward through", "hurried": "into to toward through",
+            "walked": "into to toward through in",
+        },
+        "my": "mom dad friend thing",
+        "adverbs": {
+            "quickly": "ran walked carried ate made found served brought cooked",
+            "slowly": "walked ate cooked carried",
+            "carefully": "carried cut baked cooked made served",
+            "happily": "ate smiled ran walked baked cooked made served gave brought",
+        },
+    },
+    "fantasy": {
+        "where": {
+            "castle": "into to toward over in near behind inside",
+            "forest": "into through across toward to over in near",
+            "cave": "into toward to in near inside behind",
+            "tower": "into to toward up in inside near",
+            "river": "across toward to over into in near",
+            "mountain": "up over toward to near behind",
+            "village": "into through toward to over in near",
+        },
+        "after": {
+            "flew": "over toward to into across", "marched": "into through across toward to",
+            "walked": "into through across toward to up", "ran": "into through across toward to up",
+            "jumped": "into over across", "crept": "into through toward",
+            "hid": "in under behind inside", "slept": "in inside under near",
+            "waited": "in near behind inside", "laughed": "in inside", "sang": "in near inside",
+            "rested": "in near under inside",
+            "carried": "into toward to across through up", "followed": "into through across toward to up",
+            "chased": "into through across toward to", "threw": "into over across toward to",
+            "dropped": "into in near under behind inside",
+        },
+        "my": "dragon unicorn thing",
+        "adverbs": {
+            "quickly": "flew ran walked marched jumped hid carried followed chased threw found sent gave",
+            "slowly": "walked marched crept flew carried followed",
+            "quietly": "walked crept slept waited hid sang rested followed guarded",
+            "bravely": "marched ran jumped flew followed chased guarded protected held carried",
+            "happily": "sang laughed flew ran walked jumped gave showed waved found",
+        },
+    },
+    "sports": {
+        "where": {
+            "field": "across toward to around on near",
+            "court": "across toward to on near",
+            "gym": "into toward to across in at near",
+            "pool": "into toward to across in near at",
+            "track": "around toward to on near at",
+            "net": "into toward over near",
+            "stadium": "into toward to in at near",
+        },
+        "after": {
+            "jumped": "into over", "swam": "across toward to", "slid": "into across toward",
+            "waited": "in near at on", "cheered": "in at", "rested": "in near at",
+            "clapped": "in at", "stretched": "on near in at", "laughed": "in at",
+            "kicked": "into over across toward to", "rolled": "into across toward to",
+            "bounced": "on", "hit": "into over across toward", "carried": "in on at",
+            "ran": "into across toward to around", "raced": "across toward to around",
+            "dashed": "into across toward to around",
+        },
+        "my": "coach thing",
+        "adverbs": {
+            "quickly": "ran swam jumped slid kicked passed threw caught hit chased found cleaned rolled",
+            "slowly": "swam stretched rolled followed cleaned bounced",
+            "proudly": "held carried cheered clapped ran raced handed",
+            "carefully": "caught held carried cleaned passed threw kicked bounced rolled stretched guarded watched",
+            "happily": "cheered clapped laughed ran jumped swam raced dashed kicked caught rolled bounced "
+                       "passed threw handed",
+        },
+    },
+}
+for _tid, _fits in FITS.items():
+    _m = MEANING.setdefault(_tid, {})
+    _m["where"] = {place: preps.split() for place, preps in _fits["where"].items()}
+    _m["adverbs"] = {adverb: verbs.split() for adverb, verbs in _fits["adverbs"].items()}
+    _m["my"] = _fits["my"].split()
+    for _verb, _preps in _fits["after"].items():
+        _m.setdefault("verbs", {}).setdefault(_verb, {})["where"] = _preps.split()
+
+
 def check_meaning(tid, meaning, words):
     """Every word the meaning section names has to be a real word or tag of the topic."""
     known = {w for ws in words.values() for w in ws} | set(meaning.get("tags", {})) | {"being", "thing", "place"}
@@ -649,8 +830,13 @@ def check_meaning(tid, meaning, words):
     for section in ("verbs", "adjectives"):
         for w, rule in meaning.get(section, {}).items():
             named.add(w)
-            for key in ("who", "what"):
+            for key in ("who", "what", "where"):
                 named |= {x.lstrip("!") for x in rule.get(key, [])}
+    for place, preps in meaning.get("where", {}).items():
+        named |= {place} | set(preps)
+    for adverb, verbs in meaning.get("adverbs", {}).items():
+        named |= {adverb} | set(verbs)
+    named |= set(meaning.get("my", []))
     for w, can in meaning.get("canBe", {}).items():
         named |= set(can) | ({w} if w != "*" else set())
     unknown = sorted(named - known)
@@ -664,16 +850,32 @@ def build():
     index, grand = [], 0
 
     for tid, topic in TOPICS.items():
+        # Silly mode has every word; Real mode leaves out the pronouns (and "were", which only
+        # goes with They and We), so its sentences are always about the topic's own nouns.
         words = {"determiner": DETERMINERS, "subjectPronoun": SUBJECT_PRONOUNS,
                  "objectPronoun": OBJECT_PRONOUNS, "be": BE, **topic["words"]}
-        rules, structures = grammar(words, topic.get("rules"), topic.get("structures", ()))
-        total = sum(shapes.count(shapes.parse(shape, rules), words) for *_, shape in structures)
+        real_words = {k: v for k, v in words.items() if k not in ("subjectPronoun", "objectPronoun")}
+        real_words["be"] = ["was"]
+        rules, structures = grammar(real_words, topic.get("rules"), topic.get("structures", ()))
+        total = sum(shapes.count(shapes.parse(shape, rules), real_words) for *_, shape in structures)
         silly_rules, silly_structures = silly_grammar(words)
         silly_total = sum(shapes.count(shapes.parse(shape, silly_rules), words) for *_, shape in silly_structures)
         meaning = MEANING.get(tid, {})
-        check_meaning(tid, meaning, words)
-        used_pos = [p for p in FAMILY_OF if words.get(p)]
-        used_fam = {FAMILY_OF[p] for p in used_pos}
+        check_meaning(tid, meaning, real_words)
+
+        def kinds(ws):
+            used_pos = [p for p in FAMILY_OF if ws.get(p)]
+            used_fam = {FAMILY_OF[p] for p in used_pos}
+            return {
+                "families": {k: v for k, v in FAMILIES.items() if k in used_fam},
+                "pos": {p: {"label": FAMILIES[FAMILY_OF[p]]["label"],
+                            "hint": FAMILIES[FAMILY_OF[p]]["hint"],
+                            "color": FAMILIES[FAMILY_OF[p]]["color"],
+                            "family": FAMILY_OF[p],
+                            **({"note": NOTES[p]} if p in NOTES else {})}
+                        for p in used_pos},
+                "words": {p: ws[p] for p in used_pos},
+            }
 
         pack = {
             "id": tid,
@@ -681,24 +883,19 @@ def build():
             "emoji": topic["emoji"],
             "description": "Build a sentence from a subject, a verb, and as much more as you like.",
             "sentenceCount": total,
-            "families": {k: v for k, v in FAMILIES.items() if k in used_fam},
-            "pos": {p: {"label": FAMILIES[FAMILY_OF[p]]["label"],
-                        "hint": FAMILIES[FAMILY_OF[p]]["hint"],
-                        "color": FAMILIES[FAMILY_OF[p]]["color"],
-                        "family": FAMILY_OF[p],
-                        **({"note": NOTES[p]} if p in NOTES else {})}
-                    for p in used_pos},
-            "words": {p: words[p] for p in used_pos},
+            **kinds(real_words),
             "rules": rules,
             "patterns": [{"id": "%s-%s" % (tid, sid), "name": name, "blocks": blocks,
                           "end": [".", "!"], "shape": shape}
                          for sid, name, blocks, shape in structures],
             "clashes": [c for c in SHARED_CLASHES + topic.get("clashes", [])
-                        if all(any(w in ws for ws in words.values()) for w in c[:2])],
+                        if all(any(w in ws for ws in real_words.values()) for w in c[:2])],
             "meaning": meaning,
-            # Silly mode swaps these in (see BW.Grammar.forMode): looser shapes, no meaning
+            # Silly mode swaps these in (see BW.Grammar.forMode): every word, looser shapes,
+            # no meaning
             "silly": {
                 "sentenceCount": silly_total,
+                **kinds(words),
                 "rules": silly_rules,
                 "patterns": [{"id": "%s-silly-%s" % (tid, sid), "name": name, "blocks": blocks,
                               "end": [".", "!"], "shape": shape}
@@ -718,7 +915,7 @@ def build():
         grand += total
         print("%-9s %12s sentences   %3d words across %d kinds"
               % (topic["name"], "{:,}".format(total), sum(len(v) for v in pack["words"].values()),
-                 len(used_fam)))
+                 len(pack["families"])))
 
     with open(os.path.join(ROOT, "data", "topics.json"), "w") as f:
         json.dump({"defaultTopic": index[0]["id"], "topics": index}, f, indent=2)
