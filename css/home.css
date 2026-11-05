@@ -1,6 +1,6 @@
-/* The home page: two cards side by side - your worm, and what to play - with Play as the one
-   big button. Everything a player has to choose fits on one screen. The game itself is
-   styled by css/style.css. */
+/* The start page (index.html) - your worm and one big Start button - and the settings page
+   (setup.html), which asks one question at a time. The game itself is styled by
+   css/style.css. */
 
 :root {
   --paper: #fdf6e8;
@@ -76,62 +76,34 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline
 }
 .tagline { margin: 6px 0 0; color: var(--muted); font-weight: 700; font-size: 17px; }
 
-/* ---------- the two cards ---------- */
+/* ---------- cards ---------- */
 
-.setup {
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px;
-  align-items: stretch;
-}
 .card {
   background: #fff; border: 3px solid var(--line); border-radius: 22px;
   padding: 18px 22px 22px; box-shadow: var(--shadow);
 }
-.label {
-  margin: 0 0 10px; font-size: 12px; font-weight: 800; letter-spacing: 1.2px;
-  text-transform: uppercase; color: var(--muted);
-}
-.label:not(:first-child) { margin-top: 20px; }
 
-/* your worm */
-.worm-card { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.worm-card .label { align-self: flex-start; }
-/* the worm takes whatever room the card has spare (flex-basis 0, so its own size never
-   feeds back into the card's) - a bigger worm when the topics need two rows */
-.worm { display: block; width: 100%; flex: 1 1 0; min-height: 104px; max-height: 170px; }
+/* ---------- the start page: your worm, and Start ---------- */
+
+.start-card {
+  max-width: 460px; margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 18px 26px 26px;
+}
+.worm { display: block; width: 100%; height: 150px; }
 .worm-name {
-  margin: 0 0 14px; font-weight: 900; font-size: 19px;
+  margin: 0 0 18px; font-weight: 900; font-size: 19px;
   color: var(--worm-head); transition: color 0.25s;
 }
-
-.swatches {
-  list-style: none; margin: 0 0 16px; padding: 0;
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
-}
-.swatch {
-  width: 38px; height: 38px; padding: 3px; cursor: pointer;
-  border-radius: 12px; border: 3px solid transparent; background: none;
-  transition: transform 0.15s, border-color 0.15s;
-}
-.swatch i { display: block; width: 100%; height: 100%; border-radius: 7px; }
-.swatch:hover { transform: translateY(-2px); }
-.swatch[aria-checked="true"] { border-color: var(--ink); }
-/* the last swatch: a link to the colours you can still buy */
-.swatch.more {
-  display: grid; place-items: center; text-decoration: none;
-  border: 3px dashed #d7c7a3; padding: 0;
-}
-.swatch.more i {
-  display: grid; place-items: center; background: none;
-  font-style: normal; font-weight: 900; color: var(--muted); font-size: 14px;
-}
+.start-card .play { align-self: stretch; margin-bottom: 16px; font-size: 30px; padding: 16px; }
 
 .picker-error { color: #c0563f; font-weight: 700; font-size: 14px; margin: 0 0 14px; }
 .picker-error code { background: #efe6d2; padding: 1px 6px; border-radius: 5px; }
 
 /* the way into the shop: an outlined button, so it reads as something to press without
-   competing with Play */
+   competing with Start */
 .shop-btn {
-  margin-top: auto; display: inline-flex; align-items: center; gap: 8px;
+  display: inline-flex; align-items: center; gap: 8px;
   padding: 10px 16px; border-radius: 14px; text-decoration: none;
   font-weight: 800; font-size: 15px; color: var(--green);
   background: #fff; border: 2px solid var(--green); box-shadow: 0 3px 0 var(--green-dark);
@@ -142,39 +114,67 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline
 .shop-btn .go { transition: transform 0.15s; }
 .shop-btn:hover .go { transform: translateX(3px); }
 
-/* what to play */
-.game-card { display: flex; flex-direction: column; }
+/* ---------- the settings page: one question at a time (js/setup.js) ---------- */
 
-.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.topic {
-  font: inherit; font-weight: 800; font-size: 15px; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 14px; border-radius: 999px;
-  border: 2px solid var(--line); background: #fff; color: var(--ink);
-  transition: border-color 0.15s, background 0.15s;
-}
-.topic:hover { border-color: var(--green); }
-.topic[aria-checked="true"] { border-color: var(--green); background: var(--green); color: #fff; }
+.setup-page { max-width: 780px; padding-top: 18px; }
 
-/* Real or Silly: one switch, and one line saying what the chosen one means */
-.segmented {
-  display: inline-grid; grid-template-columns: 1fr 1fr; gap: 4px; align-self: flex-start;
-  padding: 4px; border-radius: 16px; background: #f1e9d8;
+/* where you are: 1 Topic, 2 Sentences, 3 Speed - each one a way back to it */
+.steps { list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.steps button {
+  font: inherit; font-weight: 800; font-size: 14px; cursor: pointer; color: var(--muted);
+  display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px 5px 5px;
+  border-radius: 999px; border: 2px solid var(--line); background: rgba(255, 255, 255, 0.6);
 }
-.segmented button {
-  font: inherit; font-weight: 800; font-size: 15px; cursor: pointer;
-  padding: 8px 22px; border-radius: 12px; border: none; background: transparent; color: var(--muted);
-  transition: background 0.15s, color 0.15s;
+.steps button:hover { border-color: var(--green); }
+.steps b {
+  width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 13px; background: #efe6d2; color: var(--muted);
 }
-.segmented button:hover { color: var(--ink); }
-.segmented button[aria-checked="true"] { background: #fff; color: var(--ink); box-shadow: 0 2px 0 var(--line); }
-.mode-note { margin: 8px 0 22px; font-size: 14px; font-weight: 700; color: var(--muted); }
-#mode-note { margin-bottom: 0; }
-.speeds { grid-template-columns: repeat(4, auto); }
-.speeds button { padding-left: 10px; padding-right: 10px; }
+.steps .now button { border-color: var(--green); background: #fff; color: var(--ink); }
+.steps .now b { background: var(--green); color: #fff; }
+.steps .done b { background: #cfe8d4; color: var(--green-dark); }
+
+.step { text-align: center; padding: 26px 26px 28px; }
+.question { margin: 0 0 22px; font-size: clamp(24px, 5vw, 32px); letter-spacing: -0.5px; line-height: 1.15; }
+.question:focus { outline: none; }
+
+/* the topics share a row, and a row that has to wrap stays centred */
+.options {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+}
+.options > li { flex: 1 1 110px; max-width: 170px; }
+.options.two, .options.four { display: grid; }
+.options.two > li, .options.four > li { max-width: none; }
+.options.two { grid-template-columns: 1fr 1fr; }
+.options.four { grid-template-columns: repeat(4, 1fr); }
+.option {
+  width: 100%; height: 100%; font: inherit; cursor: pointer; color: var(--ink);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 16px 12px; border-radius: 18px; border: 3px solid var(--line); background: #fff;
+  transition: transform 0.12s, border-color 0.15s, background 0.15s;
+}
+.option:hover { transform: translateY(-2px); border-color: var(--green); }
+.option[aria-checked="true"] { border-color: var(--green); background: #f3faf4; box-shadow: 0 4px 0 #b9dcc0; }
+.option-icon { font-size: 36px; line-height: 1.15; }
+.option b { font-size: 19px; font-weight: 900; }
+.option small { font-size: 13px; font-weight: 700; color: var(--muted); line-height: 1.3; }
+
+.summary { margin: 24px 0 12px; font-weight: 800; color: var(--muted); }
+
+.step-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; }
+.nav-btn {
+  font: inherit; font-weight: 800; font-size: 16px; cursor: pointer; color: var(--ink);
+  padding: 10px 20px; border-radius: 14px; border: 2px solid var(--line); background: #fff;
+  box-shadow: 0 3px 0 var(--line);
+}
+.nav-btn:hover { border-color: var(--green); }
+.nav-btn.go { margin-left: auto; color: #fff; background: var(--green); border-color: var(--green); box-shadow: 0 3px 0 var(--green-dark); }
+.nav-btn.go:hover { background: #5a9a66; }
+.nav-btn[hidden] { display: none; }
 
 .play {
-  margin-top: auto; display: block; text-align: center;
+  display: block; text-align: center;
   font-size: 26px; font-weight: 900; text-decoration: none; color: #fff;
   background: var(--green); padding: 14px; border-radius: 16px;
   box-shadow: 0 5px 0 var(--green-dark); transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
@@ -196,16 +196,18 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline
 }
 .classroom a:hover { border-color: var(--green); background: #fff; }
 
-/* ---------- small screens: one card under the other ---------- */
+/* ---------- small screens ---------- */
 
-@media (max-width: 760px) {
-  .setup { grid-template-columns: 1fr; }
+@media (max-width: 640px) {
+  .options.four { grid-template-columns: 1fr 1fr; }
   .hero { margin-bottom: 16px; }
   .tagline { font-size: 15px; }
 }
-@media (max-width: 420px) {
-  .help { font-size: 0; gap: 0; padding: 4px; }     /* just the ? */
+@media (max-width: 460px) {
+  .help { font-size: 0; gap: 0; padding: 4px; }     /* just the icon */
   .help-icon { font-size: 16px; }
-  .card { padding: 16px; }
-  .segmented { align-self: stretch; }
+  .card, .step { padding: 16px; }
+  .options.two { grid-template-columns: 1fr; }
+  .steps button { font-size: 0; gap: 0; padding: 3px; }   /* just the numbers */
+  .steps b { font-size: 13px; }
 }

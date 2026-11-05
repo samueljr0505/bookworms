@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bookworms - Pick Your Worm</title>
+<title>Bookworms</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%9B%3C/text%3E%3C/svg%3E" />
 <link rel="stylesheet" href="css/home.css" />
 </head>
@@ -21,62 +21,26 @@
   </a>
 </header>
 
-<main class="home">
+<main class="home start">
 
   <div class="hero">
     <h1>Bookworms</h1>
     <p class="tagline">Eat the words in the right order and build a sentence.</p>
   </div>
 
-  <div class="setup">
-
-    <!-- the worm you are about to play as, wiggling, in everything it is wearing -->
-    <section class="card worm-card" aria-labelledby="worm-label">
-      <h2 id="worm-label" class="label">Your worm</h2>
-      <canvas id="worm-preview" class="worm" aria-hidden="true"></canvas>
-      <p id="worm-name" class="worm-name">Garden Green</p>
-      <ul id="swatches" class="swatches" role="radiogroup" aria-label="Worm colour"></ul>
-      <p id="picker-error" class="picker-error" hidden>
-        Could not load the worm colours. Start the server with <code>./serve.sh</code>
-        and reload this page.
-      </p>
-      <a class="shop-btn" href="shop.html">
-        <span aria-hidden="true">🛍️</span> Hats, glasses and more <span class="go" aria-hidden="true">&rarr;</span>
-      </a>
-    </section>
-
-    <!-- what to play: the topic, Real or Silly, then go -->
-    <section class="card game-card" aria-labelledby="topic-label">
-      <h2 id="topic-label" class="label">Topic</h2>
-      <ul id="topics" class="chips" role="radiogroup" aria-labelledby="topic-label"></ul>
-
-      <h2 id="mode-label" class="label">Sentences</h2>
-      <div id="modes" class="segmented" role="radiogroup" aria-labelledby="mode-label">
-        <button type="button" role="radio" data-mode="real" aria-checked="true"
-                data-note="They have to make sense: a dog can chase a ball.">🌍 Real</button>
-        <button type="button" role="radio" data-mode="silly" aria-checked="false"
-                data-note="They only have to sound right: a ball can chase a dog!">🤪 Silly</button>
-      </div>
-      <p id="mode-note" class="mode-note" aria-live="polite">They have to make sense: a dog can chase a ball.</p>
-
-      <h2 id="speed-label" class="label">Speed</h2>
-      <div id="speeds" class="segmented speeds" role="radiogroup" aria-labelledby="speed-label">
-        <button type="button" role="radio" data-speed="slow" aria-checked="false"
-                data-note="Plenty of time to read every word.">🐢 Slow</button>
-        <button type="button" role="radio" data-speed="normal" aria-checked="true"
-                data-note="The worm speeds up a little with every sentence.">🐛 Normal</button>
-        <button type="button" role="radio" data-speed="fast" aria-checked="false"
-                data-note="Quicker - steer early!">🐇 Fast</button>
-        <button type="button" role="radio" data-speed="zoom" aria-checked="false"
-                data-note="As fast as it goes. Good luck!">⚡ Zoom</button>
-      </div>
-      <p id="speed-note" class="mode-note" aria-live="polite">The worm speeds up a little with every sentence.</p>
-
-      <a id="play" class="play" href="game.html">Play</a>
-      <p class="hint">Steer with the <b>arrow keys</b> or <b>W A S D</b></p>
-    </section>
-
-  </div>
+  <!-- the worm you play as, wiggling, in everything it is wearing - and the one way in -->
+  <section class="card start-card" aria-label="Your worm">
+    <canvas id="worm-preview" class="worm" aria-hidden="true"></canvas>
+    <p id="worm-name" class="worm-name">Garden Green</p>
+    <p id="picker-error" class="picker-error" hidden>
+      Could not load the worm colours. Start the server with <code>./serve.sh</code>
+      and reload this page.
+    </p>
+    <a id="start" class="play" href="setup.html">Start</a>
+    <a class="shop-btn" href="shop.html?slot=color">
+      <span aria-hidden="true">🛍️</span> Change your worm <span class="go" aria-hidden="true">&rarr;</span>
+    </a>
+  </section>
 
   <!-- class races: the whole class plays at once, on a shared leaderboard -->
   <nav class="classroom" aria-label="Class races">

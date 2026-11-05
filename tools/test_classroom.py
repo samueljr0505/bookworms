@@ -511,7 +511,7 @@ class ServerTests(unittest.TestCase):
                     return r.status
             except urllib.error.HTTPError as err:
                 return err.code
-        for path in ["", "index.html", "game.html", "teacher.html", "join.html", "js/race.js",
+        for path in ["", "index.html", "setup.html", "game.html", "teacher.html", "join.html", "js/race.js",
                      "css/style.css", "data/topics.json", "data/topics/animals.json"]:
             self.assertEqual(status(path), 200, path)
         for path in [".git/config", ".git/HEAD", ".gitignore", ".claude/launch.json",

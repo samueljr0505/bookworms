@@ -17,7 +17,8 @@ dragon quickly flew over the old castle.* and *She gave the knight a golden swor
 sentences of the Fantasy topic. A short [grammar review](review.html) goes over the kinds of word
 and the blocks, with a quick check at the end.
 
-On the home page the player also picks **Real** or **Silly**:
+Press **Start** and the game asks three questions, one at a time: the **topic**, **Real** or
+**Silly**, and how fast the worm goes - then **Play**. Real or Silly means:
 
 - **Real** - the sentence has to make sense, and be about the topic. Every Subject and Object is
   one of the topic's own nouns (no pronouns: *The rabbit jumped into the pond.*, never *They
@@ -404,7 +405,8 @@ is playing. The API key stays in the terminal running `serve.sh` and is never se
 
 ```
 bookworms/
-  index.html            the home page: pick your worm and a topic, then play
+  index.html            the start page: your worm, and Start
+  setup.html            the game's settings, one question at a time: topic, Real or Silly, speed
   game.html             the game itself (game.html?class=BCDF is a class race)
   shop.html             the worm shop: spend points on hats, glasses, colours and more
   join.html             a student joins a class race with the teacher's code
@@ -417,20 +419,21 @@ bookworms/
     Requirements.md              what the game has to do
     How-Requirements-Are-Met.md  how each one was built
     Design-Patterns.md           the patterns used, where, and what was left out
-  css/home.css          styling for the home page
+  css/home.css          styling for the start page and the settings page
   css/style.css         styling for the game
   css/how.css           styling for the how-to-play page (and the base of the grammar review)
   css/review.css        styling for the grammar review
   css/shop.css          styling for the shop
   css/class.css         styling for the join page and the teacher's page
   data/
-    topics.json         the topics offered on the home page
+    topics.json         the topics offered on the settings page
     topics/*.json       THE WORDS AND SENTENCE SHAPES, one file per topic (from tools/build-topics.py)
     verdicts.json       the judge's saved answers, and the teacher's answer key
     worms.json          the worm colours - the ones with a price are bought in the shop
     shop.json           everything else the shop sells, and what it costs
   js/
-    home.js             the home page: worm and topic pickers
+    home.js             the start page: your worm and the points bank
+    setup.js            the settings page: one question at a time, then Play
     shop.js             the shop page: trying on, buying, wearing
     closet.js           saved points, what has been bought, what is being worn
     worm-skin.js        which worm and topic were picked (shared by every page)
@@ -582,14 +585,13 @@ Real mode's meaning table would turn down.
 
 ### Add a worm colour
 
-Add an entry to `data/worms.json` and it appears on the home page immediately:
+Add an entry to `data/worms.json` and it appears in the shop's Colors, free to wear, immediately:
 
 ```json
 { "id": "coral", "name": "Coral", "body": "#f2857a", "head": "#c9524a" }
 ```
 
-Give it a `"price"` and it is sold in the shop instead, and only shows on the home page once
-bought. `body` colours the worm's plain squares (lightening towards the tail) and `head` colours
+Give it a `"price"` and it has to be bought before it can be worn. `body` colours the worm's plain squares (lightening towards the tail) and `head` colours
 its head. The squares carrying letters keep their part-of-speech colours, with the worm colour
 as a rim around them.
 

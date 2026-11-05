@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bookworms - Set Up Your Game</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%9B%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/home.css" />
+</head>
+<body>
+
+<header class="top">
+  <a class="help" href="index.html"><span class="help-icon" aria-hidden="true">&larr;</span>Home</a>
+  <a id="bank" class="bank" href="shop.html" title="Spend your points in the shop">
+    <span class="bank-star" aria-hidden="true">⭐</span>
+    <span><b id="bank-points">0</b> <small>points</small></span>
+    <span class="bank-go">Shop</span>
+  </a>
+</header>
+
+<!-- one question at a time: the topic, Real or Silly, how fast - then Play (js/setup.js) -->
+<main class="home setup-page">
+
+  <ol class="steps" aria-label="Steps">
+    <li><button type="button" data-goto="topic"><b>1</b> Topic</button></li>
+    <li><button type="button" data-goto="mode"><b>2</b> Sentences</button></li>
+    <li><button type="button" data-goto="speed"><b>3</b> Speed</button></li>
+  </ol>
+
+  <section class="card step" data-step="topic" aria-labelledby="topic-q">
+    <h1 id="topic-q" class="question">What do you want to write about?</h1>
+    <ul id="topics" class="options" role="radiogroup" aria-labelledby="topic-q"></ul>
+    <p id="setup-error" class="picker-error" hidden>
+      Could not load the topics. Start the server with <code>./serve.sh</code> and reload this page.
+    </p>
+  </section>
+
+  <section class="card step" data-step="mode" aria-labelledby="mode-q" hidden>
+    <h1 id="mode-q" class="question">Real or silly sentences?</h1>
+    <ul class="options two" role="radiogroup" aria-labelledby="mode-q">
+      <li><button type="button" class="option" role="radio" data-mode="real">
+        <span class="option-icon" aria-hidden="true">🌍</span><b>Real</b>
+        <small>They have to make sense: a dog can chase a ball.</small></button></li>
+      <li><button type="button" class="option" role="radio" data-mode="silly">
+        <span class="option-icon" aria-hidden="true">🤪</span><b>Silly</b>
+        <small>They only have to sound right: a ball can chase a dog!</small></button></li>
+    </ul>
+  </section>
+
+  <section class="card step" data-step="speed" aria-labelledby="speed-q" hidden>
+    <h1 id="speed-q" class="question">How fast is your worm?</h1>
+    <ul class="options four" role="radiogroup" aria-labelledby="speed-q">
+      <li><button type="button" class="option" role="radio" data-speed="slow">
+        <span class="option-icon" aria-hidden="true">🐢</span><b>Slow</b>
+        <small>Plenty of time to read every word.</small></button></li>
+      <li><button type="button" class="option" role="radio" data-speed="normal">
+        <span class="option-icon" aria-hidden="true">🐛</span><b>Normal</b>
+        <small>Speeds up a little with every sentence.</small></button></li>
+      <li><button type="button" class="option" role="radio" data-speed="fast">
+        <span class="option-icon" aria-hidden="true">🐇</span><b>Fast</b>
+        <small>Quicker - steer early!</small></button></li>
+      <li><button type="button" class="option" role="radio" data-speed="zoom">
+        <span class="option-icon" aria-hidden="true">⚡</span><b>Zoom</b>
+        <small>As fast as it goes. Good luck!</small></button></li>
+    </ul>
+    <p id="summary" class="summary"></p>
+    <a id="play" class="play" href="game.html">Play</a>
+    <p class="hint">Steer with the <b>arrow keys</b> or <b>W A S D</b></p>
+  </section>
+
+  <nav class="step-nav">
+    <button id="prev" class="nav-btn" type="button">&larr; Back</button>
+    <button id="next" class="nav-btn go" type="button">Next &rarr;</button>
+  </nav>
+
+</main>
+
+<script src="js/closet.js"></script>
+<script src="js/worm-skin.js"></script>
+<script src="js/setup.js"></script>
+</body>
+</html>
