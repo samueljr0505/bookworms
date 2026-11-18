@@ -12,7 +12,7 @@ global.window = global;   // the game files expect a browser-style global
 global.performance = { now: () => Date.now() };
 for (const f of ['js/config.js', 'js/util.js', 'js/grammar.js', 'js/sense.js', 'js/checker.js', 'js/judge.js',
                  'js/worm.js', 'js/board.js', 'js/closet.js', 'js/worm-skin.js', 'js/board-art.js',
-                 'js/classroom.js', 'js/game.js', 'js/report.js']) {
+                 'js/classroom.js', 'js/party.js', 'js/game.js', 'js/report.js']) {
   eval(fs.readFileSync(path.join(root, f), 'utf8'));
 }
 const NS = global.window.BW;
@@ -1216,6 +1216,72 @@ async function checkRace() {
   console.log('  class race checks done');
 }
 
+/* Word parties (js/party.js): a topic's Silly mode with the class's own words in it. The pack
+   has to be sound, every topic has to keep its three shapes, and good play has to finish
+   correct sentences that use the class's words. */
+function checkPartyPacks(index) {
+  console.log('\n=== Word party boards ===');
+  const banks = {
+    'a full bank': { adjective: ['sneaky', 'giant', 'Purple'], noun: ['principal', 'taco', 'pizza', 'unicorn'],
+                     move: ['danced', 'wiggled'], take: ['chased', 'ate'], adverb: ['loudly', 'secretly'] },
+    // a word in two lists, a word that is one of the topic's little words, a word that is not one
+    'a messy bank': { adjective: ['sneaky'], noun: ['sneaky', 'him', 'taco'], move: ['the'], take: ['ate'],
+                      adverb: ['two words', ''] },
+    'an empty bank': {}
+  };
+  for (const entry of index.topics) {
+    const raw = JSON.parse(fs.readFileSync(path.join(root, 'data', entry.file), 'utf8'));
+    const silly = NS.Grammar.forMode(raw, 'silly');
+    for (const [what, bank] of Object.entries(banks)) {
+      pack = NS.Party.packFor(silly, bank);
+      const label = entry.id + ' with ' + what;
+      for (const p of NS.Grammar.checkPack(pack)) check(false, label + ': ' + p);
+      check(pack.patterns.length === 3, label + ': expected 3 shapes, got ' + pack.patterns.map(p => p.id));
+      check(pack.noJudge && pack.party && pack.mode === 'silly', label + ': not marked as a party board');
+      for (const list of ['adjective', 'noun', 'move', 'take', 'adverb']) {
+        check(pack.words[list].length >= 2, label + ': only ' + pack.words[list].length + ' ' + list + ' words');
+      }
+      const all = Object.values(pack.words).flat();
+      check(new Set(all).size === all.length, label + ': a word is in two lists');
+      check(!all.includes('two words') && !all.includes('Purple'), label + ': a word that is not one got in');
+      for (const w of pack.classWords) check(all.includes(w), label + ': class word "' + w + '" is not on the board');
+
+      let finished = 0, usedClass = 0;
+      for (let n = 0; n < 300; n++) {
+        const worm = new NS.Worm(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, 4);
+        const board = new NS.Board(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, measure);
+        const sentence = NS.Grammar.newSentence(pack, NS.rng);
+        for (let guard = 0; !sentence.isComplete() && guard < 40; guard++) {
+          board.disperse(pack, sentence, worm, NS.CONFIG);
+          const legal = board.tiles.filter(t => t.kind === 'punct'
+            ? sentence.canEnd() && sentence.endMarks().includes(t.word) : sentence.fits(t.word, t.pos));
+          if (!legal.length) break;
+          const pick = NS.rng.pick(legal);
+          if (pick.kind === 'punct') {
+            const r = NS.Checker.check(pack, sentence, pick.word);
+            check(r.verdict === 'correct', label + ': good picks marked ' + r.verdict + ': ' + r.text);
+            sentence.end(pick.word);
+          } else sentence.add(pick.word, pick.pos);
+        }
+        if (sentence.isComplete()) {
+          finished++;
+          if (sentence.tokens.some(t => pack.classWords.includes(t.word))) usedClass++;
+        }
+      }
+      check(finished === 300, label + ': good play finished only ' + finished + ' of 300 sentences');
+      if (pack.classWords.length >= 5) check(usedClass > 150, label + ': only ' + usedClass + ' sentences used a class word');
+    }
+  }
+  // the frame read out, the way the student's page and the teacher's cards show it
+  check(NS.Party.sentenceOf({ adjective: 'Sneaky', noun: 'cat', verb: 'chased', object: 'pizza', adverb: 'loudly' }) ===
+        'The sneaky cat chased the pizza loudly.', 'a whole frame reads as a sentence');
+  check(NS.Party.sentenceOf({ adjective: 'big', noun: '', verb: 'ran' }, { blank: true }) === 'The big ___ ran.',
+        'a missing box shows as a blank, and "the" only comes with a second noun');
+  check(NS.Party.sentenceOf({ adjective: 'big', noun: 'dog', verb: 'ate', object: 'cake' }, { struck: ['object'] }) ===
+        'The big dog ate.', 'a struck word is left out, and its "the" with it');
+  console.log('  word party checks done');
+}
+
 (async function main() {
   /* Every topic the game offers gets the full run. Whether its sentences MAKE SENSE is
      the judge's job (tools/judge.py) - or a person's, reading the output of
@@ -1229,6 +1295,7 @@ async function checkRace() {
       checkThisPack();
     }
   }
+  checkPartyPacks(index);
   checkRefusalReports();
   checkReport();
   checkDecide();

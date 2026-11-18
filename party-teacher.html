@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bookworms - Word Party</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%89%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/class.css" />
+<link rel="stylesheet" href="css/party.css" />
+</head>
+<body>
+
+<main class="page party">
+
+  <header class="top">
+    <a class="back" href="index.html">&larr; Home</a>
+    <h1>Word party</h1>
+    <span class="spacer"></span>
+  </header>
+
+  <!-- 0. pick a topic (js/party-teacher.js) -->
+  <section id="setup" class="panel" hidden>
+    <p class="lead">Students write words for your prompt, you approve them, and the class's words
+       become the board. Everyone builds an answer to a new prompt in the snake game, then the
+       class votes for the best one.</p>
+    <ol class="how-it-goes">
+      <li><b>Write</b> Students fill in a sentence frame: The [Adjective] [Noun] [Verb] the [Noun] [Adverb].</li>
+      <li><b>Approve</b> You say yes or send each answer back, and can strike out any one word.</li>
+      <li><b>Build</b> The approved words are chopped up. Students build sentences from them on the board.</li>
+      <li><b>Vote</b> Everyone's best sentence goes up without names, and the class votes.</li>
+    </ol>
+    <h2>Topic</h2>
+    <ul id="topics" class="choices" role="radiogroup" aria-label="Topic"></ul>
+    <p class="note">The board uses the topic's little words (the, into, him), and tops up from its
+       own words when the class sends too few of a kind.</p>
+    <div class="actions">
+      <button id="make" class="btn go" type="button">Open the class</button>
+    </div>
+    <p id="setup-error" class="error" role="alert"></p>
+    <p class="note"><a href="teacher.html">Run a class race instead</a></p>
+  </section>
+
+  <section id="room" hidden>
+    <div id="joinbox" class="panel joinbox">
+      <p class="how">Students: go to</p>
+      <span id="address" class="address"></span>
+      <p class="how">and type the code</p>
+      <span id="code" class="code"></span>
+      <p id="link-row" class="link-row" hidden>
+        <span id="link-note"></span>
+        <button id="link-btn" class="btn small" type="button">Try again</button>
+      </p>
+    </div>
+
+    <div class="panel">
+      <ol class="phases" id="phases" aria-label="Where the round is up to">
+        <li data-phase="writing">Write</li>
+        <li data-phase="building">Build</li>
+        <li data-phase="voting">Vote</li>
+        <li data-phase="results">Results</li>
+      </ol>
+      <p id="settings" class="settings"></p>
+
+      <!-- before the first round: who is here, and the first prompt -->
+      <div id="p-lobby" hidden>
+        <h2>Who is here (<span id="count">0</span>)</h2>
+        <ul id="names" class="names"></ul>
+      </div>
+
+      <!-- a prompt to write words for: before a round, and after one -->
+      <div id="next-write" class="ask" hidden>
+        <h2>Prompt for writing words</h2>
+        <input id="write-prompt" class="prompt-input" type="text" maxlength="120" />
+        <ul id="write-ideas" class="ideas"></ul>
+        <div class="actions">
+          <button id="start-write" class="btn go" type="button">Start writing</button>
+        </div>
+      </div>
+
+      <!-- 1. writing: approve each answer, or send it back -->
+      <div id="p-writing" hidden>
+        <p class="prompt" id="writing-prompt"></p>
+        <p class="tally" id="writing-tally"></p>
+        <p class="tip">Click a word to strike it out (it is left out of the word bank), then
+           <b>✓ Yes</b>. <b>↩ Send back</b> lets the student change their words.</p>
+        <ul id="cards" class="cards"></ul>
+      </div>
+
+      <!-- the next build: a prompt and a time, from writing or after the results -->
+      <div id="next-build" class="ask" hidden>
+        <h2 id="next-build-title">Next: what should they build with these words?</h2>
+        <input id="build-prompt" class="prompt-input" type="text" maxlength="120" />
+        <ul id="build-ideas" class="ideas"></ul>
+        <h2>How long?</h2>
+        <ul id="times" class="choices" role="radiogroup" aria-label="Time to build"></ul>
+        <div class="actions">
+          <button id="start-build" class="btn go" type="button">Chop up the words and build</button>
+        </div>
+      </div>
+
+      <!-- 2. building -->
+      <div id="p-building" hidden>
+        <p class="prompt" id="building-prompt"></p>
+        <div id="clock-box" class="clock"><small id="clock-label">Time left</small><b id="clock"></b></div>
+        <h2>The class word bank</h2>
+        <div id="bank" class="bank"></div>
+        <h2>Sentences built</h2>
+        <ul id="builders" class="builders"></ul>
+        <div class="actions">
+          <button id="end-build" class="btn stop" type="button">End building now</button>
+          <button id="open-vote" class="btn go" type="button">Open the vote</button>
+        </div>
+      </div>
+
+      <!-- 3. voting: put this up on the board -->
+      <div id="p-voting" hidden>
+        <p class="prompt" id="voting-prompt"></p>
+        <ol id="entries" class="entries"></ol>
+        <p class="tally" id="voting-tally"></p>
+        <div class="actions">
+          <button id="reveal" class="btn go" type="button">Show the results</button>
+        </div>
+      </div>
+
+      <!-- 4. results -->
+      <div id="p-results" hidden>
+        <p class="prompt" id="results-prompt"></p>
+        <ol id="results" class="results"></ol>
+        <h2>Votes so far</h2>
+        <ol id="scores" class="scores"></ol>
+      </div>
+
+      <p id="room-error" class="error" role="alert"></p>
+    </div>
+
+    <p class="note"><button id="new-class" class="btn" type="button">Close this class</button></p>
+  </section>
+
+</main>
+
+<script src="js/worm-skin.js"></script>
+<script src="js/classroom.js"></script>
+<script src="js/party.js"></script>
+<script src="js/party-teacher.js"></script>
+</body>
+</html>

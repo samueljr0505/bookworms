@@ -131,9 +131,12 @@ def clean_moves(body, minutes):
 
 
 class Classroom:
-    def __init__(self, topics=None, clock=None):
+    def __init__(self, topics=None, clock=None, taken=None):
         self.topics = set(topics) if topics else None   # the topic ids the game has
         self.clock = clock or (lambda: int(time.time() * 1000))
+        # a code -> bool test for codes a word party (tools/party.py) is using, so the join
+        # page can tell a race from a party by its code alone
+        self.taken = taken or (lambda code: False)
         self.classes = {}
         self.lock = threading.Lock()
 
@@ -422,5 +425,5 @@ class Classroom:
     def new_code(self):
         while True:
             code = "".join(secrets.choice(LETTERS) for _ in range(CODE_LENGTH))
-            if code not in self.classes:
+            if code not in self.classes and not self.taken(code):
                 return code

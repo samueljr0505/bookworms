@@ -13,14 +13,15 @@ BW.Class = (function () {
 
   /* Ask the server. Hands back { ok, status, data } for any answer at all - a 404 or a 409
      is news the page has to act on - and throws only when the server could not be reached.
-     Every answer that carries the server's time keeps this computer's clock in step. */
-  async function call(path, body) {
+     Every answer that carries the server's time keeps this computer's clock in step.
+     `base` is 'api/party' for a word party (js/party.js). */
+  async function call(path, body, base) {
     const init = body === undefined ? undefined : {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     };
-    const r = await fetchFn('api/class' + path, init);
+    const r = await fetchFn((base || 'api/class') + path, init);
     let data = {};
     try { data = await r.json(); } catch (err) { /* plain http.server: no class races there */ }
     if (data && typeof data.now === 'number') offset = data.now - Date.now();

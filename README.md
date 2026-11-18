@@ -62,6 +62,7 @@ for [class races](#class-races).
 node tools/test.js
 python3 tools/test_judge.py
 python3 tools/test_classroom.py
+python3 tools/test_party.py
 ```
 
 `test.js` plays several thousand games with no browser involved and checks the rules hold - most
@@ -70,7 +71,8 @@ the player drives into words at random, that every sentence it finishes is corre
 every word it refuses comes with a reason.
 `test_judge.py` checks the judge's server side with a stand-in for the AI, so it needs no API key
 and costs nothing. `test_classroom.py` plays class races against the server with a pretend clock,
-so a five-minute race takes no time. `test.js` also builds [class reports](#the-class-report)
+so a five-minute race takes no time, and `test_party.py` does the same for [word
+parties](#word-parties). `test.js` also builds [class reports](#the-class-report)
 from made-up classes - a student who mixes up verbs, one who stops playing, one who repeats a
 sentence, one who steers at random - and checks the report says so. See [Docs/How-Requirements-Are-Met.md](Docs/How-Requirements-Are-Met.md) for
 what each test proves.
@@ -282,6 +284,39 @@ who repeats, one who stops after twenty seconds, one who steers at random...):
 They play through the game's real rules and talk to the server exactly as a browser does. You can
 join and play alongside them.
 
+## Word parties
+
+A class game in rounds, where **the students' own words become the board**. The teacher clicks
+**Run a word party (teachers)** on the home page (`party-teacher.html`), picks a topic and opens
+the class; students join with the link and the code on the same join page as a race.
+
+1. **Write.** The teacher puts up a prompt - *"Something strange happened in the library. What
+   was it?"* - and each student fills in a sentence frame on their own computer:
+   **The** [Adjective] [Noun] [Verb] **the** [Noun] [Adverb]. The second Noun and the Adverb are
+   optional. Each box says what kind of word goes in it, so every word arrives already labelled.
+2. **Approve.** The answers pop up on the teacher's screen as cards. **✓ Yes** puts the words in
+   the class word bank; **↩ Send back** lets the student change them and send them again.
+   Clicking one word strikes just that word out. Students never see each other's words here.
+3. **Build.** The teacher puts up a new prompt - *"What did the substitute teacher find?"* - and
+   a time, and the approved words are chopped up into the **word bank**. Every student plays the
+   snake game on a board of the class's words, with the topic's little words (*the, into, him,
+   was*) to hold them together. It plays like Silly mode: the worm only eats a word that fits the
+   sentence's structure, and *"danced"* will not take an object while *"chased"* needs one
+   (a Verb goes in the bank as one or the other, depending on whether its student filled in the
+   second Noun). When a kind of word is thin - nobody wrote an Adverb - the board tops it up
+   with the topic's own words, so a sentence can always be finished.
+4. **Vote.** When the time is up each student picks the sentence they want the class to see
+   (their last one, if they do not pick). The teacher opens the vote: the sentences go up
+   without names, lettered A, B, C... on the big screen, and everyone votes on their own
+   computer - but not for their own. They can change their vote until the results.
+5. **Results.** The names come out, the winner gets a 🏆, and every vote is a point on a score
+   kept across rounds. Then **New round** (new words) or **Build again** with the same bank.
+
+The rules that keep it classroom-safe: every word on the class screen was approved by the
+teacher or is one of the topic's own words, and the server turns down a sentence with any other
+word in it. A word party and a class race never share a code. Like a race, a party lives in the
+server's memory.
+
 ## The sentence checker
 
 A sentence is checked **word by word, as it is built** (`js/checker.js`, on the grammar engine in
@@ -407,10 +442,12 @@ is playing. The API key stays in the terminal running `serve.sh` and is never se
 bookworms/
   index.html            the start page: your worm, and Start
   setup.html            the game's settings, one question at a time: topic, Real or Silly, speed
-  game.html             the game itself (game.html?class=BCDF is a class race)
+  game.html             the game itself (game.html?class=BCDF is a class race, ?party=BCDF a word party's build)
   shop.html             the worm shop: spend points on hats, glasses, colours and more
-  join.html             a student joins a class race with the teacher's code
+  join.html             a student joins a class race or a word party with the teacher's code
   teacher.html          the teacher runs a class race: the code, Start, the leaderboard
+  party.html            a word party on a student's computer: write words, vote, see the results
+  party-teacher.html    the teacher runs a word party: prompts, approving words, the vote
   how-to-play.html      how to play, for the players
   review.html           a short grammar review: kinds of word, the blocks, little rules, a quick check
   serve.sh              starts the local web server
@@ -425,6 +462,7 @@ bookworms/
   css/review.css        styling for the grammar review
   css/shop.css          styling for the shop
   css/class.css         styling for the join page and the teacher's page
+  css/party.css         styling for the word party's pages, on top of class.css
   data/
     topics.json         the topics offered on the settings page
     topics/*.json       THE WORDS AND SENTENCE SHAPES, one file per topic (from tools/build-topics.py)
@@ -454,17 +492,24 @@ bookworms/
     main.js             loads the JSON, starts the game, updates the panels and the check card
     classroom.js        class races: talking to the server, the class clock, remembering your seat
     race.js             a class race in the game: waits for Start, sends sentences and moves, the mini leaderboard
+    party.js            word parties: the sentence frame, prompts, and the board made of the class's words
+    party-play.js       a word party's build in the game: the class clock, sending sentences, picking one
+    party-student.js    the word party page on a student's computer
+    party-teacher.js    the word party page on the teacher's computer
     join.js             the join page
     teacher.js          the teacher's page: setup, who is here, the leaderboard, the podium, printing
     report.js           the class report: each student's skills, mix-ups, strengths, next step, engagement
     report-view.js      draws the class report on the teacher's page
   tools/
-    serve.py            the local web server, with the judge at /api/judge and class races at /api/class
+    serve.py            the local web server: the judge at /api/judge, class races at /api/class,
+                        word parties at /api/party
     judge.py            the sentence judge: asks Claude, saves the answers
     classroom.py        class races: codes, who has joined, the clock, the leaderboard, the report's data
     test.js             headless checks of the game, no browser needed
     test_judge.py       checks of the judge, no API key needed
+    party.py            word parties: the rounds, approving words, the word bank, sentences, votes
     test_classroom.py   checks of class races, with a pretend clock
+    test_party.py       checks of word parties, with a pretend clock
     demo-class.js       pretend students, for trying a class race and its report on your own
     build-topics.py     writes the topic files
     list-sentences.py   prints a sample of a topic's sentences for a person to read

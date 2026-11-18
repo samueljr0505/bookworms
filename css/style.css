@@ -371,3 +371,31 @@ kbd {
   box-shadow: 0 4px 0 #3c6b46;
 }
 .race-go[hidden] { display: none; }
+
+/* ---------- a word party's build (js/party-play.js) ---------- */
+
+/* the prompt and the clock, in a bar above the sentence strip */
+.party-bar {
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 16px;
+  padding: 10px 16px; border-radius: 16px; background: #fdf3e4; border: 2px solid #f2c99a;
+}
+.party-bar[hidden] { display: none; }
+.party-bar small {
+  display: block; font-size: 10px; font-weight: 800; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--muted);
+}
+.party-bar-prompt { margin: 0; min-width: 0; }
+.party-bar-prompt b { display: block; font-size: clamp(17px, 2.4vw, 22px); font-weight: 900; line-height: 1.25; }
+.party-bar-clock { text-align: right; }
+.party-bar-clock b { font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--ink); }
+.party-bar-clock.hurry b { color: var(--bad); animation: flicker 1s ease-in-out infinite; }
+.party-bar-note { grid-column: 1 / -1; margin: 0; font-size: 12px; font-weight: 700; color: var(--bad); }
+.party-bar-note:empty { display: none; }
+.party-card .race-podium { font-size: 15px; max-height: 40vh; overflow-y: auto; }
+.party-card .pick {
+  width: 100%; text-align: left; padding: 8px 12px; border-radius: 12px; cursor: pointer;
+  font: inherit; font-weight: 700; color: var(--ink);
+  background: #fff; border: 2px solid #e3d7be;
+}
+.party-card .pick:hover { border-color: var(--green); }
+.party-card .pick.on { border-color: var(--green); background: #f3faf4; }

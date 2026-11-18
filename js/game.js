@@ -281,7 +281,8 @@ BW.Game = class Game {
 
     // The words could already be a whole sentence: ask the judge now, so its answer is
     // usually back before the worm reaches a punctuation mark.
-    if (this.cfg.judgeEarly && this.sentence.canEnd()) BW.Judge.ask(this.pack, this.sentence);
+    // (A word party's board has the class's own words, which the judge does not know.)
+    if (this.cfg.judgeEarly && !this.pack.noJudge && this.sentence.canEnd()) BW.Judge.ask(this.pack, this.sentence);
 
     this.refill();
     this.notify();
@@ -329,7 +330,8 @@ BW.Game = class Game {
     this.checkMs = this.cfg.checkMs;
     this.pending = { report, mark, verdict: undefined };
     const id = ++this.checkId;
-    BW.Judge.ask(this.pack, this.sentence, this.cfg.judgeWaitMs).then(verdict => {
+    const asked = this.pack.noJudge ? Promise.resolve(null) : BW.Judge.ask(this.pack, this.sentence, this.cfg.judgeWaitMs);
+    asked.then(verdict => {
       if (id === this.checkId && this.pending) this.pending.verdict = verdict;
     });
     this.report = { ...report, phase: 'checking' };

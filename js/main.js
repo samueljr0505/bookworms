@@ -343,14 +343,19 @@ window.BW = window.BW || {};
   }
 
   async function boot() {
-    // game.html?class=BCDF is a class race (js/race.js): the teacher picked the topic
-    const race = BW.Race.fromUrl();
-    const room = race && await race.connect();
-    if (race && !room) return;            // sent off to join, or told what went wrong
+    // game.html?class=BCDF is a class race (js/race.js), and game.html?party=BCDF a word
+    // party's build (js/party-play.js): the teacher picked the topic
+    const party = BW.PartyPlay.fromUrl();
+    const race = party ? null : BW.Race.fromUrl();
+    const live = party || race;
+    const room = live && await live.connect();
+    if (live && !room) return;            // sent off to join, or told what went wrong
 
     let pack;
     try {
-      pack = await loadPack(room && room.topic, room && room.mode);
+      pack = await loadPack(room && room.topic, party ? 'silly' : room && room.mode);
+      // a word party plays on the words the class wrote (js/party.js)
+      if (party) pack = BW.Party.packFor(pack, room.bank);
     } catch (err) {
       $('loading').hidden = true;
       $('error').hidden = false;
@@ -366,8 +371,8 @@ window.BW = window.BW || {};
     renderLegend(pack);
     document.title = 'Bookworms - ' + pack.name;
     // what is being played, in a word or two: the topic, and Real or Silly
-    $('now-playing').textContent = pack.emoji + ' ' + pack.name +
-      (pack.mode === 'silly' ? ' \u00b7 🤪 Silly' : ' \u00b7 🌍 Real');
+    $('now-playing').textContent = pack.party ? '🎉 Word party \u00b7 the class\'s own words'
+      : pack.emoji + ' ' + pack.name + (pack.mode === 'silly' ? ' \u00b7 🤪 Silly' : ' \u00b7 🌍 Real');
     $('now-playing').hidden = false;
 
     const wardrobe = await loadWardrobe();
@@ -391,20 +396,20 @@ window.BW = window.BW || {};
       onEarn: earned,
       onReport: report => renderReport(game, report),
       // a class race sends what happens to the teacher's report (js/race.js)
-      onSentence: race ? (verdict, text, info) => race.report(verdict, text, info) : null,
+      onSentence: live ? (verdict, text, info) => live.report(verdict, text, info) : null,
       onRefuse: race ? info => race.noteRefusal(info) : null,
       onEat: race ? family => race.noteEat(family) : null,
       onSteer: race ? () => race.noteSteer() : null,
       onCrash: race ? () => race.noteCrash() : null
-    }, { race: !!race, speed: BW.chooseSpeed() });
+    }, { race: !!live, speed: BW.chooseSpeed() });
 
     game.attachInput(window);
-    if (race) {
+    if (live) {
       // the class shares one clock: no pausing it, and no starting over
       $('btn-new').hidden = true;
       $('btn-pause').hidden = true;
       $('btn-speed').hidden = true;      // everyone races at the same speed
-      race.attach(game);
+      live.attach(game);
     }
 
     $('btn-new').addEventListener('click', () => { game.newGame(); window.focus(); });

@@ -1,6 +1,8 @@
-/* The join page: type the class code and your first name, then wait in the game for the
-   teacher to press Start. The server hands back a seat - this player's place in the class -
-   which goes with them into the game (see js/classroom.js). */
+/* The join page: type the class code and your first name, then wait for the teacher. The code
+   is a class race's (tools/classroom.py) or a word party's (tools/party.py) - the two never
+   share one - so the page asks for a race first and then for a party. The server hands back
+   a seat - this player's place in the class - which goes with them into the game (see
+   js/classroom.js), or into the word party's page. */
 window.BW = window.BW || {};
 
 (function () {
@@ -22,10 +24,12 @@ window.BW = window.BW || {};
       // already in this class on this computer (a reload, a wrong turn)? Then it is the same
       // seat - as long as it is the same name, so a classmate never ends up in it
       const before = BW.Class.savedSeat(code);
-      const r = await BW.Class.call('/' + code + '/join', { name, seat: before && before.seat });
+      const body = { name, seat: before && before.seat };
+      let r = await BW.Class.call('/' + code + '/join', body);
+      if (r.data.gone) r = await BW.Party.call('/' + code + '/join', body);
       if (r.ok) {
         BW.Class.saveSeat({ code, seat: r.data.seat, name: r.data.name });
-        location.href = 'game.html?class=' + code + '#seat=' + r.data.seat;
+        location.href = (r.data.party ? 'party.html?code=' : 'game.html?class=') + code + '#seat=' + r.data.seat;
         return;
       }
       say(r.data.gone ? 'There is no class with the code ' + code + '. Check the letters with your teacher.'

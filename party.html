@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bookworms - Word Party</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%89%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/class.css" />
+<link rel="stylesheet" href="css/party.css" />
+</head>
+<body>
+
+<main class="page narrow party">
+
+  <header class="top">
+    <a class="back" href="index.html">&larr; Home</a>
+    <h1>Word party</h1>
+    <span class="spacer"></span>
+  </header>
+
+  <p id="hello" class="settings" hidden></p>
+
+  <!-- waiting for the teacher: before the first round, or after sending words (js/party-student.js) -->
+  <section id="s-wait" class="panel center" hidden>
+    <p class="big-emoji" id="wait-emoji">⏳</p>
+    <h2 id="wait-title" class="title"></h2>
+    <p id="wait-text" class="lead"></p>
+  </section>
+
+  <!-- 1. write words for the teacher's prompt -->
+  <section id="s-write" class="panel" hidden>
+    <p class="prompt" id="write-prompt"></p>
+    <p class="lead">Answer it by filling in the boxes. Each box needs one word of the kind it says.</p>
+    <form id="frame" class="frame" autocomplete="off" novalidate></form>
+    <p class="preview" id="preview" aria-live="polite"></p>
+    <div class="actions">
+      <button id="send" class="btn go" type="button">Send to my teacher</button>
+    </div>
+    <p id="write-status" class="status" aria-live="polite"></p>
+    <p id="write-error" class="error" role="alert"></p>
+  </section>
+
+  <!-- 2. vote for the best sentence the class built -->
+  <section id="s-vote" class="panel" hidden>
+    <p class="prompt" id="vote-prompt"></p>
+    <p class="lead">Vote for your favourite answer! You cannot vote for your own.</p>
+    <ol id="ballot" class="ballot"></ol>
+    <p id="vote-status" class="status" aria-live="polite"></p>
+    <p id="vote-error" class="error" role="alert"></p>
+  </section>
+
+  <!-- 3. the votes are in -->
+  <section id="s-results" class="panel" hidden>
+    <p class="prompt" id="results-prompt"></p>
+    <ol id="results" class="results"></ol>
+    <p id="results-me" class="status"></p>
+    <p class="note">Wait here: your teacher will start the next round.</p>
+  </section>
+
+  <p id="error" class="error" role="alert"></p>
+  <p class="note"><a id="leave" href="join.html">Join a different class</a></p>
+
+</main>
+
+<script src="js/classroom.js"></script>
+<script src="js/party.js"></script>
+<script src="js/party-student.js"></script>
+</body>
+</html>

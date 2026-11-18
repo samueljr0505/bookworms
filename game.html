@@ -43,6 +43,16 @@
 
 <main id="game" hidden>
   <section class="stage">
+    <!-- a word party: the question to answer with the class's words, and the time left,
+         above everything else (js/party-play.js) -->
+    <div id="party-bar" class="party-bar" hidden>
+      <p class="party-bar-prompt"><small>Answer this</small><b id="party-bar-prompt"></b></p>
+      <span id="party-bar-clock-box" class="party-bar-clock" aria-live="off">
+        <small id="party-bar-clock-label">Time left</small><b id="party-bar-clock"></b>
+      </span>
+      <p id="party-bar-note" class="party-bar-note" aria-live="polite"></p>
+    </div>
+
     <div class="sentence-strip">
       <div class="strip-label" id="building-label">Build this sentence</div>
       <div id="building" class="building"></div>
@@ -162,6 +172,8 @@
 <script src="js/judge.js"></script>
 <script src="js/classroom.js"></script>
 <script src="js/race.js"></script>
+<script src="js/party.js"></script>
+<script src="js/party-play.js"></script>
 <script src="js/worm.js"></script>
 <script src="js/board.js"></script>
 <script src="js/render.js"></script>

@@ -13,8 +13,9 @@ second opinion on finished sentences. The judge needs an API key, which has to s
 here on the server - it must never be sent to a browser. Without a key the game still
 works and checks sentences with its own rules.
 
-And it keeps the score for class races at /api/class (tools/classroom.py): the teacher's
-page and every student's game talk to it, so the whole class has to reach this one server.
+And it keeps the score for class races at /api/class (tools/classroom.py), and runs word
+parties at /api/party (tools/party.py): the teacher's page and every student's game talk
+to it, so the whole class has to reach this one server.
 It only listens to this computer. Students' computers come in through a public link that
 opens when the teacher opens a class (see PublicLink below) - school Wi-Fi often will not
 let one computer reach another directly, but it lets everyone reach the internet. Anyone
@@ -36,6 +37,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs
 
 from classroom import Classroom
+from party import WordParty, load_vocab
 
 try:
     from judge import Judge
@@ -45,6 +47,7 @@ except Exception as err:          # a broken judge must never stop the game bein
 
 JUDGE = None
 CLASSROOM = Classroom()
+PARTY = WordParty()
 PUBLIC_DIRS = ("css", "js", "data")    # with the .html pages at the top: everything the game loads
 LINK = None          # the public link (PublicLink), set up in main()
 # Cloudflare adds these to everything that comes in through the public link
@@ -68,7 +71,7 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
             return
         # every game in a class race asks for the board every couple of seconds - thirty
         # children would bury everything else, and the address carries their seats
-        if " /api/class" in line or " /api/link" in line:
+        if " /api/class" in line or " /api/party" in line or " /api/link" in line:
             return
         super().log_message(fmt, *args)
 
@@ -113,6 +116,9 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
         if path.startswith("/api/class/"):
             params = {k: v[0] for k, v in parse_qs(query).items()}
             return self.send_json(*CLASSROOM.handle_get(path[len("/api/class/"):], params))
+        if path.startswith("/api/party/"):
+            params = {k: v[0] for k, v in parse_qs(query).items()}
+            return self.send_json(*PARTY.handle_get(path[len("/api/party/"):], params))
         return super().do_GET()
 
     def do_POST(self):
@@ -144,22 +150,27 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
             else:
                 LINK.close()
             return self.send_json(200, dict(LINK.status(), canControl=True))
-        if path == "/api/class" or path.startswith("/api/class/"):
-            # /api/class makes a class; /api/class/<code>/<action> does something in one
-            rest = path[len("/api/class"):].strip("/")
-            parts = rest.split("/") if rest else [None, None]
-            if len(parts) != 2:
-                return self.send_json(404, {"error": "nothing here"})
-            ok, body = self.read_json()
-            if not ok:
-                return
-            try:
-                code, reply = CLASSROOM.handle_post(parts[0], parts[1], body)
-            except Exception as err:       # say what broke rather than drop the connection
-                print("  classroom: unexpected error: %r" % err, file=sys.stderr)
-                code, reply = 500, {"error": "the class race broke"}
-            return self.send_json(code, reply)
+        for base, keeper, what in (("/api/class", CLASSROOM, "the class race"), ("/api/party", PARTY, "the word party")):
+            if path == base or path.startswith(base + "/"):
+                return self.class_post(path[len(base):], keeper, what)
         return self.send_json(404, {"error": "nothing here"})
+
+    def class_post(self, rest, keeper, what):
+        """/api/class makes a class race and /api/class/<code>/<action> does something in one;
+        /api/party is the same for a word party."""
+        rest = rest.strip("/")
+        parts = rest.split("/") if rest else [None, None]
+        if len(parts) != 2:
+            return self.send_json(404, {"error": "nothing here"})
+        ok, body = self.read_json()
+        if not ok:
+            return
+        try:
+            code, reply = keeper.handle_post(parts[0], parts[1], body)
+        except Exception as err:       # say what broke rather than drop the connection
+            print("  %s: unexpected error: %r" % (what, err), file=sys.stderr)
+            code, reply = 500, {"error": what + " broke"}
+        return self.send_json(code, reply)
 
     def read_json(self):
         """(True, the JSON a page sent) - or (False, None) once an error has been sent back.
@@ -270,11 +281,18 @@ def topic_ids():
 
 
 def main():
-    global JUDGE, CLASSROOM, LINK
+    global JUDGE, CLASSROOM, PARTY, LINK
     port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", "8000"))
     # serve the project folder, whichever directory this was started from
     os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    CLASSROOM = Classroom(topic_ids())
+    try:
+        vocab = load_vocab()
+    except (OSError, ValueError, KeyError, TypeError) as err:
+        print("  word party: could not read the topics (%s)" % err, file=sys.stderr)
+        vocab = None
+    # a race and a party never share a code, so the join page can find either from the code
+    CLASSROOM = Classroom(topic_ids(), taken=lambda code: code in PARTY.parties)
+    PARTY = WordParty(vocab, taken=lambda code: code in CLASSROOM.classes)
     # BOOKWORMS_CLOUDFLARED is for the tests, which use a stand-in that opens nothing
     LINK = PublicLink(port, os.environ.get("BOOKWORMS_CLOUDFLARED", "cloudflared"))
     if not shutil.which(LINK.program):
