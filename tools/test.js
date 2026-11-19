@@ -12,7 +12,7 @@ global.window = global;   // the game files expect a browser-style global
 global.performance = { now: () => Date.now() };
 for (const f of ['js/config.js', 'js/util.js', 'js/grammar.js', 'js/sense.js', 'js/checker.js', 'js/judge.js',
                  'js/worm.js', 'js/board.js', 'js/closet.js', 'js/worm-skin.js', 'js/board-art.js',
-                 'js/classroom.js', 'js/party.js', 'js/game.js', 'js/report.js']) {
+                 'js/classroom.js', 'js/party.js', 'js/story.js', 'js/game.js', 'js/report.js']) {
   eval(fs.readFileSync(path.join(root, f), 'utf8'));
 }
 const NS = global.window.BW;
@@ -1282,6 +1282,284 @@ function checkPartyPacks(index) {
   console.log('  word party checks done');
 }
 
+/* Story-building (js/story.js): every story has an objective for each sentence, every topic
+   has story ideas with words of its own for each objective, those words (and the story's
+   character) come out on the board more often, a sentence that misses a checkable objective
+   stays out of the story, the story is offered once every objective is met - never in a
+   class race - and the shelf of saved stories survives bad storage. Runs after checkRace,
+   which stands in for the drawing. */
+async function checkStories(index) {
+  console.log('\n=== Stories ===');
+  const S = NS.Story;
+  const data = JSON.parse(fs.readFileSync(path.join(root, 'data/stories.json'), 'utf8'));
+  const goals = S.goalsFrom(data);
+  check(goals.map(g => g.id).join() === 'character,setting,problem,surprise,develop,develop,develop,resolve',
+        'a story runs character, setting, problem, surprise, develop x3, resolve: ' + goals.map(g => g.id).join());
+  check(goals.every(g => g.label && g.ask && ['beginning', 'middle', 'end'].includes(g.part)),
+        'every objective has a label, a question and a part of the story');
+  const beats = [...new Set(goals.map(g => g.id))];
+  for (const entry of index.topics) {
+    const starters = S.startersFor(data, entry.id);
+    check(starters.length >= 3, entry.name + ': only ' + starters.length + ' story ideas');
+    check(new Set(starters.map(s => s.id)).size === starters.length, entry.name + ': two story ideas share an id');
+    const raw = JSON.parse(fs.readFileSync(path.join(root, 'data', entry.file), 'utf8'));
+    for (const mode of ['real', 'silly']) {
+      const p = NS.Grammar.forMode(raw, mode);
+      const all = new Set(Object.values(p.words).flat());
+      for (const st of starters) {
+        check(st.title && st.idea && st.emoji, entry.name + ': story idea "' + st.id + '" is missing a part');
+        for (const b of beats) {
+          const words = (st.beats || {})[b] || [];
+          check(words.length >= 2, entry.name + ': story idea "' + st.id + '" has no words for "' + b + '"');
+          for (const w of words) check(all.has(w), entry.name + ' (' + mode + '): story word "' + w + '" is not a word of the topic');
+        }
+        check(st.beats.character.some(w => (p.words.noun || []).includes(w)),
+              entry.name + ': story idea "' + st.id + '" offers no character');
+        check(st.beats.setting.some(w => (p.words.place || []).includes(w)),
+              entry.name + ': story idea "' + st.id + '" offers no place for the setting');
+      }
+    }
+  }
+  check(S.startersFor(data, 'no-such-topic').length === 0 && S.startersFor(null, 'animals').length === 0 &&
+        S.goalsFrom(null).length === 0, 'missing story data is none, rather than a crash');
+
+  // the objective's words come out more often - and good play still finishes every sentence
+  const fantasy = loadTopic('fantasy');
+  const idea = S.startersFor(data, 'fantasy')[0];
+  const favor = new Set(S.wordsFor(idea, goals[2], 'knight'));
+  const usage = withFavor => {
+    let used = 0, finished = 0;
+    for (let n = 0; n < 400; n++) {
+      const worm = new NS.Worm(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, 4);
+      const board = new NS.Board(NS.CONFIG.grid.cols, NS.CONFIG.grid.rows, measure);
+      const sentence = NS.Grammar.newSentence(fantasy, NS.rng);
+      for (let guard = 0; !sentence.isComplete() && guard < 40; guard++) {
+        board.disperse(fantasy, sentence, worm, NS.CONFIG, null, withFavor ? favor : null);
+        const legal = board.tiles.filter(t => t.kind === 'punct'
+          ? sentence.canEnd() && sentence.endMarks().includes(t.word) : sentence.fits(t.word, t.pos));
+        if (!legal.length) break;
+        const pick = NS.rng.pick(legal);
+        if (pick.kind === 'punct') sentence.end(pick.word); else sentence.add(pick.word, pick.pos);
+      }
+      if (sentence.isComplete()) finished++;
+      if (sentence.tokens.some(t => favor.has(t.word))) used++;
+    }
+    return { used, finished };
+  };
+  const plain = usage(false), nudged = usage(true);
+  check(nudged.finished === 400, 'with a story objective, good play finished only ' + nudged.finished + ' of 400 sentences');
+  check(nudged.used > plain.used * 1.2, 'the objective\'s words should turn up more often: ' +
+        nudged.used + ' sentences with them, against ' + plain.used + ' without');
+  check(favor.has('knight') && favor.has('dragon'), 'the board brings back the character along with the objective\'s words');
+
+  // which objectives a sentence meets
+  const animals = loadTopic('animals');
+  const toks = words => words.map(word => ({ word, pos: NS.Grammar.posOfWord(animals, word) }));
+  const [character, setting, problem] = goals;
+  let r = S.meets(animals, character, toks(['The', 'dog', 'ran']));
+  check(r.met && r.hero === 'dog', 'a person or animal as the subject introduces a character: ' + JSON.stringify(r));
+  r = S.meets(animals, character, toks(['A', 'stick', 'was', 'near', 'the', 'tree']), ['puppy', 'fluffy']);
+  check(!r.met && /"The puppy/.test(r.why), 'a thing as the subject is no character, and the hint uses the idea\'s word: ' + r.why);
+  r = S.meets(animals, character, toks(['The', 'cat', 'chased', 'the', 'dog']));
+  check(r.hero === 'cat', 'the character is the subject, not the object: ' + r.hero);
+  check(S.meets(animals, setting, toks(['A', 'stick', 'was', 'near', 'the', 'tree'])).met, 'a place word describes the setting');
+  r = S.meets(animals, setting, toks(['A', 'dog', 'was', 'noisy']), ['garden']);
+  check(!r.met && /"garden"/.test(r.why), 'no place, no setting - with a hint: ' + r.why);
+  check(S.meets(animals, problem, toks(['A', 'dog', 'was', 'noisy'])).met, 'a problem is the player\'s call');
+
+  // joining words
+  check(S.join('Then', 'The dragon flew.') === 'Then, the dragon flew.', 'a joining word takes the capital letter');
+  check(S.join('Suddenly', 'I ran!') === 'Suddenly, I ran!', '"I" keeps its capital');
+  check(S.join('', 'My dog sat.') === 'My dog sat.', 'no joining word leaves the sentence alone');
+  check(Object.values(S.JOINERS).flat().every(j => j[0] === j[0].toUpperCase()), 'every joining word starts with a capital');
+  const story = {
+    beginning: [{ text: 'The knight walked.', joiner: 'One day' }],
+    middle: [{ text: 'The dragon roared.', joiner: 'Suddenly' }, { text: 'The knight ran.', joiner: '' }],
+    end: []
+  };
+  check(S.missing(story).join() === 'End', 'a story with no End is not finished: ' + S.missing(story).join());
+  check(S.missing({}).join() === 'Beginning,Middle,End', 'an empty story needs every part');
+  story.end.push({ text: 'The knight was brave.', joiner: 'In the end' });
+  check(S.missing(story).length === 0, 'a sentence in every part makes a whole story');
+  check(JSON.stringify(S.paragraphs(story)) === JSON.stringify([
+    'One day, the knight walked.', 'Suddenly, the dragon roared. The knight ran.', 'In the end, the knight was brave.']),
+    'a story reads as one paragraph per part: ' + JSON.stringify(S.paragraphs(story)));
+
+  // on the story screen only a determiner can be swapped - the rest are the worm's words
+  const dets = new Set(['the', 'a', 'my']);
+  check(S.determinersIn('The duck carried a big carrot.', dets).join() === '0,3', 'the determiners in a sentence are found');
+  check(S.determinersIn('An apple fell.', dets).join() === '0', '"an" counts as "a"');
+  check(S.determinersIn('They gave him the pond.', dets).join() === '3', 'a pronoun is not a determiner');
+  check(S.setDeterminer('A duck waited in a field!', 0, 'the') === 'The duck waited in a field!', 'a capital stays a capital');
+  check(S.setDeterminer('The duck carried a big carrot.', 3, 'my') === 'The duck carried my big carrot.', 'a word mid-sentence stays small');
+  check(S.setDeterminer('The chef cut the apple.', 3, 'a') === 'The chef cut an apple.', '"a" becomes "an" before a vowel');
+  check(S.setDeterminer('An apple fell.', 0, 'the') === 'The apple fell.', '"An" becomes "The"');
+  check(S.setDeterminer('An apple fell.', 0, 'a') === 'An apple fell.', 'and back again');
+
+  // joining words: plenty to pick from, and the player's own
+  check(Object.values(S.JOINERS).every(list => list.length >= 6 && new Set(list).size === list.length),
+        'every part has plenty of joining words, none twice');
+  check(S.checkJoiner('  luckily,, ').text === 'Luckily' && S.checkJoiner('luckily').why === '',
+        'a typed joining word gets its capital, and loses the comma (that comes by itself)');
+  check(S.checkJoiner('The next morning').text === 'The next morning', 'a joining word can be a few words');
+  check(S.checkJoiner('').why && S.checkJoiner('Then!!').why && S.checkJoiner('one two three four five six').why,
+        'an empty, odd or long joining word is turned down');
+  check(S.join(S.checkJoiner('luckily').text, 'The dog found the ball.') === 'Luckily, the dog found the ball.',
+        'a typed joining word reads like any other');
+
+  // words of the player's own, in a copy of the topic: the game's shapes decide where they go
+  const mine = S.copyPack(animals);
+  check(S.ownKinds(mine).map(k => k.pos).join() === 'noun,thing,place,adjective,move,take,adverb',
+        'every kind of word can be added in Animals: ' + S.ownKinds(mine).map(k => k.pos).join());
+  for (const entry of index.topics) {
+    const t = loadTopic(entry.id);
+    check(S.ownKinds(t).length === S.OWN_KINDS.length, entry.name + ': not every kind of word can be added');
+  }
+  check(S.checkOwnWord(mine, ' Goose ').word === 'goose' && S.checkOwnWord(mine, 'goose').why === '', 'a new word is tidied and taken');
+  check(/already/.test(S.checkOwnWord(mine, 'Dog').why), 'a word the bank has already is turned down');
+  check(S.checkOwnWord(mine, 'big goose').why && S.checkOwnWord(mine, '').why && S.checkOwnWord(mine, 'g00se').why,
+        'two words, nothing, or numbers are turned down');
+  mine.words.noun.push('goose');
+  mine.words.move.push('waddled');
+  mine.words.place.push('meadow');
+  check(!animals.words.noun.includes('goose'), 'the game\'s own words never change');
+  for (const [m, raw] of [['real', loadTopic('animals')], ['silly', loadTopic('animals', 'silly')]]) {
+    const p = S.copyPack(raw);
+    p.words.noun.push('goose'); p.words.move.push('waddled'); p.words.place.push('meadow');
+    const built = NS.Grammar.newSentence(p, NS.rng);
+    let refused = null;
+    for (const [w, pos] of [['The', 'determiner'], ['goose', 'noun'], ['waddled', 'move'], ['to', 'motionPrep'],
+                            ['the', 'determiner'], ['meadow', 'place']]) {
+      refused = refused || NS.Checker.refuse(p, built, w, pos);
+      if (!refused) built.add(w, pos);
+    }
+    check(!refused && NS.Checker.check(p, built, '.').verdict === 'correct',
+          m + ' mode: a sentence of the player\'s own words is built by the same rules: ' + (refused ? refused.reason : built.text('.')));
+    const wrong = NS.Grammar.newSentence(p, NS.rng);
+    wrong.add('The', 'determiner');
+    check(NS.Checker.refuse(p, wrong, 'waddled', 'move'), m + ' mode: and an own word that does not fit is refused');
+  }
+
+  // tips, on the story that started all this: "a duck", again and again
+  const nouns = new Set(['duck', 'horse', 'bird', 'carrot', 'field', 'barn']);
+  const awkward = [
+    { id: 1, text: 'The duck carried a big carrot.', joiner: 'One day' },
+    { id: 2, text: 'A duck waited in a field!', joiner: 'After that' },
+    { id: 3, text: 'The horse chased a duck.', joiner: 'Suddenly' },
+    { id: 4, text: 'A bird chased the duck!', joiner: 'Then' },
+    { id: 5, text: 'The duck walked through the barn!', joiner: 'After that' },
+    { id: 6, text: 'A duck rested in the brown barn.', joiner: 'At last' }
+  ];
+  const tips = S.tips(awkward, nouns);
+  const tipFor = id => tips.find(t => t.id === id);
+  check(!tipFor(1) && !tipFor(4), 'no tip where "a" brings in something new (a carrot, a bird)');
+  check(tipFor(2) && tipFor(2).kind === 'the' && tipFor(2).fix === 'The duck waited in a field!',
+        'meeting the duck again: "A duck" becomes "The duck" - ' + JSON.stringify(tipFor(2)));
+  check(tipFor(3) && tipFor(3).fix === 'The horse chased the duck.', '"chased a duck" becomes "chased the duck"');
+  check(tipFor(5) && tipFor(5).kind === 'joiner', 'the same joining word twice gets a tip');
+  check(tipFor(6) && tipFor(6).fix === 'The duck rested in the brown barn.', 'the last "a duck" gets fixed too');
+  check(S.tips([{ id: 1, text: 'A big brown duck swam.' }, { id: 2, text: 'An old duck sat.' }], nouns)[0].fix === 'The old duck sat.',
+        '"an" before an adjective becomes "the" too');
+  check(S.tips(['The duck ran.', 'The duck sat.', 'The duck hid.'].map((text, id) => ({ id, text })), nouns).length === 0,
+        'no tip asks for a change the story screen cannot make');
+  check(S.tips(awkward, new Set()).every(t => t.kind !== 'the'),
+        'without the topic\'s nouns, there is no "the" tip to guess at');
+
+  // the shelf of saved stories
+  const store = { data: {}, getItem(k) { return this.data[k] ?? null; }, setItem(k, v) { this.data[k] = v; } };
+  const book = new NS.StoryBook(store);
+  check(book.stories.length === 0, 'a new shelf is empty');
+  const first = book.add({ title: 'The Lost Crown', paragraphs: ['a', 'b', 'c'], topic: 'Fantasy' });
+  book.add({ title: 'Second', paragraphs: ['x'] });
+  check(new NS.StoryBook(store).stories.map(s => s.title).join() === 'Second,The Lost Crown',
+        'stories are kept, newest first');
+  book.remove(first.id);
+  check(new NS.StoryBook(store).stories.length === 1, 'a removed story is gone');
+  for (let i = 0; i < NS.StoryBook.MAX + 5; i++) book.add({ title: 'S' + i, paragraphs: ['p'] });
+  check(book.stories.length === NS.StoryBook.MAX, 'the shelf keeps at most ' + NS.StoryBook.MAX);
+  store.data[NS.StoryBook.KEY] = '{not json';
+  check(new NS.StoryBook(store).stories.length === 0, 'a broken shelf starts empty instead of crashing');
+  const blocked = new NS.StoryBook({ getItem() { throw new Error('blocked'); }, setItem() { throw new Error('blocked'); } });
+  blocked.add({ title: 'Still works', paragraphs: ['p'] });
+  check(blocked.stories.length === 1, 'with storage blocked, a story still lasts as long as the page');
+
+  // a game builds the story one objective at a time
+  const starters = S.startersFor(data, 'animals');
+  let earned = 0;
+  const game = new NS.Game(animals, null, { onEarn: p => { earned += p; } }, { goals, starters });
+  check(starters.includes(game.starter) && game.currentGoal() === character,
+        'a game starts with one of the topic\'s story ideas, on its first objective');
+  check([...game.favor].every(w => game.starter.beats.character.includes(w)),
+        'the board brings out the idea\'s words for a character');
+  let t = performance.now();
+  const run = ms => { for (let i = 0; i < ms; i += 50) game.frame(t += 50); };
+  const write = async words => {
+    for (const w of words.concat('.')) {
+      game.eat(w === '.' ? { word: w, pos: 'punctuation', kind: 'punct' }
+                         : { word: w, pos: NS.Grammar.posOfWord(animals, w), kind: 'word' });
+    }
+    await new Promise(done => setTimeout(done, 0));
+    run(NS.CONFIG.checkMs + 100);
+    check(game.mode === 'checked', 'the sentence was finished: ' + words.join(' '));
+  };
+  run(NS.CONFIG.startDelayMs + 100);
+  await write(['The', 'dog', 'ran']);
+  check(game.report.goal.met && game.hero === 'dog' && game.currentGoal() === setting,
+        'introducing a character moves on to the setting: ' + JSON.stringify(game.report.goal));
+  check(game.favor.has('dog'), 'and the character keeps coming back on the board');
+  game.carryOn(null);
+  await write(['The', 'dog', 'ran']);
+  check(!game.report.goal.met && game.report.goal.why && game.currentGoal() === setting &&
+        game.storySentences().length === 1 && game.finished.length === 2 && game.score > 0,
+        'a sentence with no place still scores, but the setting is still to do');
+  game.carryOn(null);
+  await write(['The', 'dog', 'hid', 'in', 'the', 'barn']);
+  check(game.report.goal.met && game.currentGoal() === problem, 'a place meets the setting');
+  for (let k = 2; k < goals.length; k++) {
+    check(!game.report.story, 'no story before every objective is met (' + k + ')');
+    game.carryOn(null);
+    await write(['The', 'dog', 'ran']);
+  }
+  check(game.report.story && game.currentGoal() === null, 'the story is offered once every objective is met');
+  check(game.storySentences().map(s => s.goal.id).join() === goals.map(g => g.id).join() &&
+        game.storySentences()[1].text === 'The dog hid in the barn.',
+        'each sentence comes with its objective, and the missed one is not in the story');
+  game.handleKey({ key: 'ArrowUp', preventDefault() {} });
+  game.handleKey({ key: 'Enter', preventDefault() {} });
+  check(game.mode === 'checked' && game.report.story, 'a stray key does not skip the story offer');
+  const before = game.starter;
+  game.storyTime();
+  check(game.mode === 'story', 'the story screen is up');
+  game.handleKey({ key: 'r', preventDefault() {} });
+  game.handleKey({ key: 'p', preventDefault() {} });
+  check(game.mode === 'story' && game.finished.length === goals.length + 1, 'typing a title does not pause or restart the game');
+  const score = game.score;
+  earned = 0;
+  game.storyDone(NS.CONFIG.points.story);
+  check(game.mode === 'countdown', 'back from the story, the game counts down again');
+  check(game.score === score + NS.CONFIG.points.story && earned === NS.CONFIG.points.story,
+        'a saved story earns its bonus, for the shop too');
+  check(game.storySentences().length === 0 && game.hero === null && game.currentGoal() === character &&
+        game.starter !== before && starters.includes(game.starter),
+        'the next story starts fresh: a new idea, no character, the first objective');
+  run(NS.CONFIG.startDelayMs + 100);
+  await write(['The', 'cat', 'hid', 'in', 'the', 'barn']);
+  check(game.storySentences().length === 1 && game.hero === 'cat' && game.currentGoal() === setting,
+        'one sentence meets one objective, even if it would fit the next one too');
+  game.carryOn(null);
+  await write(['The', 'cat', 'sat', 'in', 'the', 'barn']);
+  for (let k = 2; k < goals.length; k++) { game.carryOn(null); await write(['The', 'cat', 'ran']); }
+  check(game.report.story, 'the second story is offered once its objectives are met');
+  game.skipStory();
+  check(game.mode === 'playing' && game.storySentences().length === 0, '"Keep playing" skips the story and starts a new one');
+
+  const race = new NS.Game(animals, null, {}, { race: true, goals, starters });
+  check(!race.stories && race.starter === null && race.currentGoal() === null, 'a class race has no stories');
+  const none = new NS.Game(animals, null, {}, { goals, starters: [] });
+  check(none.stories && none.starter === null && none.favor.size === 0, 'without story ideas, the objectives still work');
+  console.log('  story checks done');
+}
+
 (async function main() {
   /* Every topic the game offers gets the full run. Whether its sentences MAKE SENSE is
      the judge's job (tools/judge.py) - or a person's, reading the output of
@@ -1303,6 +1581,7 @@ function checkPartyPacks(index) {
   checkCloset();
   await checkJudgeClient();
   await checkRace();
+  await checkStories(index);
 
   console.log(failures === 0 ? '\nAll checks passed.' : '\n' + failures + ' CHECK(S) FAILED');
   process.exit(failures === 0 ? 0 : 1);

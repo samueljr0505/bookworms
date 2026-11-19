@@ -5,7 +5,9 @@ BW.Game = class Game {
   /* options.race: this is a class race (js/race.js). The class shares one clock, so there is
      no pausing and no starting over - the teacher says when it starts and when it ends - and
      everyone goes at normal speed.
-     options.speed: one of the `speeds` in js/config.js, picked on the home page. */
+     options.speed: one of the `speeds` in js/config.js, picked on the home page.
+     options.goals: playing on your own, build a story one objective at a time (js/story.js),
+     with options.starters the topic's story ideas - both from data/stories.json. */
   constructor(pack, canvas, hooks, options) {
     this.pack = pack;
     this.cfg = BW.CONFIG;
@@ -19,6 +21,10 @@ BW.Game = class Game {
     this.flash = null;
     this.raf = null;
     this.checkId = 0;
+    this.goals = (!this.race && this.cfg.stories && options && options.goals) || [];
+    this.stories = this.goals.length > 0;
+    this.starters = (options && options.starters) || [];
+    this.starter = null;
     this.newGame();
   }
 
@@ -26,6 +32,7 @@ BW.Game = class Game {
     this.worm = new BW.Worm(this.cfg.grid.cols, this.cfg.grid.rows, 4);
     this.sentence = BW.Grammar.newSentence(this.pack, BW.rng);
     this.finished = [];
+    this.startStory();
     this.score = 0;
     this.streak = 0;            // correct sentences in a row
     this.stepMs = this.cfg.stepMs * this.factor();
@@ -56,6 +63,11 @@ BW.Game = class Game {
 
   handleKey(e) {
     const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+
+    // the story screen has the keyboard (its title box takes letters), and a story on offer
+    // is picked with a button, so a stray arrow key cannot skip it
+    if (this.mode === 'story') return;
+    if (this.mode === 'checked' && this.report && this.report.story) return;
 
     // a checked sentence stays on screen until the player is ready to move on
     if (this.mode === 'checked' && (key === ' ' || key === 'Enter')) {
@@ -312,7 +324,7 @@ BW.Game = class Game {
   /* Put a fresh set of words out. The board always carries a couple of words that would
      keep the sentence on track (while it is on track), and ending marks to finish with. */
   refill(returnWords) {
-    this.board.disperse(this.pack, this.sentence, this.worm, this.cfg, returnWords);
+    this.board.disperse(this.pack, this.sentence, this.worm, this.cfg, returnWords, this.favor);
   }
 
   /* ---------- the check (Req 4, Req 6) ---------- */
@@ -350,6 +362,7 @@ BW.Game = class Game {
 
   finishSentence(report, mark) {
     const words = this.sentence.tokens.length;
+    const tokens = this.sentence.tokens.slice();
     const shape = this.sentence.tokens.map(t => BW.Checker.familyId(this.pack, t.pos));
     this.sentence.end(mark);
     const text = this.sentence.text();
@@ -389,9 +402,10 @@ BW.Game = class Game {
     this.worm.grow += this.cfg.trophyPerSentence;
 
     this.stepMs = Math.max(this.cfg.minStepMs * this.factor(), this.stepMs - this.cfg.speedUpPerSentence);
+    const goal = this.storyGoal(tokens, text);
     this.sentence = BW.Grammar.newSentence(this.pack, BW.rng);
     this.refill();
-    this.show({ ...report, points, bonus, streak: this.streak });
+    this.show({ ...report, points, bonus, streak: this.streak, goal, story: this.storyReady() });
   }
 
   /* Hold the checked sentence on screen until the player moves on. */
@@ -413,6 +427,94 @@ BW.Game = class Game {
     if (dir) { this.worm.turn(dir[0], dir[1]); this.steered(); }
     else this.worm.moving = true;
     this.notify();
+  }
+
+  /* ---------- stories (js/story.js) ---------- */
+
+  /* A new story: a new idea (not the one just used), no character yet, back to the first
+     objective. */
+  startStory() {
+    const others = this.starters.filter(s => s !== this.starter);
+    this.starter = this.stories && others.length ? BW.rng.pick(others) : null;
+    this.storySlots = [];       // { goal, text } - the sentences that met their objectives
+    this.hero = null;           // the character from the first sentence
+    this.aimBoard();
+  }
+
+  /* The objective the next sentence is for, or null when the story is whole (or off). */
+  currentGoal() {
+    return this.goals[this.storySlots.length] || null;
+  }
+
+  /* While an objective is up, the idea's words for it - and the story's character - come
+     out on the board more often (js/board.js). */
+  aimBoard() {
+    this.favor = new Set(BW.Story.wordsFor(this.starter, this.currentGoal(), this.hero));
+  }
+
+  /* A finished sentence goes into the story if it meets the objective. If it does not, it
+     still counts as a sentence - the objective just stays up for the next one. Returns what
+     the check card says about it. */
+  storyGoal(tokens, text) {
+    const goal = this.currentGoal();
+    if (!goal) return null;
+    const beat = this.starter && this.starter.beats ? this.starter.beats[goal.id] : null;
+    const result = BW.Story.meets(this.pack, goal, tokens, beat);
+    if (result.met) {
+      this.storySlots.push({ goal, text });
+      if (result.hero && !this.hero) this.hero = result.hero;
+    }
+    this.aimBoard();
+    return { label: goal.label, met: result.met, why: result.why || '',
+             number: this.storySlots.length + (result.met ? 0 : 1), of: this.goals.length };
+  }
+
+  /* The sentences of the story so far, each with its objective. */
+  storySentences() { return this.storySlots; }
+
+  storyReady() {
+    return this.stories && this.storySlots.length >= this.goals.length;
+  }
+
+  /* The player chose to make a story: the worm waits while the story screen is up. */
+  storyTime() {
+    if (this.mode !== 'checked' || !this.report || !this.report.story) return;
+    this.report = null;
+    if (this.hooks.onReport) this.hooks.onReport(null);
+    this.mode = 'story';
+    this.notify();
+  }
+
+  /* The story is done (points: its bonus) or was skipped (0). The next sentences start the
+     next story, with a new idea. */
+  nextStory(points) {
+    this.startStory();
+    this.refill();
+    if (points > 0) {
+      this.score += points;
+      if (this.hooks.onEarn) this.hooks.onEarn(points);
+    }
+  }
+
+  /* Back from the story screen: count down again, so nobody is driving before their hands
+     are back on the keys. */
+  storyDone(points) {
+    if (this.mode !== 'story') return;
+    this.nextStory(points);
+    this.mode = 'countdown';
+    this.countdownMs = this.cfg.startDelayMs;
+    this.lastBeep = null;
+    this.acc = 0;
+    this.worm.prev = null;
+    this.notify();
+  }
+
+  /* "Keep playing" instead of a story. */
+  skipStory() {
+    if (this.mode !== 'checked' || !this.report || !this.report.story) return;
+    this.nextStory(0);
+    this.report = { ...this.report, story: false };
+    this.carryOn(null);
   }
 
   /* ---------- a class race (js/race.js) ---------- */

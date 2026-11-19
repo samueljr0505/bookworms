@@ -135,6 +135,85 @@ shop, `shop.html`, on things for the worm to wear:
   computer. To give a player points for testing, run this in the browser console:
   `BW.closet.earn(500)`.
 
+## Stories
+
+Playing on your own, the sentences build a **story**, one sentence at a time. Each sentence has
+an **objective**, shown in a purple bar above the board and as a checklist in the sidebar:
+
+| Sentence | Objective | Checked? |
+| --- | --- | --- |
+| 1 | Introduce a character | yes - the subject has to be a person or an animal (*The fox...*, not *A stick...*) |
+| 2 | Describe the setting | yes - it needs a place word (*barn*, *castle*, *kitchen*...) |
+| 3 | Introduce a problem | the player's call |
+| 4 | Something unexpected happens | the player's call |
+| 5-7 | Develop the story | the player's call |
+| 8 | Resolve the problem | the player's call |
+
+A sentence that misses a checked objective is still a correct sentence - it scores and goes on
+the list - but it is not put in the story, and the check card says why (*The setting is where
+the story happens - use a place word, like "barn".*). The objective stays up for the next one.
+
+Each story starts from a **story idea** in `data/stories.json`, picked at random: a title (*The
+Lost Crown*), a line (*A brave knight wants the golden crown back from a grumpy dragon.*) and,
+for each objective, a few of the topic's words (`beats`). While an objective is up, its words
+are shown under it ("Try: dragon, grumpy, crown") and come out on the board more often - one of
+the right answers is one of them whenever one fits. Once sentence 1 has introduced a character,
+that character keeps coming back on the board too, so the story stays about them.
+
+When all 8 objectives are met, the check card offers **Make a story** or **Keep playing** (a
+stray arrow key does not skip it). The story screen has the sentences already in the
+**Beginning** (character, setting), the **Middle** (problem, surprise, developing) and the
+**End** (resolution), each tagged with its objective. The player can drag them into a different
+order - or tap one, then tap where it goes - move one to *Left out*, and give each a **joining
+word** (*Once upon a time, One day, First...* / *Then, Suddenly, Meanwhile, Luckily...* /
+*Finally, In the end, From then on...*, or one of their own); the sentence then carries on in small letters: *Suddenly, the
+dragon roared.* **Read my story** shows it as three paragraphs, and saving it earns 50 points and
+puts it in **My stories** (`stories.html`, linked from the start page and the game). Then the
+game counts down 3-2-1, and the next story starts with a new idea.
+
+The words on the story screen are the ones the player built with the worm, and they stay -
+the point is building the sentences in the game. The one kind of word that can be changed is a
+**determiner**: each *the*, *a* (or *an*) and *my* on a card is a little menu, so *"A duck waited
+in a field!"* can become *"The duck waited in a field!"* once the duck is already in the story
+(*a* turns into *an* before a vowel by itself, and ↺ puts the worm's word back). 💡 **Tips**
+under the cards point out what makes a story of separate sentences sound awkward:
+
+- meeting someone twice - *"A duck..."* when the duck is already in the story: *You already met
+  the duck, so now it is "the duck" - "a" is for something new.* with a **Fix it** button;
+- the same joining word twice (*After that... After that...*).
+
+Sometimes a story needs a sentence the worm never made - something to get from one event to
+the next. **＋** on a card (or **＋ Add a sentence** under a part) opens a little **sentence
+builder** right there: the topic's words as tiles in their part-of-speech colours, tapped in
+order and finished with an end mark. It plays by the game's rules - a word that does not fit is
+refused with the game's own reason (*"the" is a Determiner. After "The dog", the sentence needs an
+Adverb, a Verb or the word "was".*), Real mode still has to make sense, and **Hints** outline the
+words that fit. So every sentence in a story is still built word by word. A built sentence is
+tagged *✨ Your own sentence*; it can be moved and left out like the rest, and earns no points of
+its own.
+
+When the topic's words are not enough, **＋ My own word** adds one to the builder's word bank:
+the player types the word (one word, letters only, not one the bank has) and picks what kind it
+is - *Noun - a person or animal*, *a thing*, *a place*, *Adjective*, *Verb - an action*, *Verb -
+done to something*, *Adverb*. It joins that kind's list, so the game's shapes decide where it can
+go like any other word: *A goose waddled to the pond.* works, *The waddled...* is refused. The
+words go into a copy of the topic, for this story only - the game's board never changes. (Real
+mode's makes-sense rules leave words they do not know alone, so a new word is never blocked for
+not being in the topic's meaning section.)
+
+Joining words: each part has a longer list (*Long ago*, *Meanwhile*, *Luckily*, *Just then*, *The
+next day*, *From then on*...), and **✏️ My own...** at the bottom of the menu takes a typed one -
+up to five words, letters only; it gets its capital letter and its comma by itself.
+
+The story is saved as the player left it.
+
+To add an idea, add an entry to a topic's list with words for every objective; `node
+tools/test.js` checks every word is a word of that topic and that each idea offers a character
+and a place. To change the objectives, edit `goals` - `check` is `character`, `setting` or
+left out. Stories are for playing on your own: class races and word parties run on one shared
+clock, so they never have one. `stories: false` in `js/config.js` turns them off, and
+`points.story` is what a story is worth. Stories are saved in the browser, like the shop's points.
+
 ## Class races
 
 A whole class plays at once, every child on their own board, racing to build the most correct
@@ -450,6 +529,7 @@ bookworms/
   party-teacher.html    the teacher runs a word party: prompts, approving words, the vote
   how-to-play.html      how to play, for the players
   review.html           a short grammar review: kinds of word, the blocks, little rules, a quick check
+  stories.html          My stories: every story saved in this browser
   serve.sh              starts the local web server
   requirements.txt      the one Python package the (optional) judge needs
   Docs/
@@ -463,12 +543,14 @@ bookworms/
   css/shop.css          styling for the shop
   css/class.css         styling for the join page and the teacher's page
   css/party.css         styling for the word party's pages, on top of class.css
+  css/story.css         styling for stories: the sidebar idea, the story screen, My stories
   data/
     topics.json         the topics offered on the settings page
     topics/*.json       THE WORDS AND SENTENCE SHAPES, one file per topic (from tools/build-topics.py)
     verdicts.json       the judge's saved answers, and the teacher's answer key
     worms.json          the worm colours - the ones with a price are bought in the shop
     shop.json           everything else the shop sells, and what it costs
+    stories.json        story objectives, and story ideas for each topic with words for each objective
   js/
     home.js             the start page: your worm and the points bank
     setup.js            the settings page: one question at a time, then Play
@@ -500,6 +582,9 @@ bookworms/
     teacher.js          the teacher's page: setup, who is here, the leaderboard, the podium, printing
     report.js           the class report: each student's skills, mix-ups, strengths, next step, engagement
     report-view.js      draws the class report on the teacher's page
+    story.js            stories: the objectives and their checks, joining words, the shelf of saved stories
+    story-view.js       the story screen: drag sentences into a Beginning, a Middle and an End
+    stories.js          the My stories page
   tools/
     serve.py            the local web server: the judge at /api/judge, class races at /api/class,
                         word parties at /api/party

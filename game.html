@@ -6,6 +6,7 @@
 <title>Bookworms - Play</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%9B%3C/text%3E%3C/svg%3E" />
 <link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/story.css" />
 </head>
 <body>
 
@@ -53,6 +54,13 @@
       <p id="party-bar-note" class="party-bar-note" aria-live="polite"></p>
     </div>
 
+    <!-- story-building: what this sentence is for, and words that would help (js/story.js) -->
+    <div id="story-goal" class="story-goal" hidden>
+      <span id="story-goal-count" class="story-goal-count"></span>
+      <p class="story-goal-text"><b id="story-goal-label"></b><span id="story-goal-ask"></span></p>
+      <p id="story-goal-words" class="story-goal-words"></p>
+    </div>
+
     <div class="sentence-strip">
       <div class="strip-label" id="building-label">Build this sentence</div>
       <div id="building" class="building"></div>
@@ -72,7 +80,14 @@
         <p id="report-tip" class="report-tip" hidden></p>
         <p id="report-after" class="report-after"></p>
         <p id="report-streak" class="report-streak" hidden></p>
+        <p id="report-goal" class="report-goal" hidden></p>
         <button id="report-go" class="primary" type="button">Keep going <kbd>arrow key</kbd></button>
+        <!-- every few sentences: make them into a story, or keep playing (js/story-view.js) -->
+        <div id="report-story" class="report-story" hidden>
+          <p><b>📖 Your story is ready!</b> Put your sentences in order and read it?</p>
+          <button id="report-story-make" class="primary" type="button">Make a story</button>
+          <button id="report-story-skip" type="button">Keep playing</button>
+        </div>
         <p id="report-by" class="report-by"></p>
       </section>
 
@@ -128,6 +143,14 @@
       </span>
     </a>
 
+    <!-- the story being built: its idea, and each sentence's objective (js/story.js) -->
+    <section id="story-idea" class="story-idea" hidden>
+      <small>Your story</small>
+      <b id="story-idea-title"></b>
+      <p id="story-idea-text"></p>
+      <ol id="story-goals" class="story-goals"></ol>
+    </section>
+
     <h2>Sentences you wrote</h2>
     <ol id="finished" class="finished"><li class="empty">None yet - go get a word!</li></ol>
 
@@ -155,10 +178,55 @@
             and more. Build several in a row without a bump for a <b>streak bonus</b>!</li>
       </ul>
     </details>
+    <a class="review-link" href="stories.html" target="_blank" rel="noopener">📚 My stories</a>
     <a class="review-link" href="review.html" target="_blank" rel="noopener">📖 Grammar review: Nouns, Verbs and the blocks of a sentence</a>
     <p id="checker-status" class="small checker-status"></p>
   </aside>
 </main>
+
+<!-- story time: put the sentences in a Beginning, a Middle and an End (js/story-view.js) -->
+<div id="story" class="story-screen" hidden role="dialog" aria-modal="true" aria-labelledby="story-heading">
+  <div id="story-sheet" class="story-sheet">
+    <section id="story-edit">
+      <header class="story-head">
+        <h2 id="story-heading" tabindex="-1">📖 Make a story</h2>
+        <p id="story-idea-line" class="story-idea-line"></p>
+        <label class="story-title">Title <input id="story-title" maxlength="60" autocomplete="off" placeholder="My Story" /></label>
+        <p class="story-how">Your sentences are in the <b>Beginning</b>, the <b>Middle</b> and the
+           <b>End</b>. Add <b>joining words</b> to link them, like <i>Suddenly</i> or
+           <i>Finally</i> - or pick <b>✏️ My own...</b> and type one. Something sound funny? Tap a <b>determiner</b> - <i>the</i>, <i>a</i>,
+           <i>my</i> - to swap it, and look at the <b>💡 tips</b>. Need another sentence to link two
+           events? Press <b>＋</b> to build one. Want a different order? Drag a
+           sentence, or tap it and then tap where it goes. A sentence that does not fit can go to
+           <b>Left out</b>.</p>
+      </header>
+      <div class="story-layout">
+        <section class="story-tray-box">
+          <header class="story-part-head"><h3>Left out</h3><small>Not in the story</small></header>
+          <ol id="story-tray" class="story-drop story-tray" data-area="tray"></ol>
+          <button id="story-tray-put" class="story-put" type="button" hidden>Leave it out ↓</button>
+        </section>
+        <div id="story-parts" class="story-parts"></div>
+      </div>
+      <footer class="story-foot">
+        <button id="story-skip" type="button">Skip the story</button>
+        <p id="story-missing" class="story-missing" aria-live="polite"></p>
+        <button id="story-finish" class="primary" type="button">Read my story</button>
+      </footer>
+    </section>
+
+    <section id="story-read" class="story-read" hidden>
+      <p class="story-kicker">Your story</p>
+      <h2 id="story-read-title"></h2>
+      <div id="story-read-text" class="story-book"></div>
+      <p id="story-read-points" class="story-read-points"></p>
+      <footer class="story-foot">
+        <button id="story-back" type="button">&larr; Change it</button>
+        <button id="story-save" class="primary" type="button">Save it and keep playing</button>
+      </footer>
+    </section>
+  </div>
+</div>
 
 <script src="js/config.js"></script>
 <script src="js/closet.js"></script>
@@ -177,6 +245,8 @@
 <script src="js/worm.js"></script>
 <script src="js/board.js"></script>
 <script src="js/render.js"></script>
+<script src="js/story.js"></script>
+<script src="js/story-view.js"></script>
 <script src="js/game.js"></script>
 <script src="js/main.js"></script>
 </body>

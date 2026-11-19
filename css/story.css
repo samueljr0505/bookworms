@@ -1,0 +1,312 @@
+/* Stories: the story idea in the game's sidebar, the offer on the sentence card, the story
+   screen (js/story-view.js), and the My stories page (stories.html). Uses the colours set in
+   css/style.css. */
+
+/* ---------- the story idea, in the sidebar ---------- */
+
+.story-idea {
+  margin-top: 14px; padding: 10px 12px; border-radius: 16px;
+  background: #f6f1fb; border: 2px dashed #cdb6e6;
+}
+.story-idea[hidden] { display: none; }
+.story-idea > small { display: block; font-size: 11px; font-weight: 800; color: var(--muted); }
+.story-idea > small:first-child { text-transform: uppercase; letter-spacing: 1px; }
+.story-idea b { display: block; font-size: 16px; margin: 2px 0; }
+.story-idea p { margin: 0 0 6px; font-size: 13px; color: var(--ink); }
+
+/* ---------- the offer, on the sentence card ---------- */
+
+.report-story {
+  margin: 4px 0 6px; padding: 10px 12px; border-radius: 14px;
+  background: #f6f1fb; border: 2px solid #cdb6e6;
+}
+.report-story[hidden] { display: none; }
+.report-story p { margin: 0 0 8px; font-size: 15px; }
+.report-story button { margin: 0 3px; }
+
+/* ---------- the story screen ---------- */
+
+body.story-open { overflow: hidden; }
+
+.story-screen {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 24px 16px; overflow-y: auto;
+  background: rgba(60, 45, 20, 0.45);
+}
+.story-screen[hidden] { display: none; }
+.story-screen.dragging { cursor: grabbing; user-select: none; }
+
+.story-sheet {
+  width: min(1000px, 100%); background: var(--paper);
+  border: 3px solid var(--line); border-radius: 22px; padding: 18px 22px;
+  box-shadow: 0 18px 50px rgba(60, 45, 20, 0.35);
+  animation: story-in 0.2s ease-out;
+}
+@keyframes story-in { from { opacity: 0; transform: translateY(8px); } }
+
+.story-head h2 { margin: 0; font-size: 26px; color: #7a4fae; outline: none; }
+.story-idea-line { margin: 4px 0 0; font-weight: 800; }
+.story-idea-line[hidden] { display: none; }
+.story-title {
+  display: flex; align-items: center; gap: 8px; margin: 10px 0 0;
+  font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted);
+}
+.story-title input {
+  flex: 1; min-width: 0; max-width: 420px; padding: 7px 10px; border-radius: 10px;
+  border: 2px solid var(--line); background: #fff;
+  font: inherit; font-size: 18px; font-weight: 800; letter-spacing: 0; text-transform: none; color: var(--ink);
+}
+.story-title input:focus { outline: none; border-color: #a77fd1; }
+.story-how { margin: 10px 0 14px; font-size: 14px; color: var(--muted); }
+
+.story-layout { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.6fr); gap: 16px; align-items: start; }
+.story-parts { display: grid; gap: 10px; }
+
+.story-tray-box, .story-part {
+  background: #fff; border: 3px solid var(--line); border-radius: 16px; padding: 10px 12px;
+}
+.story-tray-box { position: sticky; top: 0; background: #faf5ea; }
+.story-part-beginning { border-color: #a9d8bb; }
+.story-part-middle    { border-color: #f1d08f; }
+.story-part-end       { border-color: #cdb6e6; }
+
+.story-part-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.story-part-head h3 { margin: 0; font-size: 17px; }
+.story-part-beginning h3 { color: var(--good); }
+.story-part-middle h3    { color: #a8741f; }
+.story-part-end h3       { color: #7a4fae; }
+.story-part-head small { color: var(--muted); font-size: 13px; font-weight: 700; }
+
+/* an area cards can be dropped into: always tall enough to aim at */
+.story-drop {
+  list-style: none; margin: 0; padding: 4px; min-height: 52px;
+  display: grid; gap: 6px; align-content: start;
+  border-radius: 12px; border: 2px dashed transparent;
+}
+.story-part .story-drop:empty { border-color: var(--line); align-content: center; }
+.story-part .story-drop:empty::before {
+  content: 'Drop a sentence here'; align-self: center; text-align: center;
+  color: var(--muted); font-size: 13px; font-weight: 700;
+}
+.story-screen.dragging .story-drop { border-color: #d9cdee; background: rgba(205, 182, 230, 0.12); }
+.story-empty { color: var(--muted); font-size: 13px; font-weight: 700; padding: 8px 4px; }
+
+.story-card {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 12px; background: #fff;
+  border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line);
+  font-weight: 800; font-size: 15px; line-height: 1.3;
+  cursor: grab; touch-action: none; user-select: none;
+}
+.story-card:hover { border-color: #a77fd1; }
+.story-card:focus-visible { outline: 3px solid #a77fd1; outline-offset: 2px; }
+.story-card.picked { border-color: #7a4fae; background: #f6f1fb; box-shadow: 0 0 0 3px rgba(167, 127, 209, 0.35); }
+.story-card.lifted { opacity: 0.3; }
+.story-grip { color: #b9ab90; font-size: 16px; flex: none; }
+.story-text { flex: 1; min-width: 0; }
+.story-joiner {
+  flex: none; max-width: 150px; padding: 3px 4px; border-radius: 8px;
+  border: 2px solid #d9cdee; background: #f6f1fb; color: #7a4fae;
+  font: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
+}
+.story-out {
+  flex: none; padding: 2px 8px; border-radius: 8px; box-shadow: none;
+  font-size: 13px; color: var(--muted);
+}
+
+/* the card following the pointer, and the gap it would land in */
+.story-ghost {
+  position: fixed; z-index: 60; pointer-events: none; margin: 0;
+  transform: rotate(-1.5deg); box-shadow: 0 10px 24px rgba(60, 45, 20, 0.25);
+  border-color: #a77fd1; cursor: grabbing;
+}
+.story-slot { height: 40px; border-radius: 12px; border: 2px dashed #a77fd1; background: #f6f1fb; }
+
+.story-put {
+  display: block; width: 100%; margin-top: 6px;
+  border-style: dashed; border-color: #a77fd1; color: #7a4fae; background: #f6f1fb;
+}
+.story-put[hidden] { display: none; }
+
+.story-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-top: 16px; flex-wrap: wrap;
+}
+.story-missing { flex: 1; margin: 0; text-align: center; font-weight: 800; color: var(--muted); }
+.story-missing.ready { color: var(--good); }
+.story-foot button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* ---------- the story read back, and on the My stories page ---------- */
+
+.story-read { text-align: center; }
+.story-kicker {
+  margin: 0; font-size: 12px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--muted);
+}
+.story-read h2 { margin: 4px 0 12px; font-size: 30px; color: #7a4fae; }
+.story-book {
+  max-width: 640px; margin: 0 auto; padding: 18px 24px; text-align: left;
+  background: #fff; border: 3px solid var(--line); border-radius: 16px;
+  font-size: 20px; line-height: 1.6;
+}
+.story-book p { margin: 0 0 12px; text-indent: 1.5em; }
+.story-book p:last-child { margin-bottom: 0; }
+.story-book p:empty { display: none; }
+.story-read-points { margin: 12px 0 0; font-weight: 800; color: #a8741f; }
+.story-read .story-foot { justify-content: center; }
+
+@media (max-width: 760px) {
+  .story-layout { grid-template-columns: minmax(0, 1fr); }
+  /* the sentence gets a line of its own under the card's menus and buttons */
+  .story-card { flex-wrap: wrap; }
+  .story-card .story-text { order: 1; flex-basis: 100%; }
+  .story-bank-row small { width: 100%; }
+  .story-tray-box { position: static; }
+  .story-sheet { padding: 14px; }
+  .story-book { font-size: 18px; padding: 14px 16px; }
+}
+
+/* ---------- the My stories page ---------- */
+
+.shelf { max-width: 760px; margin: 0 auto; }
+.shelf h1 { margin: 8px 0 4px; font-size: 34px; color: #7a4fae; }
+.shelf-sub { margin: 0 0 20px; color: var(--muted); font-weight: 700; }
+.shelf-empty { padding: 24px; text-align: center; background: #fff; border: 3px dashed var(--line); border-radius: 16px; }
+.shelf-empty[hidden] { display: none; }
+.shelf-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
+.shelf-story { text-align: center; }
+.shelf-story h2 { margin: 2px 0 10px; font-size: 24px; }
+.shelf-remove { margin-top: 8px; font-size: 13px; padding: 4px 12px; color: var(--muted); }
+
+/* ---------- story-building: the objective above the board, and the checklist ---------- */
+
+.story-goal {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 4px 14px;
+  padding: 10px 16px; border-radius: 16px; background: #f6f1fb; border: 2px solid #cdb6e6;
+}
+.story-goal[hidden] { display: none; }
+.story-goal-count {
+  grid-row: span 2; padding: 6px 10px; border-radius: 12px; background: #7a4fae; color: #fff;
+  font-size: 12px; font-weight: 900; text-align: center; line-height: 1.2; max-width: 90px;
+}
+.story-goal-text { margin: 0; min-width: 0; }
+.story-goal-text b { display: block; font-size: clamp(17px, 2.2vw, 21px); font-weight: 900; color: #5b3889; }
+.story-goal-text span { font-size: 14px; font-weight: 700; color: var(--muted); }
+.story-goal-words { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0; }
+.story-goal-words:empty { display: none; }
+.story-goal-words small { font-size: 12px; font-weight: 800; color: var(--muted); }
+.story-goal-words .chip { font-size: 13px; padding: 2px 9px; animation: none; }
+
+.story-goals { margin: 6px 0 0; padding-left: 22px; font-size: 13px; }
+.story-goals li { padding: 1px 0; color: var(--muted); }
+.story-goals li.done { color: var(--good); font-weight: 700; }
+.story-goals li.done::after { content: ' ✓'; }
+.story-goals li.now { color: #5b3889; font-weight: 900; }
+.story-goals li.now::after { content: ' ←'; }
+
+.report-goal { margin: -2px 0 10px; font-weight: 800; font-size: 14px; }
+.report-goal[hidden] { display: none; }
+.report-goal.met { color: #5b3889; }
+.report-goal.missed { color: #a8741f; }
+
+.story-tag {
+  display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.4px;
+  text-transform: uppercase; color: #9a83b8;
+}
+
+/* ---------- swapping a determiner, and the tips ---------- */
+
+/* a determiner on a card: the one word that can be changed, so it looks like a little button */
+.story-det {
+  padding: 0 2px; margin: 0 1px; border-radius: 7px;
+  border: 2px solid #9aa7d7; background: #eef0fa; color: #3d4a85;
+  font: inherit; font-weight: 900; cursor: pointer;
+}
+.story-det:hover, .story-det:focus { border-color: #5d6cb0; outline: none; }
+.story-undo {
+  flex: none; padding: 2px 8px; border-radius: 8px; box-shadow: none;
+  font-size: 14px; color: var(--muted);
+}
+
+.story-tip {
+  display: block; margin-top: 4px; padding: 4px 8px; border-radius: 8px;
+  background: #fff6dc; border: 1px solid #f1d08f;
+  font-size: 12.5px; font-weight: 700; color: #7d5a14;
+}
+.story-fix {
+  padding: 1px 9px; margin-left: 2px; border-radius: 7px; box-shadow: none;
+  font-size: 12px; border-color: #e6c15f; background: #fff;
+}
+
+/* ---------- building a new sentence on the story screen ---------- */
+
+.story-add {
+  flex: none; padding: 2px 8px; border-radius: 8px; box-shadow: none;
+  font-size: 14px; font-weight: 900; color: #7a4fae;
+}
+.story-add-part {
+  display: block; width: 100%; margin-top: 6px; padding: 5px; box-shadow: none;
+  border-style: dashed; color: #7a4fae; font-size: 13px; background: transparent;
+}
+.story-add-part:hover { background: #f6f1fb; }
+
+.story-builder {
+  padding: 10px 12px; border-radius: 14px; outline: none;
+  border: 3px solid #a77fd1; background: #fdfbff;
+  box-shadow: 0 0 0 4px rgba(167, 127, 209, 0.18);
+}
+.story-builder .story-part-head h3 { color: #7a4fae; }
+.story-builder-line {
+  display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+  min-height: 40px; margin: 0 0 6px; padding: 6px 8px; border-radius: 10px;
+  background: #fff; border: 2px dashed #cdb6e6;
+}
+.story-builder-empty { color: var(--muted); font-size: 14px; font-weight: 700; }
+.story-builder-next { margin: 0 0 4px; font-size: 13px; font-weight: 800; color: var(--green); }
+.story-builder-no {
+  margin: 0 0 6px; padding: 5px 8px; border-radius: 8px;
+  background: #fbe9e4; color: var(--bad); font-size: 13px; font-weight: 800;
+}
+.story-bank {
+  display: grid; gap: 5px; max-height: 260px; overflow-y: auto;
+  padding: 6px; border-radius: 10px; background: #faf5ea;
+}
+.story-bank-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.story-bank-row small {
+  width: 82px; flex: none; font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.4px; color: var(--muted);
+}
+.story-tile {
+  padding: 2px 9px; border-radius: 999px; box-shadow: none;
+  border: 2px solid var(--line); background: #fff;
+  font-size: 14px; font-weight: 800; color: var(--ink);
+}
+.story-tile.done { color: #fff; border: 0; padding: 4px 10px; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15); }
+.story-tile.fits { outline: 2px dashed #7a4fae; outline-offset: 1px; }
+.story-builder-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.story-builder-buttons button { padding: 5px 12px; font-size: 13px; }
+.story-builder-buttons button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ---------- your own words, and your own joining words ---------- */
+
+.story-tile.own { border-style: dashed; background: #fffbef; }
+.story-own {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  margin-top: 8px; padding: 8px 10px; border-radius: 10px;
+  background: #fff; border: 2px dashed #cdb6e6;
+}
+.story-own b { width: 100%; font-size: 13px; color: #7a4fae; }
+.story-own input, .story-own select, .story-joiner-box input {
+  min-width: 0; padding: 5px 8px; border-radius: 8px;
+  border: 2px solid #cdb6e6; background: #fff;
+  font: inherit; font-size: 14px; font-weight: 800; color: var(--ink);
+}
+.story-own input { flex: 1 1 110px; }
+.story-own select { flex: 1 1 160px; }
+.story-own button { padding: 5px 12px; font-size: 13px; }
+.story-own .story-builder-no { width: 100%; margin: 0; }
+.story-joiner-box { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; flex: none; max-width: 190px; }
+.story-joiner-box input { width: 130px; font-size: 13px; padding: 3px 6px; }
+.story-joiner-box button { padding: 3px 8px; font-size: 12px; box-shadow: none; }
+.story-edit-why { display: block; width: 100%; font-size: 12px; font-weight: 800; color: var(--bad); }

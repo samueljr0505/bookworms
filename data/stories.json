@@ -1,0 +1,860 @@
+{
+  "about": "Story-building. A story is 8 sentences, each with its own objective (`goals`, the same for every topic): introduce a character, describe the setting, introduce a problem, something unexpected, three that develop the story, and one that resolves the problem. A story idea is picked at random for each story; its `beats` give a few of the topic's words for each objective, and those come out on the board more often while that objective is up (js/board.js). `check` marks an objective the game can check from the words: `character` needs a person or animal as the subject, `setting` needs a place. The others are up to the player. Every word in `beats` must be a word of that topic (tools/test.js checks).",
+  "goals": [
+    {
+      "id": "character",
+      "label": "Introduce a character",
+      "ask": "Who is the story about? Start with a person or an animal.",
+      "part": "beginning",
+      "check": "character"
+    },
+    {
+      "id": "setting",
+      "label": "Describe the setting",
+      "ask": "Where does the story happen? Use a place word.",
+      "part": "beginning",
+      "check": "setting"
+    },
+    {
+      "id": "problem",
+      "label": "Introduce a problem",
+      "ask": "Uh oh! What goes wrong?",
+      "part": "middle"
+    },
+    {
+      "id": "surprise",
+      "label": "Something unexpected happens",
+      "ask": "What surprise happens next?",
+      "part": "middle"
+    },
+    {
+      "id": "develop",
+      "label": "Develop the story",
+      "ask": "What does your character do about the problem?",
+      "part": "middle"
+    },
+    {
+      "id": "develop",
+      "label": "Develop the story",
+      "ask": "What happens next?",
+      "part": "middle"
+    },
+    {
+      "id": "develop",
+      "label": "Develop the story",
+      "ask": "Does it get better, or worse?",
+      "part": "middle"
+    },
+    {
+      "id": "resolve",
+      "label": "Resolve the problem",
+      "ask": "How is the problem solved? How does it end?",
+      "part": "end"
+    }
+  ],
+  "starters": {
+    "animals": [
+      {
+        "id": "lost-ball",
+        "emoji": "🎾",
+        "title": "The Lost Ball",
+        "idea": "A puppy has lost its ball. Who will help find it?",
+        "beats": {
+          "character": [
+            "puppy",
+            "fluffy",
+            "happy"
+          ],
+          "setting": [
+            "garden",
+            "pond",
+            "played"
+          ],
+          "problem": [
+            "dropped",
+            "ball",
+            "hole"
+          ],
+          "surprise": [
+            "fox",
+            "chased",
+            "quickly"
+          ],
+          "develop": [
+            "dog",
+            "smelled",
+            "followed",
+            "crawled"
+          ],
+          "resolve": [
+            "found",
+            "ball",
+            "carried",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "fox-barn",
+        "emoji": "🦊",
+        "title": "Fox in the Barn",
+        "idea": "A hungry fox sneaks toward the barn. Will the animals notice?",
+        "beats": {
+          "character": [
+            "fox",
+            "hungry",
+            "quick"
+          ],
+          "setting": [
+            "barn",
+            "field",
+            "sat"
+          ],
+          "problem": [
+            "chased",
+            "duck",
+            "noisy"
+          ],
+          "surprise": [
+            "horse",
+            "jumped",
+            "quickly"
+          ],
+          "develop": [
+            "hid",
+            "followed",
+            "pushed",
+            "quietly"
+          ],
+          "resolve": [
+            "ran",
+            "rested",
+            "waited",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "big-race",
+        "emoji": "🏁",
+        "title": "The Big Race",
+        "idea": "A rabbit and a kitten race across the field. Who wins?",
+        "beats": {
+          "character": [
+            "rabbit",
+            "quick",
+            "happy"
+          ],
+          "setting": [
+            "field",
+            "pond",
+            "sat"
+          ],
+          "problem": [
+            "kitten",
+            "raced",
+            "quickly"
+          ],
+          "surprise": [
+            "slept",
+            "tree",
+            "sleepy"
+          ],
+          "develop": [
+            "hopped",
+            "crawled",
+            "followed",
+            "slowly"
+          ],
+          "resolve": [
+            "raced",
+            "carrot",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "new-nest",
+        "emoji": "🪺",
+        "title": "A Home for a Bird",
+        "idea": "A small bird needs a new nest before night.",
+        "beats": {
+          "character": [
+            "bird",
+            "small",
+            "brown"
+          ],
+          "setting": [
+            "tree",
+            "nest",
+            "field"
+          ],
+          "problem": [
+            "dropped",
+            "nest",
+            "cat"
+          ],
+          "surprise": [
+            "cat",
+            "watched",
+            "quietly"
+          ],
+          "develop": [
+            "carried",
+            "stick",
+            "leaf",
+            "brought"
+          ],
+          "resolve": [
+            "nest",
+            "rested",
+            "happily"
+          ]
+        }
+      }
+    ],
+    "school": [
+      {
+        "id": "missing-backpack",
+        "emoji": "🎒",
+        "title": "The Missing Backpack",
+        "idea": "A student's backpack is gone. Where could it be?",
+        "beats": {
+          "character": [
+            "student",
+            "busy",
+            "new"
+          ],
+          "setting": [
+            "classroom",
+            "hallway",
+            "sat"
+          ],
+          "problem": [
+            "backpack",
+            "dropped",
+            "tired"
+          ],
+          "surprise": [
+            "friend",
+            "found",
+            "note"
+          ],
+          "develop": [
+            "hurried",
+            "office",
+            "library",
+            "carefully"
+          ],
+          "resolve": [
+            "found",
+            "backpack",
+            "smiled",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "library-note",
+        "emoji": "📚",
+        "title": "The Note in the Book",
+        "idea": "A reader finds a note inside a library book.",
+        "beats": {
+          "character": [
+            "reader",
+            "quiet",
+            "clever"
+          ],
+          "setting": [
+            "library",
+            "studied",
+            "desk"
+          ],
+          "problem": [
+            "book",
+            "opened",
+            "note"
+          ],
+          "surprise": [
+            "read",
+            "yellow",
+            "quickly"
+          ],
+          "develop": [
+            "teacher",
+            "showed",
+            "handed",
+            "hallway"
+          ],
+          "resolve": [
+            "wrote",
+            "note",
+            "smiled",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "new-kid",
+        "emoji": "👋",
+        "title": "The New Kid",
+        "idea": "A new girl comes to class. Who will be her friend?",
+        "beats": {
+          "character": [
+            "girl",
+            "new",
+            "quiet"
+          ],
+          "setting": [
+            "classroom",
+            "desk",
+            "sat"
+          ],
+          "problem": [
+            "waited",
+            "playground",
+            "slowly"
+          ],
+          "surprise": [
+            "classmate",
+            "kind",
+            "smiled"
+          ],
+          "develop": [
+            "lent",
+            "crayon",
+            "gave",
+            "laughed"
+          ],
+          "resolve": [
+            "friend",
+            "skipped",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "art-mess",
+        "emoji": "🖍️",
+        "title": "The Big Mess",
+        "idea": "Crayons and paper everywhere! Who will help clean up?",
+        "beats": {
+          "character": [
+            "helper",
+            "busy",
+            "kind"
+          ],
+          "setting": [
+            "classroom",
+            "desk",
+            "sat"
+          ],
+          "problem": [
+            "dropped",
+            "crayon",
+            "paper"
+          ],
+          "surprise": [
+            "teacher",
+            "saw",
+            "quickly"
+          ],
+          "develop": [
+            "carried",
+            "slid",
+            "carefully",
+            "busy"
+          ],
+          "resolve": [
+            "smiled",
+            "laughed",
+            "happily"
+          ]
+        }
+      }
+    ],
+    "food": [
+      {
+        "id": "birthday-cake",
+        "emoji": "🎂",
+        "title": "The Birthday Cake",
+        "idea": "A baker has to make a cake in time for a party.",
+        "beats": {
+          "character": [
+            "baker",
+            "busy",
+            "kind"
+          ],
+          "setting": [
+            "bakery",
+            "kitchen",
+            "warm"
+          ],
+          "problem": [
+            "dropped",
+            "cake",
+            "sticky"
+          ],
+          "surprise": [
+            "friend",
+            "hurried",
+            "quickly"
+          ],
+          "develop": [
+            "baked",
+            "made",
+            "cut",
+            "carefully"
+          ],
+          "resolve": [
+            "served",
+            "cake",
+            "sweet",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "market-day",
+        "emoji": "🧺",
+        "title": "Market Day",
+        "idea": "A farmer brings fresh food to the market.",
+        "beats": {
+          "character": [
+            "farmer",
+            "kind",
+            "busy"
+          ],
+          "setting": [
+            "market",
+            "garden",
+            "fresh"
+          ],
+          "problem": [
+            "dropped",
+            "carrot",
+            "tired"
+          ],
+          "surprise": [
+            "girl",
+            "ran",
+            "quickly"
+          ],
+          "develop": [
+            "carried",
+            "brought",
+            "bread",
+            "slowly"
+          ],
+          "resolve": [
+            "gave",
+            "apple",
+            "smiled",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "pizza-night",
+        "emoji": "🍕",
+        "title": "Pizza Night",
+        "idea": "Dad is making pizza, and everyone is hungry.",
+        "beats": {
+          "character": [
+            "dad",
+            "hungry",
+            "happy"
+          ],
+          "setting": [
+            "kitchen",
+            "table",
+            "warm"
+          ],
+          "problem": [
+            "pizza",
+            "dropped",
+            "cold"
+          ],
+          "surprise": [
+            "boy",
+            "tossed",
+            "cheese"
+          ],
+          "develop": [
+            "made",
+            "cooked",
+            "cut",
+            "carefully"
+          ],
+          "resolve": [
+            "ate",
+            "pizza",
+            "tasty",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "chef-soup",
+        "emoji": "🥣",
+        "title": "The Chef's Soup",
+        "idea": "A chef cooks a soup for a very special guest.",
+        "beats": {
+          "character": [
+            "chef",
+            "kind",
+            "busy"
+          ],
+          "setting": [
+            "kitchen",
+            "table",
+            "warm"
+          ],
+          "problem": [
+            "soup",
+            "tasted",
+            "cold"
+          ],
+          "surprise": [
+            "mom",
+            "brought",
+            "bread"
+          ],
+          "develop": [
+            "cooked",
+            "cut",
+            "rice",
+            "carefully"
+          ],
+          "resolve": [
+            "served",
+            "soup",
+            "tasty",
+            "happily"
+          ]
+        }
+      }
+    ],
+    "fantasy": [
+      {
+        "id": "lost-crown",
+        "emoji": "👑",
+        "title": "The Lost Crown",
+        "idea": "A brave knight wants the golden crown back from a grumpy dragon.",
+        "beats": {
+          "character": [
+            "knight",
+            "brave",
+            "kind"
+          ],
+          "setting": [
+            "castle",
+            "village",
+            "old"
+          ],
+          "problem": [
+            "dragon",
+            "grumpy",
+            "crown"
+          ],
+          "surprise": [
+            "flew",
+            "mountain",
+            "quickly"
+          ],
+          "develop": [
+            "marched",
+            "sword",
+            "shield",
+            "bravely"
+          ],
+          "resolve": [
+            "found",
+            "crown",
+            "golden",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "wizard-potion",
+        "emoji": "🧪",
+        "title": "The Wizard's Potion",
+        "idea": "A wizard's magic potion goes missing from the tower.",
+        "beats": {
+          "character": [
+            "wizard",
+            "wise",
+            "old"
+          ],
+          "setting": [
+            "tower",
+            "magic",
+            "secret"
+          ],
+          "problem": [
+            "potion",
+            "troll",
+            "carried"
+          ],
+          "surprise": [
+            "elf",
+            "found",
+            "tiny"
+          ],
+          "develop": [
+            "crept",
+            "followed",
+            "forest",
+            "quietly"
+          ],
+          "resolve": [
+            "held",
+            "potion",
+            "waved",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "unicorn-forest",
+        "emoji": "🦄",
+        "title": "The Unicorn in the Forest",
+        "idea": "A princess follows a shiny unicorn deep into the forest.",
+        "beats": {
+          "character": [
+            "princess",
+            "kind",
+            "brave"
+          ],
+          "setting": [
+            "forest",
+            "river",
+            "village"
+          ],
+          "problem": [
+            "unicorn",
+            "troll",
+            "chased"
+          ],
+          "surprise": [
+            "shiny",
+            "flew",
+            "quickly"
+          ],
+          "develop": [
+            "followed",
+            "walked",
+            "crept",
+            "quietly"
+          ],
+          "resolve": [
+            "protected",
+            "unicorn",
+            "sang",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "giant-map",
+        "emoji": "🗺️",
+        "title": "The Giant's Map",
+        "idea": "A sleepy giant has a map to a treasure in a cave.",
+        "beats": {
+          "character": [
+            "giant",
+            "sleepy",
+            "big"
+          ],
+          "setting": [
+            "mountain",
+            "cave",
+            "slept"
+          ],
+          "problem": [
+            "map",
+            "dropped",
+            "river"
+          ],
+          "surprise": [
+            "elf",
+            "found",
+            "tiny"
+          ],
+          "develop": [
+            "marched",
+            "followed",
+            "treasure",
+            "slowly"
+          ],
+          "resolve": [
+            "gave",
+            "treasure",
+            "golden",
+            "happily"
+          ]
+        }
+      }
+    ],
+    "sports": [
+      {
+        "id": "big-game",
+        "emoji": "🏆",
+        "title": "The Big Game",
+        "idea": "A nervous player gets ready for the biggest game of the year.",
+        "beats": {
+          "character": [
+            "player",
+            "nervous",
+            "new"
+          ],
+          "setting": [
+            "stadium",
+            "field",
+            "big"
+          ],
+          "problem": [
+            "slid",
+            "muddy",
+            "glove"
+          ],
+          "surprise": [
+            "fan",
+            "cheered",
+            "whistle"
+          ],
+          "develop": [
+            "kicked",
+            "passed",
+            "ball",
+            "quickly"
+          ],
+          "resolve": [
+            "held",
+            "trophy",
+            "proud",
+            "proudly"
+          ]
+        }
+      },
+      {
+        "id": "swim-meet",
+        "emoji": "🏊",
+        "title": "The Swim Meet",
+        "idea": "A swimmer races for a medal at the pool.",
+        "beats": {
+          "character": [
+            "swimmer",
+            "fast",
+            "nervous"
+          ],
+          "setting": [
+            "pool",
+            "stadium",
+            "wet"
+          ],
+          "problem": [
+            "stretched",
+            "tired",
+            "slowly"
+          ],
+          "surprise": [
+            "whistle",
+            "referee",
+            "jumped"
+          ],
+          "develop": [
+            "swam",
+            "raced",
+            "quickly",
+            "strong"
+          ],
+          "resolve": [
+            "medal",
+            "held",
+            "proudly"
+          ]
+        }
+      },
+      {
+        "id": "muddy-field",
+        "emoji": "⚽",
+        "title": "The Muddy Field",
+        "idea": "It rained all night, and the game is on a muddy field.",
+        "beats": {
+          "character": [
+            "goalie",
+            "strong",
+            "happy"
+          ],
+          "setting": [
+            "field",
+            "muddy",
+            "wet"
+          ],
+          "problem": [
+            "slid",
+            "ball",
+            "rolled"
+          ],
+          "surprise": [
+            "referee",
+            "whistle",
+            "dashed"
+          ],
+          "develop": [
+            "kicked",
+            "caught",
+            "guarded",
+            "carefully"
+          ],
+          "resolve": [
+            "cheered",
+            "laughed",
+            "happily"
+          ]
+        }
+      },
+      {
+        "id": "race-day",
+        "emoji": "🏃",
+        "title": "Race Day",
+        "idea": "A tired runner tries to finish the race on the track.",
+        "beats": {
+          "character": [
+            "runner",
+            "fast",
+            "tired"
+          ],
+          "setting": [
+            "track",
+            "stadium",
+            "stretched"
+          ],
+          "problem": [
+            "rested",
+            "tired",
+            "slowly"
+          ],
+          "surprise": [
+            "fan",
+            "clapped",
+            "cheered"
+          ],
+          "develop": [
+            "dashed",
+            "raced",
+            "quickly",
+            "strong"
+          ],
+          "resolve": [
+            "medal",
+            "proud",
+            "proudly"
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -55,7 +55,11 @@ BW.CONFIG = {
   // Sentences in a row built without a word bounced earn `streak` extra for each one after
   // the first, up to `maxStreak` in a row. A bounced word costs no points, only the streak.
   // Points are also saved up to spend in the shop (js/closet.js).
-  points: { word: 0, sentence: 20, streak: 5, maxStreak: 5 },
+  points: { word: 0, sentence: 20, streak: 5, maxStreak: 5, story: 50 },
+
+  // Playing on your own, the sentences build a story, one objective each (data/stories.json),
+  // and a finished story is worth `points.story` (js/story.js). false turns stories off.
+  stories: true,
 
   sound: true
 };

@@ -173,6 +173,8 @@ window.BW = window.BW || {};
     no.hidden = !game.refusal;
     no.textContent = game.refusal ? game.refusal.reason : '';
 
+    renderStoryIdea(game);
+
     $('btn-pause').innerHTML = (game.mode === 'paused' ? 'Resume' : 'Pause') + ' <kbd>P</kbd>';
     $('btn-speed').textContent = 'Speed: ' + BW.CONFIG.speeds[game.speed].label;
 
@@ -187,6 +189,41 @@ window.BW = window.BW || {};
         list.appendChild(li);
       });
     }
+  }
+
+  /* Story-building: the objective for this sentence above the board, with the words that
+     would help in their colours, and in the sidebar the idea and every objective - done,
+     now, or still to come. The HUD is drawn on every change, so each part is only drawn
+     again when it has changed. */
+  function renderStoryIdea(game) {
+    $('story-idea').hidden = $('story-goal').hidden = !game.stories;
+    if (!game.stories) return;
+    const idea = game.starter;
+    const goal = game.currentGoal();
+    const done = game.storySentences().length;
+    const key = (idea ? idea.id : '') + '/' + done + '/' + (game.hero || '');
+    if ($('story-idea').dataset.key === key) return;
+    $('story-idea').dataset.key = key;
+
+    $('story-idea-title').textContent = idea ? idea.emoji + ' ' + idea.title : '📖 Your story';
+    $('story-idea-text').textContent = idea ? idea.idea : 'Build it one sentence at a time.';
+    const list = $('story-goals');
+    list.textContent = '';
+    game.goals.forEach((g, i) => {
+      const li = document.createElement('li');
+      li.className = i < done ? 'done' : i === done ? 'now' : 'todo';
+      li.textContent = g.label;
+      list.append(li);
+    });
+
+    $('story-goal-count').textContent = goal ? 'Sentence ' + (done + 1) + ' of ' + game.goals.length : '📖';
+    $('story-goal-label').textContent = goal ? goal.label : 'Your story is ready!';
+    $('story-goal-ask').textContent = goal ? goal.ask : '';
+    const words = $('story-goal-words');
+    words.textContent = '';
+    const help = goal ? BW.Story.wordsFor(idea, goal, game.hero) : [];
+    if (help.length) words.append(Object.assign(document.createElement('small'), { textContent: 'Try:' }));
+    for (const w of new Set(help)) words.append(chip(game.pack, w, BW.Grammar.posOfWord(game.pack, w), 'done'));
   }
 
   /* ---------- the sentence check card ---------- */
@@ -253,10 +290,20 @@ window.BW = window.BW || {};
     if (!streak.hidden) {
       streak.textContent = '🔥 ' + report.streak + ' in a row! +' + report.bonus + ' streak bonus';
     }
+    // story-building: did it meet its objective? If not, it stays up for the next sentence
+    const goal = $('report-goal');
+    goal.hidden = checking || !report.goal;
+    if (report.goal) {
+      goal.className = 'report-goal ' + (report.goal.met ? 'met' : 'missed');
+      goal.textContent = report.goal.met
+        ? '🎯 Story sentence ' + report.goal.number + ' of ' + report.goal.of + ': ' + report.goal.label + ' ✓'
+        : '🎯 Not in your story yet. ' + report.goal.why + ' Try again: ' + report.goal.label + '.';
+    }
     $('report-after').textContent = checking ? ''
       : report.repeat ? 'You made this one already, so it does not count again. Try a new sentence!'
       : '+' + report.points + ' points - it is on your list, and saved for the shop!';
-    $('report-go').hidden = checking;
+    $('report-go').hidden = checking || !!report.story;
+    $('report-story').hidden = checking || !report.story;
     $('report-by').textContent = checking ? '' : BY[report.by] || '';
   }
 
@@ -342,6 +389,27 @@ window.BW = window.BW || {};
     }
   }
 
+  /* Every word of a family (noun, determiner...) in the topic, in lower case. */
+  function wordsOf(pack, family) {
+    return new Set(Object.keys(pack.words)
+      .filter(pos => BW.Checker.familyId(pack, pos) === family)
+      .flatMap(pos => pack.words[pos].map(w => w.toLowerCase())));
+  }
+
+  /* The story objectives and ideas (data/stories.json). Without them the game still runs,
+     just without stories. */
+  async function loadStories() {
+    try {
+      return await fetch('data/stories.json').then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      });
+    } catch (err) {
+      console.warn('Could not load the stories:', err);
+      return null;
+    }
+  }
+
   async function boot() {
     // game.html?class=BCDF is a class race (js/race.js), and game.html?party=BCDF a word
     // party's build (js/party-play.js): the teacher picked the topic
@@ -389,6 +457,9 @@ window.BW = window.BW || {};
     renderJudge(BW.Judge.status());
     BW.Judge.start().then(renderJudge);
 
+    // stories are for playing on your own: a class race or a word party runs on one clock
+    const stories = live ? null : await loadStories();
+
     let game = null;
     game = new BW.Game(pack, $('board'), {
       onChange: renderHud,
@@ -401,7 +472,8 @@ window.BW = window.BW || {};
       onEat: race ? family => race.noteEat(family) : null,
       onSteer: race ? () => race.noteSteer() : null,
       onCrash: race ? () => race.noteCrash() : null
-    }, { race: !!live, speed: BW.chooseSpeed() });
+    }, { race: !!live, speed: BW.chooseSpeed(),
+         goals: BW.Story.goalsFrom(stories), starters: BW.Story.startersFor(stories, pack.id) });
 
     game.attachInput(window);
     if (live) {
@@ -428,6 +500,29 @@ window.BW = window.BW || {};
       $('btn-hints').textContent = 'Hints: ' + (game.showHints ? 'on' : 'off');
     });
     $('report-go').addEventListener('click', () => { game.carryOn(null); $('report-go').blur(); });
+    $('report-story-skip').addEventListener('click', () => { game.skipStory(); $('report-story-skip').blur(); });
+    $('report-story-make').addEventListener('click', () => {
+      if (!game.storyReady()) return;
+      const starter = game.starter;
+      game.storyTime();
+      BW.StoryView.open({
+        sentences: game.storySentences(),
+        pack,      // for building new sentences on the story screen, by the game's rules
+        // the topic's nouns, for the tips ("a duck" when the duck is already in the story),
+        // and its determiners, the one kind of word that can be swapped on the story screen
+        nouns: wordsOf(pack, 'noun'),
+        dets: wordsOf(pack, 'determiner'),
+        starter,
+        points: BW.CONFIG.points.story,
+        onSave: story => {
+          BW.storyBook.add({ ...story, topic: pack.name });
+          game.storyDone(BW.CONFIG.points.story);
+          showMessage('📚 Your story "' + story.title + '" is saved in My stories!', 'good');
+          window.focus();
+        },
+        onSkip: () => { game.storyDone(0); window.focus(); }
+      });
+    });
 
     window.BW.game = game;   // handy for poking at in the browser console
     renderJudge(BW.Judge.status());

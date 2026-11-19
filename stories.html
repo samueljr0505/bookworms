@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bookworms - My Stories</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%9B%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/story.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html" title="Back to the home page"><span>Bookworms</span></a>
+  <a class="btn-link" href="setup.html">Play &rarr;</a>
+</header>
+
+<!-- the stories saved in this browser (js/story.js), newest first (js/stories.js) -->
+<main class="shelf">
+  <h1>📚 My stories</h1>
+  <p class="shelf-sub">Every 8 sentences you build, you can turn them into a story. They are kept here, on this computer.</p>
+  <p id="shelf-empty" class="shelf-empty" hidden>No stories yet. Build 8 sentences and press
+     <b>Make a story</b>!</p>
+  <ol id="shelf" class="shelf-list"></ol>
+</main>
+
+<script src="js/story.js"></script>
+<script src="js/stories.js"></script>
+</body>
+</html>

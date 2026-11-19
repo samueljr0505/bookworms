@@ -66,8 +66,10 @@ BW.Board = class Board {
      Any word can be eaten, but the board always carries a few that would keep the
      sentence on track, alongside others that would not, so finishing is always possible.
      `returnWords` are words the player already ate and then lost on a wall bonk or a
-     wrong sentence - those always go back out so the sentence can be rebuilt. */
-  disperse(pack, sentence, worm, cfg, returnWords) {
+     wrong sentence - those always go back out so the sentence can be rebuilt.
+     `favor` is the story idea's words (js/story.js): one of the right answers is one of
+     them whenever one fits, and one of the others is too, so they turn up more often. */
+  disperse(pack, sentence, worm, cfg, returnWords, favor) {
     this.clear();
 
     const valid = [];
@@ -100,6 +102,10 @@ BW.Board = class Board {
       }
     };
 
+    if (favor && favor.size) {
+      take(valid.filter(item => favor.has(item.word)), 1);
+      take(wrong.filter(item => favor.has(item.word)), 1);
+    }
     take(valid, wantValid - chosen.filter(isValid).length);
     take(wrong, total - chosen.length);
     take(valid, total - chosen.length);   // tiny word banks: top up with more correct options
